@@ -1,0 +1,34 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tree1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d8f4b"/>
+      <stop offset="100%" stop-color="#205a2f"/>
+    </linearGradient>
+    <linearGradient id="tree2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#56ad58"/>
+      <stop offset="100%" stop-color="#2f7338"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="700" fill="none"/>
+
+  <g opacity="0.92">
+    <rect x="88" y="496" width="14" height="80" fill="#5b3f26"/>
+    <polygon points="95,410 50,520 140,520" fill="url(#tree1)"/>
+    <polygon points="95,452 58,542 132,542" fill="url(#tree2)"/>
+
+    <rect x="228" y="508" width="14" height="70" fill="#5b3f26"/>
+    <polygon points="235,432 192,525 278,525" fill="url(#tree1)"/>
+    <polygon points="235,468 201,548 269,548" fill="url(#tree2)"/>
+
+    <rect x="1010" y="500" width="14" height="80" fill="#5b3f26"/>
+    <polygon points="1017,414 972,524 1062,524" fill="url(#tree1)"/>
+    <polygon points="1017,456 980,546 1054,546" fill="url(#tree2)"/>
+
+    <rect x="1120" y="512" width="14" height="70" fill="#5b3f26"/>
+    <polygon points="1127,442 1086,532 1168,532" fill="url(#tree1)"/>
+    <polygon points="1127,472 1094,550 1160,550" fill="url(#tree2)"/>
+  </g>
+
+  <path d="M0 614 C178 574, 304 568, 482 612 C650 654, 794 652, 946 618 C1068 592, 1138 594, 1200 610 L1200 700 L0 700 Z" fill="#2d5f33" opacity="0.84"/>
+</svg>

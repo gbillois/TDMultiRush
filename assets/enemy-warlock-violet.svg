@@ -1,0 +1,9 @@
+<svg width="170" height="190" viewBox="0 0 170 190" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="robe" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c79bff"/><stop offset="100%" stop-color="#6f42bd"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f2d9ff"/><stop offset="100%" stop-color="#b07ac8"/></linearGradient><radialGradient id="orb" cx="0.5" cy="0.5" r="0.5"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#d4a9ff"/></radialGradient></defs>
+  <ellipse cx="85" cy="168" rx="40" ry="11" fill="#2c1c47" opacity="0.35"/>
+  <circle cx="85" cy="54" r="30" fill="url(#skin)"/>
+  <path d="M40 140 C52 92,118 92,130 140 L118 160 H52 Z" fill="url(#robe)"/>
+  <circle cx="72" cy="52" r="7" fill="#2b1740"/><circle cx="97" cy="52" r="7" fill="#2b1740"/>
+  <ellipse cx="85" cy="70" rx="14" ry="8" fill="#4f2f72"/>
+  <path d="M129 112 L146 84" stroke="#5c4f2f" stroke-width="7" stroke-linecap="round"/><circle cx="148" cy="80" r="11" fill="url(#orb)"/>
+</svg>

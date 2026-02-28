@@ -1,0 +1,27 @@
+<svg width="170" height="190" viewBox="0 0 170 190" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="robe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7fe9ff"/>
+      <stop offset="100%" stop-color="#2a98c6"/>
+    </linearGradient>
+    <linearGradient id="skinS" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d8ffb0"/>
+      <stop offset="100%" stop-color="#8bc262"/>
+    </linearGradient>
+    <radialGradient id="staffOrb" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#f0ffff"/>
+      <stop offset="100%" stop-color="#7be9ff"/>
+    </radialGradient>
+  </defs>
+
+  <ellipse cx="85" cy="168" rx="40" ry="11" fill="#1a3342" opacity="0.35"/>
+  <circle cx="85" cy="54" r="30" fill="url(#skinS)"/>
+  <path d="M40 140 C52 92, 118 92, 130 140 L118 160 H52 Z" fill="url(#robe)"/>
+  <circle cx="72" cy="52" r="7" fill="#173015"/>
+  <circle cx="97" cy="52" r="7" fill="#173015"/>
+  <ellipse cx="85" cy="70" rx="14" ry="8" fill="#345230"/>
+  <path d="M129 112 L146 84" stroke="#5c4f2f" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="148" cy="80" r="11" fill="url(#staffOrb)"/>
+  <circle cx="148" cy="80" r="17" fill="#7eeeff" opacity="0.28"/>
+  <polygon points="85,12 95,30 85,28 75,30" fill="#fff0b8"/>
+</svg>

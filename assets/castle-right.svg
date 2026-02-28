@@ -1,0 +1,44 @@
+<svg width="340" height="300" viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e2e8f2"/>
+      <stop offset="100%" stop-color="#9aa6b8"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffca74"/>
+      <stop offset="100%" stop-color="#c45f2e"/>
+    </linearGradient>
+    <radialGradient id="gateGlow" cx="0.5" cy="0.5" r="0.65">
+      <stop offset="0%" stop-color="#8cf8ff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#2fb8d8" stop-opacity="0.15"/>
+    </radialGradient>
+  </defs>
+
+  <ellipse cx="166" cy="268" rx="144" ry="22" fill="#243a4e" opacity="0.35"/>
+
+  <rect x="46" y="92" width="240" height="148" rx="14" fill="url(#stone)"/>
+
+  <rect x="20" y="72" width="52" height="168" rx="10" fill="url(#stone)"/>
+  <rect x="268" y="72" width="52" height="168" rx="10" fill="url(#stone)"/>
+
+  <polygon points="46,92 16,120 76,120" fill="url(#roof)"/>
+  <polygon points="286,92 256,120 316,120" fill="url(#roof)"/>
+
+  <polygon points="166,34 108,96 224,96" fill="url(#roof)"/>
+
+  <g fill="#7d8796">
+    <rect x="58" y="82" width="20" height="14"/>
+    <rect x="92" y="82" width="20" height="14"/>
+    <rect x="126" y="82" width="20" height="14"/>
+    <rect x="160" y="82" width="20" height="14"/>
+    <rect x="194" y="82" width="20" height="14"/>
+    <rect x="228" y="82" width="20" height="14"/>
+    <rect x="262" y="82" width="20" height="14"/>
+  </g>
+
+  <rect x="128" y="142" width="76" height="98" rx="36" fill="#43311f"/>
+  <rect x="132" y="146" width="68" height="90" rx="32" fill="url(#gateGlow)"/>
+
+  <rect x="82" y="132" width="24" height="42" rx="8" fill="#607189"/>
+  <rect x="230" y="132" width="24" height="42" rx="8" fill="#607189"/>
+</svg>

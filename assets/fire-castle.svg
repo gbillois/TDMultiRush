@@ -1,0 +1,17 @@
+<svg width="360" height="320" viewBox="0 0 360 320" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="flameA" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#ff5a25"/>
+      <stop offset="55%" stop-color="#ffb133"/>
+      <stop offset="100%" stop-color="#fff4a3"/>
+    </linearGradient>
+    <linearGradient id="smoke" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#3b3b3b" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#999" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="320" fill="none"/>
+  <ellipse cx="185" cy="230" rx="118" ry="24" fill="#ff7e2c" opacity="0.2"/>
+  <path d="M90 248 C106 212,126 222,136 186 C146 154,178 148,182 110 C204 142,212 154,208 186 C244 164,266 184,266 220 C266 252,238 272,184 272 C124 272,88 262,90 248 Z" fill="url(#flameA)"/>
+  <path d="M74 190 C88 162,104 164,116 146 C128 126,136 120,136 100 C154 116,166 130,164 154 C186 142,206 152,210 176 C214 206,192 218,152 218 C114 218,80 212,74 190 Z" fill="url(#smoke)"/>
+</svg>

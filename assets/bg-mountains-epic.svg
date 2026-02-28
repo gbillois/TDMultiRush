@@ -1,0 +1,22 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gM1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8ed2f0"/>
+      <stop offset="100%" stop-color="#5ba2c5"/>
+    </linearGradient>
+    <linearGradient id="gM2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5da08a"/>
+      <stop offset="100%" stop-color="#2f6a57"/>
+    </linearGradient>
+    <linearGradient id="gM3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#74bc6e"/>
+      <stop offset="100%" stop-color="#3b7c44"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="700" fill="none"/>
+
+  <path d="M0 430 L132 250 L246 398 L338 260 L470 430 L590 248 L734 430 L882 220 L1028 430 L1200 276 L1200 700 L0 700 Z" fill="url(#gM1)" opacity="0.65"/>
+  <path d="M0 500 C142 418, 260 430, 394 484 C532 540, 690 524, 854 456 C998 398, 1096 398, 1200 454 L1200 700 L0 700 Z" fill="url(#gM2)"/>
+  <path d="M0 586 C170 532, 332 542, 494 594 C632 640, 806 640, 930 602 C1042 568, 1122 564, 1200 586 L1200 700 L0 700 Z" fill="url(#gM3)"/>
+</svg>

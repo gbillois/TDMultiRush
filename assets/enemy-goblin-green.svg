@@ -1,0 +1,23 @@
+<svg width="160" height="170" viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#97f271"/>
+      <stop offset="100%" stop-color="#54a935"/>
+    </linearGradient>
+    <linearGradient id="armor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe6a8"/>
+      <stop offset="100%" stop-color="#cb8e44"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="80" cy="154" rx="36" ry="11" fill="#17361f" opacity="0.35"/>
+  <circle cx="80" cy="58" r="34" fill="url(#skin)"/>
+  <ellipse cx="48" cy="58" rx="11" ry="18" fill="url(#skin)"/>
+  <ellipse cx="112" cy="58" rx="11" ry="18" fill="url(#skin)"/>
+  <rect x="50" y="84" width="60" height="52" rx="14" fill="url(#armor)"/>
+  <circle cx="66" cy="56" r="7" fill="#173015"/>
+  <circle cx="94" cy="56" r="7" fill="#173015"/>
+  <ellipse cx="80" cy="76" rx="16" ry="9" fill="#244a22"/>
+  <polygon points="48,22 58,35 39,38" fill="#edf8de"/>
+  <polygon points="112,22 121,38 102,35" fill="#edf8de"/>
+</svg>

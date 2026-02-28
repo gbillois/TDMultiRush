@@ -1,0 +1,8 @@
+<svg width="160" height="170" viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b8f1ff"/><stop offset="100%" stop-color="#5aa8d2"/></linearGradient><linearGradient id="armor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f2fdff"/><stop offset="100%" stop-color="#9bc8df"/></linearGradient></defs>
+  <ellipse cx="80" cy="154" rx="36" ry="11" fill="#17303f" opacity="0.35"/>
+  <circle cx="80" cy="58" r="34" fill="url(#skin)"/>
+  <rect x="50" y="84" width="60" height="52" rx="14" fill="url(#armor)"/>
+  <circle cx="66" cy="56" r="7" fill="#133042"/><circle cx="94" cy="56" r="7" fill="#133042"/>
+  <ellipse cx="80" cy="76" rx="16" ry="9" fill="#1e4a63"/>
+</svg>

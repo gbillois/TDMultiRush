@@ -1,0 +1,23 @@
+<svg width="180" height="240" viewBox="0 0 180 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d9dee6"/>
+      <stop offset="100%" stop-color="#8f98a7"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff8f59"/>
+      <stop offset="100%" stop-color="#c74b2c"/>
+    </linearGradient>
+    <radialGradient id="core" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#d7feff"/>
+      <stop offset="100%" stop-color="#39d4ff"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="90" cy="220" rx="66" ry="16" fill="#1a3f35" opacity="0.35"/>
+  <rect x="40" y="70" width="100" height="140" rx="14" fill="url(#stone)"/>
+  <rect x="55" y="90" width="18" height="104" rx="6" fill="#7f8795"/>
+  <rect x="107" y="90" width="18" height="104" rx="6" fill="#7f8795"/>
+  <polygon points="90,18 25,82 155,82" fill="url(#roof)"/>
+  <circle cx="90" cy="112" r="24" fill="url(#core)"/>
+  <circle cx="90" cy="112" r="13" fill="#e9ffff" opacity="0.8"/>
+</svg>
