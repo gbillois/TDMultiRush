@@ -14,8 +14,6 @@
     </radialGradient>
   </defs>
 
-  <ellipse cx="166" cy="268" rx="144" ry="22" fill="#243a4e" opacity="0.35"/>
-
   <rect x="46" y="92" width="240" height="148" rx="14" fill="url(#stone)"/>
 
   <rect x="20" y="72" width="52" height="168" rx="10" fill="url(#stone)"/>
