@@ -122,7 +122,7 @@
     [VISUAL_STYLES.CASTLE]: {
       towerSkins: {
         arcane: "assets/pixel/tower-arcane.PNG",
-        solar: "assets/pixel/tower-solar.png"
+        solar: "assets/pixel/tower-solar.PNG"
       },
       castleDoor: "assets/pixel/castle-right.PNG",
       castleFire: "assets/pixel/fire-castle.png",
@@ -171,10 +171,10 @@
     },
     [VISUAL_STYLES.FAIRY]: {
       towerSkins: {
-        arcane: "assets/pixel-fairy/tower-arcane.png",
-        solar: "assets/pixel-fairy/tower-solar.png"
+        arcane: "assets/pixel-fairy/tower-arcane.PNG",
+        solar: "assets/pixel-fairy/tower-solar.PNG"
       },
-      castleDoor: "assets/pixel-fairy/castle-right.png",
+      castleDoor: "assets/pixel-fairy/castle-right.PNG",
       castleFire: "assets/pixel-fairy/fire-castle.png",
       projectile: "assets/pixel-fairy/projectile-arcane.png",
       enemySrcs: {
