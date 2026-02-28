@@ -17,15 +17,16 @@
       <div class="phone-frame">
         <section id="title-screen" class="title-screen">
           <div class="title-card">
-            <p class="title-kicker">Tower Defense des Multiplications</p>
+            <p class="title-kicker">Tower Defense des multiplications</p>
             <h1>MultipliRush TD</h1>
             <p>
-              Defends ton chateau en repondant aux multiplications. Le jeu s'adapte a tes
-              tables les moins maitrisees.
+              Défends ton château en répondant aux multiplications. Le jeu s'adapte à tes
+              tables les moins maîtrisées.
             </p>
             <div class="title-actions">
               <button id="start-btn" type="button">Lancer la partie</button>
               <button id="open-tables-btn" type="button">Configurer les tables</button>
+              <button id="open-stats-btn" type="button">Voir le leaderboard et la matrice</button>
             </div>
           </div>
         </section>
@@ -54,12 +55,12 @@
           <div class="layer layer-hills"></div>
           <div class="layer layer-forest"></div>
           <div class="path"></div>
-          <img class="castle-door" src="assets/castle-right.svg" alt="Porte du chateau" />
+          <img class="castle-door" src="assets/castle-right.svg" alt="Porte du château" />
           <img
             id="castle-fire"
             class="castle-fire hidden"
             src="assets/fire-castle.svg"
-            alt="Flammes sur le chateau"
+            alt="Flammes sur le château"
           />
 
           <img id="tower-img" class="tower" src="assets/tower-arcane.svg" alt="Tour de défense" />
@@ -99,9 +100,14 @@
           <div class="question-top">
             <div class="question-headline">
               <p class="question-title">Canon des Multiplications</p>
-              <button id="open-tables-inline-btn" class="mini-action" type="button">
-                Tables
-              </button>
+              <div class="mini-actions">
+                <button id="open-tables-inline-btn" class="mini-action" type="button">
+                  Tables
+                </button>
+                <button id="open-stats-inline-btn" class="mini-action" type="button">
+                  Stats
+                </button>
+              </div>
             </div>
             <p id="question-text" class="question-text">6 x 7 = ?</p>
           </div>
@@ -137,14 +143,32 @@
           <div class="tables-card">
             <h2>Configurer les tables</h2>
             <p class="tables-subtitle">
-              Choisis les tables actives. Le moteur favorise ensuite celles que tu maitrises
+              Choisis les tables actives. Le moteur favorise ensuite celles que tu maîtrises
               moins.
             </p>
             <div id="tables-grid" class="tables-grid"></div>
             <div class="tables-actions">
-              <button id="reset-mastery-btn" type="button">Reinitialiser la progression</button>
+              <button id="reset-mastery-btn" type="button">Réinitialiser la progression</button>
               <button id="close-tables-btn" type="button">Fermer</button>
             </div>
+          </div>
+        </section>
+
+        <section id="stats-modal" class="stats-modal hidden">
+          <div class="stats-card">
+            <h2>Leaderboard et Maîtrise</h2>
+            <div class="leaderboard stats-board">
+              <h3>Meilleurs scores</h3>
+              <ol id="stats-leaderboard-list"></ol>
+            </div>
+
+            <h3 class="matrix-title">Matrice des Multiplications</h3>
+            <p class="matrix-subtitle">Rouge = début, vert = maîtrisée (20 réussites)</p>
+            <div class="matrix-wrap">
+              <table id="mastery-matrix" class="result-matrix"></table>
+            </div>
+
+            <button id="close-stats-btn" type="button">Fermer</button>
           </div>
         </section>
       </div>

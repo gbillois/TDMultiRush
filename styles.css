@@ -125,6 +125,11 @@ body {
   box-shadow: 0 4px 0 #1b2f65;
 }
 
+#open-stats-btn {
+  background: linear-gradient(180deg, #58b7a5, #2d7b6e);
+  box-shadow: 0 4px 0 #165047;
+}
+
 .hud {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -455,7 +460,8 @@ body {
   overflow: auto;
 }
 
-#leaderboard-list li {
+#leaderboard-list li,
+#stats-leaderboard-list li {
   font-size: 0.78rem;
   margin: 1px 0;
 }
@@ -484,6 +490,12 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.mini-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .mini-action {
@@ -532,6 +544,111 @@ body {
 
 .tables-modal.hidden {
   display: none;
+}
+
+.stats-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 52;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+  background: rgba(6, 10, 24, 0.76);
+}
+
+.stats-modal.hidden {
+  display: none;
+}
+
+.stats-card {
+  width: min(100%, 430px);
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(11, 18, 43, 0.96);
+  box-shadow: 0 16px 30px rgba(4, 8, 20, 0.58);
+  padding: 14px;
+}
+
+.stats-card h2 {
+  margin: 0;
+  font-family: "Bangers", cursive;
+  letter-spacing: 0.05em;
+  font-size: 1.7rem;
+}
+
+.stats-board {
+  margin-top: 8px;
+}
+
+#stats-leaderboard-list {
+  margin: 0;
+  padding-left: 20px;
+  text-align: left;
+  max-height: 120px;
+  overflow: auto;
+}
+
+.matrix-title {
+  margin: 10px 0 2px;
+  font-size: 0.96rem;
+}
+
+.matrix-subtitle {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+
+.matrix-wrap {
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(8, 12, 28, 0.42);
+}
+
+.result-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 430px;
+}
+
+.result-matrix th,
+.result-matrix td {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+  padding: 4px 3px;
+}
+
+.result-matrix th {
+  position: sticky;
+  top: 0;
+  background: rgba(18, 26, 55, 0.96);
+  z-index: 2;
+  font-size: 0.72rem;
+}
+
+.matrix-main {
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.matrix-sub {
+  font-size: 0.6rem;
+  opacity: 0.92;
+}
+
+#close-stats-btn {
+  border: none;
+  border-radius: 12px;
+  min-height: 40px;
+  margin-top: 10px;
+  width: 100%;
+  color: #f7fbff;
+  font-weight: 800;
+  background: linear-gradient(180deg, #ffb15c, #e16b35);
 }
 
 .tables-card {

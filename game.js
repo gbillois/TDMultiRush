@@ -28,14 +28,20 @@
     saveScoreBtn: document.getElementById("save-score-btn"),
     scoreSaveFeedback: document.getElementById("score-save-feedback"),
     leaderboardList: document.getElementById("leaderboard-list"),
+    statsLeaderboardList: document.getElementById("stats-leaderboard-list"),
     restartBtn: document.getElementById("restart-btn"),
     titleScreen: document.getElementById("title-screen"),
     startBtn: document.getElementById("start-btn"),
     openTablesBtn: document.getElementById("open-tables-btn"),
+    openStatsBtn: document.getElementById("open-stats-btn"),
     openTablesInlineBtn: document.getElementById("open-tables-inline-btn"),
+    openStatsInlineBtn: document.getElementById("open-stats-inline-btn"),
     tablesModal: document.getElementById("tables-modal"),
+    statsModal: document.getElementById("stats-modal"),
     tablesGrid: document.getElementById("tables-grid"),
+    masteryMatrix: document.getElementById("mastery-matrix"),
     closeTablesBtn: document.getElementById("close-tables-btn"),
+    closeStatsBtn: document.getElementById("close-stats-btn"),
     resetMasteryBtn: document.getElementById("reset-mastery-btn")
   };
 
@@ -47,6 +53,7 @@
   const STORAGE_KEY = "multipliRush.profile.v1";
   const LEADERBOARD_KEY = "multipliRush.leaderboard.v1";
   const LAST_PLAYER_KEY = "multipliRush.lastPlayerName.v1";
+  const MASTERY_TARGET = 20;
   const LEADERBOARD_MAX_ENTRIES = 10;
   const ALL_TABLES = Array.from({ length: 12 }, (_, idx) => idx + 1);
   const SIMPLE_MAX_MISTAKES = 5;
@@ -58,21 +65,38 @@
     solar: "assets/tower-solar.svg"
   };
 
-  const ENEMY_VARIANTS = [
-    { src: "assets/enemy-goblin-green.svg", alt: "Gobelin eclaireur", hpBonus: 0, speedBonus: 0.008, scale: 0.95, minWave: 1 },
-    { src: "assets/enemy-scout-pink.svg", alt: "Eclaireur rose", hpBonus: 0, speedBonus: 0.01, scale: 0.92, minWave: 1 },
-    { src: "assets/enemy-raider-yellow.svg", alt: "Raider jaune", hpBonus: 0, speedBonus: 0.006, scale: 0.98, minWave: 2 },
-    { src: "assets/enemy-imp-purple.svg", alt: "Diablotin violet", hpBonus: 1, speedBonus: 0.004, scale: 0.95, minWave: 3 },
-    { src: "assets/enemy-orc-red.svg", alt: "Orc brute", hpBonus: 1, speedBonus: -0.003, scale: 1.08, minWave: 4 },
-    { src: "assets/enemy-frost-blue.svg", alt: "Maraudeur glace", hpBonus: 1, speedBonus: 0.002, scale: 1, minWave: 4 },
-    { src: "assets/enemy-lizard-teal.svg", alt: "Homme-lezard", hpBonus: 1, speedBonus: 0.005, scale: 0.98, minWave: 5 },
-    { src: "assets/enemy-knight-slate.svg", alt: "Chevalier ardoise", hpBonus: 2, speedBonus: -0.004, scale: 1.07, minWave: 6 },
-    { src: "assets/enemy-ogre-brown.svg", alt: "Ogre brun", hpBonus: 3, speedBonus: -0.006, scale: 1.12, minWave: 7 },
-    { src: "assets/enemy-shaman-cyan.svg", alt: "Chaman runique", hpBonus: 2, speedBonus: 0.002, scale: 1, minWave: 7 },
-    { src: "assets/enemy-berserker-orange.svg", alt: "Berserker orange", hpBonus: 2, speedBonus: 0.004, scale: 1.06, minWave: 8 },
-    { src: "assets/enemy-warlock-violet.svg", alt: "Sorcier violet", hpBonus: 2, speedBonus: 0.003, scale: 1.02, minWave: 9 },
-    { src: "assets/enemy-shadow-black.svg", alt: "Ombre noire", hpBonus: 3, speedBonus: 0.001, scale: 1.04, minWave: 10 },
-    { src: "assets/enemy-guardian-gold.svg", alt: "Gardien dore", hpBonus: 4, speedBonus: -0.007, scale: 1.14, minWave: 11 }
+  const ENEMY_VARIANTS = {
+    goblin: { src: "assets/enemy-goblin-green.svg", alt: "Gobelin éclaireur", hpBonus: 0, speedBonus: 0.008, scale: 0.95 },
+    scout: { src: "assets/enemy-scout-pink.svg", alt: "Éclaireur rose", hpBonus: 0, speedBonus: 0.01, scale: 0.92 },
+    raider: { src: "assets/enemy-raider-yellow.svg", alt: "Raider jaune", hpBonus: 0, speedBonus: 0.006, scale: 0.98 },
+    imp: { src: "assets/enemy-imp-purple.svg", alt: "Diablotin violet", hpBonus: 1, speedBonus: 0.004, scale: 0.95 },
+    orc: { src: "assets/enemy-orc-red.svg", alt: "Orc brute", hpBonus: 1, speedBonus: -0.003, scale: 1.08 },
+    frost: { src: "assets/enemy-frost-blue.svg", alt: "Maraudeur glace", hpBonus: 1, speedBonus: 0.002, scale: 1 },
+    lizard: { src: "assets/enemy-lizard-teal.svg", alt: "Homme-lézard", hpBonus: 1, speedBonus: 0.005, scale: 0.98 },
+    knight: { src: "assets/enemy-knight-slate.svg", alt: "Chevalier ardoise", hpBonus: 2, speedBonus: -0.004, scale: 1.07 },
+    ogre: { src: "assets/enemy-ogre-brown.svg", alt: "Ogre brun", hpBonus: 3, speedBonus: -0.006, scale: 1.12 },
+    shaman: { src: "assets/enemy-shaman-cyan.svg", alt: "Chaman runique", hpBonus: 2, speedBonus: 0.002, scale: 1 },
+    berserker: { src: "assets/enemy-berserker-orange.svg", alt: "Berserker orange", hpBonus: 2, speedBonus: 0.004, scale: 1.06 },
+    warlock: { src: "assets/enemy-warlock-violet.svg", alt: "Sorcier violet", hpBonus: 2, speedBonus: 0.003, scale: 1.02 },
+    shadow: { src: "assets/enemy-shadow-black.svg", alt: "Ombre noire", hpBonus: 3, speedBonus: 0.001, scale: 1.04 },
+    guardian: { src: "assets/enemy-guardian-gold.svg", alt: "Gardien doré", hpBonus: 4, speedBonus: -0.007, scale: 1.14 }
+  };
+
+  const ENEMY_WAVE_SEQUENCE = [
+    "goblin",
+    "scout",
+    "raider",
+    "imp",
+    "orc",
+    "frost",
+    "lizard",
+    "knight",
+    "ogre",
+    "shaman",
+    "berserker",
+    "warlock",
+    "shadow",
+    "guardian"
   ];
 
   const state = {
@@ -81,6 +105,7 @@
     mode: MODES.NORMAL,
     selectedTables: [...ALL_TABLES],
     tableMastery: createEmptyMastery(),
+    multiplicationMastery: createEmptyMultiplicationMastery(),
     wave: 1,
     lives: 20,
     simpleMistakes: 0,
@@ -107,6 +132,20 @@
     const mastery = {};
     for (const table of ALL_TABLES) {
       mastery[table] = { correct: 0, wrong: 0 };
+    }
+    return mastery;
+  }
+
+  function multiplicationKey(a, b) {
+    return `${a}x${b}`;
+  }
+
+  function createEmptyMultiplicationMastery() {
+    const mastery = {};
+    for (const a of ALL_TABLES) {
+      for (const b of ALL_TABLES) {
+        mastery[multiplicationKey(a, b)] = { correct: 0, wrong: 0 };
+      }
     }
     return mastery;
   }
@@ -141,6 +180,26 @@
     return normalized;
   }
 
+  function normalizeMultiplicationMastery(rawValue) {
+    const normalized = createEmptyMultiplicationMastery();
+
+    if (!rawValue || typeof rawValue !== "object") {
+      return normalized;
+    }
+
+    for (const a of ALL_TABLES) {
+      for (const b of ALL_TABLES) {
+        const key = multiplicationKey(a, b);
+        const entry = rawValue[key] || {};
+        const correct = Math.max(0, Number.parseInt(entry.correct, 10) || 0);
+        const wrong = Math.max(0, Number.parseInt(entry.wrong, 10) || 0);
+        normalized[key] = { correct, wrong };
+      }
+    }
+
+    return normalized;
+  }
+
   function loadProfile() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -155,6 +214,9 @@
 
       state.selectedTables = sanitizeSelectedTables(parsed.selectedTables);
       state.tableMastery = normalizeMastery(parsed.tableMastery);
+      state.multiplicationMastery = normalizeMultiplicationMastery(
+        parsed.multiplicationMastery
+      );
 
       if (parsed.mode === MODES.SIMPLE || parsed.mode === MODES.NORMAL) {
         state.mode = parsed.mode;
@@ -162,6 +224,7 @@
     } catch {
       state.selectedTables = [...ALL_TABLES];
       state.tableMastery = createEmptyMastery();
+      state.multiplicationMastery = createEmptyMultiplicationMastery();
       state.mode = MODES.NORMAL;
     }
   }
@@ -170,7 +233,8 @@
     const payload = {
       mode: state.mode,
       selectedTables: [...state.selectedTables],
-      tableMastery: state.tableMastery
+      tableMastery: state.tableMastery,
+      multiplicationMastery: state.multiplicationMastery
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -223,26 +287,52 @@
   }
 
   function renderLeaderboard() {
-    if (!dom.leaderboardList) {
-      return;
-    }
-
-    if (!state.leaderboard.length) {
-      dom.leaderboardList.innerHTML = "<li>Aucun score enregistre.</li>";
-      return;
-    }
-
-    dom.leaderboardList.innerHTML = state.leaderboard
+    const content = state.leaderboard.length
+      ? state.leaderboard
       .map(
         (entry) =>
           `<li>${entry.name} - ${entry.score} pts (V${entry.wave}, ${modeLabel(entry.mode)})</li>`
       )
-      .join("");
+      .join("")
+      : "<li>Aucun score enregistré.</li>";
+
+    if (dom.leaderboardList) {
+      dom.leaderboardList.innerHTML = content;
+    }
+
+    if (dom.statsLeaderboardList) {
+      dom.statsLeaderboardList.innerHTML = content;
+    }
+  }
+
+  function renderMasteryMatrix() {
+    if (!dom.masteryMatrix) {
+      return;
+    }
+
+    const headCells = ALL_TABLES.map((value) => `<th>${value}</th>`).join("");
+    const rows = ALL_TABLES.map((a) => {
+      const cells = ALL_TABLES.map((b) => {
+        const key = multiplicationKey(a, b);
+        const stats = state.multiplicationMastery[key] || { correct: 0, wrong: 0 };
+        const ratio = Math.min(1, stats.correct / MASTERY_TARGET);
+        const hue = Math.round(ratio * 120);
+        const light = 30 + Math.round(ratio * 24);
+        const textColor = light > 48 ? "#102015" : "#f9fbff";
+        const background = `hsl(${hue} 74% ${light}%)`;
+
+        return `<td style="background:${background};color:${textColor}" title="${a} x ${b} = ${a * b} | ${stats.correct}/${MASTERY_TARGET}"><div class="matrix-main">${a * b}</div><div class="matrix-sub">${Math.min(stats.correct, MASTERY_TARGET)}/${MASTERY_TARGET}</div></td>`;
+      }).join("");
+
+      return `<tr><th>${a}</th>${cells}</tr>`;
+    }).join("");
+
+    dom.masteryMatrix.innerHTML = `<thead><tr><th>x</th>${headCells}</tr></thead><tbody>${rows}</tbody>`;
   }
 
   function saveCurrentScore() {
     if (state.scoreSubmitted) {
-      dom.scoreSaveFeedback.textContent = "Score deja enregistre.";
+      dom.scoreSaveFeedback.textContent = "Score déjà enregistré.";
       return;
     }
 
@@ -266,7 +356,7 @@
       .slice(0, LEADERBOARD_MAX_ENTRIES);
 
     state.scoreSubmitted = true;
-    dom.scoreSaveFeedback.textContent = "Score enregistre.";
+    dom.scoreSaveFeedback.textContent = "Score enregistré.";
     dom.playerNameInput.disabled = true;
     dom.saveScoreBtn.disabled = true;
     renderLeaderboard();
@@ -399,7 +489,7 @@
     const attempts = stats.correct + stats.wrong;
 
     if (attempts === 0) {
-      return { label: "Nouveau", className: "weak", summary: "Aucune reponse" };
+      return { label: "Nouveau", className: "weak", summary: "Aucune réponse" };
     }
 
     const accuracy = tableAccuracy(table);
@@ -407,7 +497,7 @@
     const summary = `${percent}% (${stats.correct}/${attempts})`;
 
     if (attempts >= 10 && accuracy >= 0.85) {
-      return { label: "Maitrisee", className: "strong", summary };
+      return { label: "Maîtrisée", className: "strong", summary };
     }
 
     if (accuracy >= 0.6) {
@@ -481,8 +571,12 @@
   }
 
   function pickEnemyVariant() {
-    const available = ENEMY_VARIANTS.filter((variant) => state.wave >= variant.minWave);
-    return available[randomInt(0, available.length - 1)];
+    const stageIndex = Math.min(
+      ENEMY_WAVE_SEQUENCE.length - 1,
+      Math.floor((state.wave - 1) / 2)
+    );
+    const variantKey = ENEMY_WAVE_SEQUENCE[stageIndex];
+    return ENEMY_VARIANTS[variantKey] || ENEMY_VARIANTS.goblin;
   }
 
   function createEnemy(initialProgress) {
@@ -654,7 +748,7 @@
     dom.scoreSubmit.classList.remove("hidden");
     renderLeaderboard();
     dom.gameOver.classList.remove("hidden");
-    showFeedback("Partie terminee. Clique sur Rejouer.", "bad");
+    showFeedback("Partie terminée. Clique sur Rejouer.", "bad");
 
     setTimeout(() => {
       dom.playerNameInput.focus();
@@ -720,21 +814,31 @@
     }
   }
 
-  function recordAnswer(table, isCorrect) {
-    if (!state.tableMastery[table]) {
-      state.tableMastery[table] = { correct: 0, wrong: 0 };
+  function recordAnswer(a, b, isCorrect) {
+    if (!state.tableMastery[a]) {
+      state.tableMastery[a] = { correct: 0, wrong: 0 };
+    }
+
+    const key = multiplicationKey(a, b);
+    if (!state.multiplicationMastery[key]) {
+      state.multiplicationMastery[key] = { correct: 0, wrong: 0 };
     }
 
     if (isCorrect) {
-      state.tableMastery[table].correct += 1;
+      state.tableMastery[a].correct += 1;
+      state.multiplicationMastery[key].correct += 1;
     } else {
-      state.tableMastery[table].wrong += 1;
+      state.tableMastery[a].wrong += 1;
+      state.multiplicationMastery[key].wrong += 1;
     }
 
     saveProfile();
 
     if (!dom.tablesModal.classList.contains("hidden")) {
       renderTablesGrid();
+    }
+    if (!dom.statsModal.classList.contains("hidden")) {
+      renderMasteryMatrix();
     }
   }
 
@@ -751,16 +855,16 @@
     const target = getFrontEnemy();
 
     if (isSimpleMode() && !target) {
-      showFeedback("Aucun ennemi a viser pour le moment.", "");
+      showFeedback("Aucun ennemi à viser pour le moment.", "");
       nextQuestion();
       return;
     }
 
     if (guess === state.question.answer) {
-      recordAnswer(state.question.a, true);
+      recordAnswer(state.question.a, state.question.b, true);
       state.combo += 1;
       state.score += 10 + state.wave * 4 + state.combo * 2;
-      showFeedback("Parfait. Tir magique lance.", "good");
+      showFeedback("Parfait. Tir magique lancé.", "good");
 
       if (target) {
         launchProjectile(target);
@@ -768,7 +872,7 @@
         state.score += 5;
       }
     } else {
-      recordAnswer(state.question.a, false);
+      recordAnswer(state.question.a, state.question.b, false);
       state.combo = 0;
       state.score = Math.max(0, state.score - 4);
 
@@ -785,7 +889,7 @@
             moveToEnd: true,
             onComplete: () => {
               triggerScreenShake("heavy");
-              triggerGameOver("5 erreurs: les ennemis entrent dans le chateau.");
+              triggerGameOver("5 erreurs : les ennemis entrent dans le château.");
             }
           });
         } else {
@@ -857,7 +961,7 @@
 
     state.betweenWaves = true;
     state.score += 40 + state.wave * 12;
-    showFeedback("Vague nettoyee. Prepare-toi.", "good");
+    showFeedback("Vague nettoyée. Prépare-toi.", "good");
     updateHud();
 
     const localSessionId = state.sessionId;
@@ -884,7 +988,7 @@
     if (state.lives <= 0) {
       triggerScreenShake("heavy");
       setCastleFire(true);
-      triggerGameOver("Les ennemis ont brise la porte du chateau.");
+      triggerGameOver("Les ennemis ont brisé la porte du château.");
     } else {
       triggerScreenShake("small");
     }
@@ -917,13 +1021,13 @@
     dom.playerNameInput.disabled = false;
     dom.saveScoreBtn.disabled = false;
     dom.gameOverText.textContent = isSimpleMode()
-      ? "5 erreurs et les ennemis rentrent dans le chateau."
-      : "Les gobelins ont passe ta defense.";
+      ? "5 erreurs et les ennemis rentrent dans le château."
+      : "Les gobelins ont passé ta défense.";
 
     showFeedback(
       isSimpleMode()
         ? "Mode Simple: pas de timer, les ennemis avancent sur chaque erreur."
-        : "Mode Normal: reponse correcte = tir magique.",
+        : "Mode normal : réponse correcte = tir magique.",
       ""
     );
 
@@ -932,19 +1036,44 @@
     setupWave();
   }
 
+  function refreshPauseState() {
+    if (!state.started) {
+      state.paused = false;
+      return;
+    }
+
+    const tablesOpen = !dom.tablesModal.classList.contains("hidden");
+    const statsOpen = !dom.statsModal.classList.contains("hidden");
+    state.paused = tablesOpen || statsOpen;
+  }
+
   function openTablesModal() {
-    state.paused = state.started;
     renderTablesGrid();
+    dom.statsModal.classList.add("hidden");
     dom.tablesModal.classList.remove("hidden");
+    refreshPauseState();
   }
 
   function closeTablesModal() {
     dom.tablesModal.classList.add("hidden");
-    state.paused = false;
+    refreshPauseState();
 
     if (state.started && state.question && !state.selectedTables.includes(state.question.a)) {
       nextQuestion();
     }
+  }
+
+  function openStatsModal() {
+    renderLeaderboard();
+    renderMasteryMatrix();
+    dom.tablesModal.classList.add("hidden");
+    dom.statsModal.classList.remove("hidden");
+    refreshPauseState();
+  }
+
+  function closeStatsModal() {
+    dom.statsModal.classList.add("hidden");
+    refreshPauseState();
   }
 
   function startGame() {
@@ -954,6 +1083,8 @@
 
     state.started = true;
     state.paused = false;
+    dom.tablesModal.classList.add("hidden");
+    dom.statsModal.classList.add("hidden");
     dom.titleScreen.classList.add("hidden");
     resetGame();
   }
@@ -1033,8 +1164,11 @@
 
   dom.startBtn.addEventListener("click", startGame);
   dom.openTablesBtn.addEventListener("click", openTablesModal);
+  dom.openStatsBtn.addEventListener("click", openStatsModal);
   dom.openTablesInlineBtn.addEventListener("click", openTablesModal);
+  dom.openStatsInlineBtn.addEventListener("click", openStatsModal);
   dom.closeTablesBtn.addEventListener("click", closeTablesModal);
+  dom.closeStatsBtn.addEventListener("click", closeStatsModal);
 
   dom.tablesGrid.addEventListener("change", (event) => {
     const input = event.target.closest("input[data-table-checkbox]");
@@ -1072,13 +1206,20 @@
 
   dom.resetMasteryBtn.addEventListener("click", () => {
     state.tableMastery = createEmptyMastery();
+    state.multiplicationMastery = createEmptyMultiplicationMastery();
     saveProfile();
     renderTablesGrid();
-    showFeedback("Progression des tables reinitialisee.", "");
+    renderMasteryMatrix();
+    showFeedback("Progression des tables réinitialisée.", "");
   });
 
   window.addEventListener("keydown", (event) => {
     if (event.target === dom.playerNameInput) {
+      return;
+    }
+
+    if (event.key === "Escape" && !dom.statsModal.classList.contains("hidden")) {
+      closeStatsModal();
       return;
     }
 
@@ -1106,6 +1247,7 @@
   updateHud();
   renderTablesGrid();
   renderLeaderboard();
+  renderMasteryMatrix();
   showFeedback("Choisis un mode puis lance la partie.", "");
   requestAnimationFrame(gameLoop);
 })();

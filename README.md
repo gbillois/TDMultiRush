@@ -4,25 +4,25 @@ MultipliRush TD est un jeu Tower Defense en HTML/CSS/JS pour apprendre les table
 
 ## Concept
 
-- Des vagues d'ennemis avancent vers le chateau.
-- Chaque bonne reponse a une multiplication lance un tir magique.
+- Des vagues d'ennemis avancent vers le château.
+- Chaque bonne réponse à une multiplication lance un tir magique.
 - Le jeu propose un mode `Simple` et un mode `Normal`.
-- Les tables peuvent etre configurees.
-- Le systeme adapte les questions en fonction des tables moins maitrisees.
+- Les tables peuvent être configurées.
+- Le système adapte les questions en fonction des tables moins maîtrisées.
 
-## Fonctionnalites
+## Fonctionnalités
 
 - Interface mobile style fantasy/cartoon
-- Ecran titre avant lancement
-- Selection des tables (1 a 12)
-- Memorisation locale de la progression des tables
+- Écran titre avant lancement
+- Sélection des tables (1 à 12)
+- Mémorisation locale de la progression des tables
 - Leaderboard local avec nom du joueur
-- Effets visuels: projectiles, secousses, feu du chateau
+- Effets visuels : projectiles, secousses, feu du château
 - Variations d'ennemis selon les vagues
 
 ## Lancer le jeu
 
-Aucune installation n'est necessaire.
+Aucune installation n'est nécessaire.
 
 1. Ouvrir `index.html` dans un navigateur moderne.
 2. Cliquer sur `Lancer la partie`.
@@ -36,9 +36,9 @@ python3 -m http.server 8000
 
 Puis ouvrir `http://localhost:8000`.
 
-## Controles
+## Contrôles
 
-- Clavier numerique a l'ecran
+- Clavier numérique à l'écran
 - Clavier physique: `0-9`, `Backspace`, `Delete`, `Enter`
 
 ## Structure du projet
@@ -61,4 +61,4 @@ Le jeu utilise `localStorage` pour:
 
 ## Licence
 
-Ce projet est publie sous licence MIT. Voir `LICENSE`.
+Ce projet est publié sous licence MIT. Voir `LICENSE`.
