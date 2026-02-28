@@ -16,6 +16,7 @@
   --debug-castle-offset-y: 0px;
   --debug-tower-scale: 1;
   --debug-castle-scale: 1;
+  --keypad-bottom-extra: 30px;
 }
 
 * {
@@ -409,6 +410,39 @@ body {
   content: none;
 }
 
+.visual-style-castle .battlefield.world-forest .layer-sky,
+.visual-style-castle .battlefield.world-forest .layer-hills,
+.visual-style-castle .battlefield.world-forest .layer-forest,
+.visual-style-castle .battlefield.world-snow .layer-sky,
+.visual-style-castle .battlefield.world-snow .layer-hills,
+.visual-style-castle .battlefield.world-snow .layer-forest,
+.visual-style-castle .battlefield.world-mountains .layer-sky,
+.visual-style-castle .battlefield.world-mountains .layer-hills,
+.visual-style-castle .battlefield.world-mountains .layer-forest,
+.visual-style-castle .battlefield.world-desert .layer-sky,
+.visual-style-castle .battlefield.world-desert .layer-hills,
+.visual-style-castle .battlefield.world-desert .layer-forest,
+.visual-style-castle .battlefield.world-desolation .layer-sky,
+.visual-style-castle .battlefield.world-desolation .layer-hills,
+.visual-style-castle .battlefield.world-desolation .layer-forest,
+.visual-style-fairy .battlefield.world-forest .layer-sky,
+.visual-style-fairy .battlefield.world-forest .layer-hills,
+.visual-style-fairy .battlefield.world-forest .layer-forest,
+.visual-style-fairy .battlefield.world-snow .layer-sky,
+.visual-style-fairy .battlefield.world-snow .layer-hills,
+.visual-style-fairy .battlefield.world-snow .layer-forest,
+.visual-style-fairy .battlefield.world-mountains .layer-sky,
+.visual-style-fairy .battlefield.world-mountains .layer-hills,
+.visual-style-fairy .battlefield.world-mountains .layer-forest,
+.visual-style-fairy .battlefield.world-desert .layer-sky,
+.visual-style-fairy .battlefield.world-desert .layer-hills,
+.visual-style-fairy .battlefield.world-desert .layer-forest,
+.visual-style-fairy .battlefield.world-desolation .layer-sky,
+.visual-style-fairy .battlefield.world-desolation .layer-hills,
+.visual-style-fairy .battlefield.world-desolation .layer-forest {
+  background-position: center calc(100% + var(--debug-bg-offset-y));
+}
+
 .visual-style-basic .battlefield.world-forest .layer-sky {
   background-image: var(--layer-sky-epic);
 }
@@ -765,7 +799,7 @@ body {
 }
 
 .question-panel {
-  padding: 12px 12px calc(18px + env(safe-area-inset-bottom));
+  padding: 12px 12px calc(18px + var(--keypad-bottom-extra) + env(safe-area-inset-bottom));
   background: linear-gradient(180deg, var(--panel), rgba(8, 12, 28, 0.88));
   border-top: 1px solid var(--panel-border);
 }
@@ -1464,6 +1498,60 @@ body {
   }
 }
 
+@media (min-width: 768px) and (max-width: 1366px) {
+  body {
+    padding: 0;
+  }
+
+  .game-shell,
+  .game-shell.debug-open {
+    width: 100vw;
+    max-width: 100vw;
+    gap: 0;
+  }
+
+  .phone-frame {
+    width: 100vw;
+    height: 100dvh;
+    min-height: 0;
+    border-radius: 0;
+    border-width: 0;
+  }
+
+  .game-shell.debug-open .debug-modal {
+    position: fixed;
+    inset: 8px;
+    z-index: 70;
+    width: auto;
+    background: rgba(5, 10, 24, 0.76);
+    padding: 10px;
+    overflow-y: auto;
+    display: grid;
+    place-items: center;
+  }
+}
+
+@media (max-width: 767px) {
+  body {
+    padding: 0;
+  }
+
+  .game-shell,
+  .game-shell.debug-open {
+    width: 100vw;
+    max-width: 100vw;
+    gap: 0;
+  }
+
+  .phone-frame {
+    width: 100vw;
+    height: 100dvh;
+    min-height: 0;
+    border-radius: 0;
+    border-width: 0;
+  }
+}
+
 @media (max-height: 880px) {
   body {
     padding: 6px;
@@ -1493,7 +1581,7 @@ body {
   }
 
   .question-panel {
-    padding: 10px 10px calc(16px + env(safe-area-inset-bottom));
+    padding: 10px 10px calc(16px + var(--keypad-bottom-extra) + env(safe-area-inset-bottom));
   }
 
   .question-text {
