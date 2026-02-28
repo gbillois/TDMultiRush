@@ -1,0 +1,149 @@
+{
+  "style_prefix": "Pixel art 16-bit fantasy tower defense, side view, mobile game readability, crisp pixels, no anti-alias blur, no text, no watermark, no drop shadow, coherent palette, lighting from top-left, Kingdom Rush inspired look and feel.",
+  "assets": [
+    {
+      "file": "bg-sky-epic.png",
+      "background": "opaque",
+      "description": "Sky background layer only for bright fantasy plains world, soft clouds, clean horizon, no foreground objects.",
+      "target_size": "1536x864"
+    },
+    {
+      "file": "bg-sky.png",
+      "background": "opaque",
+      "description": "Sky background layer only for neutral world transition, less saturated and more cinematic than plains sky, no foreground.",
+      "target_size": "1536x864"
+    },
+    {
+      "file": "bg-mountains-epic.png",
+      "background": "opaque",
+      "description": "Mid layer with heroic mountains and distant hills, readable parallax shape language, no close foreground objects.",
+      "target_size": "1536x864"
+    },
+    {
+      "file": "bg-hills.png",
+      "background": "opaque",
+      "description": "Mid layer with rolling hills and rocky formations, adaptable to mountain snow desert dark color grading.",
+      "target_size": "1536x864"
+    },
+    {
+      "file": "bg-forest-foreground.png",
+      "background": "opaque",
+      "description": "Foreground layer with trees and bushes silhouette, designed for side-scrolling tower defense road scene.",
+      "target_size": "1536x864"
+    },
+    {
+      "file": "castle-right.png",
+      "background": "transparent",
+      "description": "Castle gate asset on right side, fantasy stone architecture, no ground shadow, transparent background, centered.",
+      "target_size": "256x192"
+    },
+    {
+      "file": "tower-arcane.png",
+      "background": "transparent",
+      "description": "Defensive magic tower level 1, arcane crystal core, side view, no ground shadow, transparent background.",
+      "target_size": "128x128"
+    },
+    {
+      "file": "tower-solar.png",
+      "background": "transparent",
+      "description": "Defensive magic tower upgraded solar variant, brighter and stronger visual than arcane tower, side view, no ground shadow.",
+      "target_size": "128x128"
+    },
+    {
+      "file": "projectile-arcane.png",
+      "background": "transparent",
+      "description": "Arcane projectile orb, bright and readable, no motion trail, no shadow, transparent background.",
+      "target_size": "32x32"
+    },
+    {
+      "file": "fire-castle.png",
+      "background": "transparent",
+      "description": "Castle fire overlay only, animated-look flames in pixel art style, no castle geometry, transparent background.",
+      "target_size": "256x256"
+    },
+    {
+      "file": "enemy-goblin-green.png",
+      "background": "transparent",
+      "description": "Small goblin scout, green gear, side view facing right, readable silhouette, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-scout-pink.png",
+      "background": "transparent",
+      "description": "Fast pink scout enemy, light armor, side view facing right, readable silhouette, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-raider-yellow.png",
+      "background": "transparent",
+      "description": "Yellow raider enemy, agile fighter, side view facing right, readable silhouette, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-imp-purple.png",
+      "background": "transparent",
+      "description": "Purple imp demon enemy, mischievous expression, side view facing right, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-orc-red.png",
+      "background": "transparent",
+      "description": "Red orc brute enemy, heavy body, side view facing right, strong silhouette, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-frost-blue.png",
+      "background": "transparent",
+      "description": "Blue frost marauder enemy with icy details, side view facing right, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-lizard-teal.png",
+      "background": "transparent",
+      "description": "Teal lizard warrior enemy, reptilian fantasy fighter, side view facing right, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-knight-slate.png",
+      "background": "transparent",
+      "description": "Slate armored knight enemy, tanky silhouette, side view facing right, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-ogre-brown.png",
+      "background": "transparent",
+      "description": "Brown ogre enemy, large heavy brute, side view facing right, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-shaman-cyan.png",
+      "background": "transparent",
+      "description": "Cyan runic shaman enemy, mystical staff, side view facing right, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-berserker-orange.png",
+      "background": "transparent",
+      "description": "Orange berserker enemy, aggressive stance, side view facing right, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-warlock-violet.png",
+      "background": "transparent",
+      "description": "Violet warlock enemy, dark mage style, side view facing right, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-shadow-black.png",
+      "background": "transparent",
+      "description": "Black shadow enemy, spectral assassin shape, side view facing right, no ground shadow.",
+      "target_size": "96x96"
+    },
+    {
+      "file": "enemy-guardian-gold.png",
+      "background": "transparent",
+      "description": "Gold guardian enemy, elite final unit, heavy fantasy armor, side view facing right, no ground shadow.",
+      "target_size": "96x96"
+    }
+  ]
+}
