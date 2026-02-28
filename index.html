@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MultipliRush TD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="game-shell">
+      <div class="phone-frame">
+        <section id="title-screen" class="title-screen">
+          <div class="title-card">
+            <p class="title-kicker">Tower Defense des Multiplications</p>
+            <h1>MultipliRush TD</h1>
+            <p>
+              Defends ton chateau en repondant aux multiplications. Le jeu s'adapte a tes
+              tables les moins maitrisees.
+            </p>
+            <div class="title-actions">
+              <button id="start-btn" type="button">Lancer la partie</button>
+              <button id="open-tables-btn" type="button">Configurer les tables</button>
+            </div>
+          </div>
+        </section>
+
+        <header class="hud">
+          <div class="hud-item">
+            <span class="hud-label">Vague</span>
+            <strong id="wave-value">1</strong>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label" id="lives-label">Vies</span>
+            <strong id="lives-value">20</strong>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Score</span>
+            <strong id="score-value">0</strong>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Combo</span>
+            <strong id="combo-value">x0</strong>
+          </div>
+        </header>
+
+        <main class="battlefield" id="battlefield">
+          <div class="layer layer-sky"></div>
+          <div class="layer layer-hills"></div>
+          <div class="layer layer-forest"></div>
+          <div class="path"></div>
+          <img class="castle-door" src="assets/castle-right.svg" alt="Porte du chateau" />
+          <img
+            id="castle-fire"
+            class="castle-fire hidden"
+            src="assets/fire-castle.svg"
+            alt="Flammes sur le chateau"
+          />
+
+          <img id="tower-img" class="tower" src="assets/tower-arcane.svg" alt="Tour de défense" />
+
+          <div id="enemy-layer" class="enemy-layer" aria-live="polite"></div>
+          <div id="projectile-layer" class="projectile-layer"></div>
+          <div id="fx-layer" class="fx-layer"></div>
+
+          <div id="wave-banner" class="wave-banner">Vague 1</div>
+          <div id="game-over" class="game-over hidden">
+            <h2>Défaite</h2>
+            <p id="game-over-text">Les gobelins ont passé ta défense.</p>
+            <button id="restart-btn" type="button">Rejouer</button>
+          </div>
+        </main>
+
+        <section class="question-panel">
+          <div class="question-top">
+            <div class="question-headline">
+              <p class="question-title">Canon des Multiplications</p>
+              <button id="open-tables-inline-btn" class="mini-action" type="button">
+                Tables
+              </button>
+            </div>
+            <p id="question-text" class="question-text">6 x 7 = ?</p>
+          </div>
+          <div class="mode-select" id="mode-select">
+            <button type="button" data-mode="simple">Mode Simple</button>
+            <button type="button" data-mode="normal" class="active">Mode Normal (Difficile)</button>
+          </div>
+
+          <div class="answer-row">
+            <input id="answer-input" type="text" inputmode="numeric" readonly value="" />
+            <button id="fire-btn" class="fire-btn" type="button">Tirer</button>
+          </div>
+
+          <p id="feedback" class="feedback">Réponse correcte = tir magique.</p>
+
+          <div class="keypad" id="keypad">
+            <button type="button" data-key="7">7</button>
+            <button type="button" data-key="8">8</button>
+            <button type="button" data-key="9">9</button>
+            <button type="button" data-key="4">4</button>
+            <button type="button" data-key="5">5</button>
+            <button type="button" data-key="6">6</button>
+            <button type="button" data-key="1">1</button>
+            <button type="button" data-key="2">2</button>
+            <button type="button" data-key="3">3</button>
+            <button type="button" data-key="clear">C</button>
+            <button type="button" data-key="0">0</button>
+            <button type="button" data-key="back">⌫</button>
+          </div>
+        </section>
+
+        <section id="tables-modal" class="tables-modal hidden">
+          <div class="tables-card">
+            <h2>Configurer les tables</h2>
+            <p class="tables-subtitle">
+              Choisis les tables actives. Le moteur favorise ensuite celles que tu maitrises
+              moins.
+            </p>
+            <div id="tables-grid" class="tables-grid"></div>
+            <div class="tables-actions">
+              <button id="reset-mastery-btn" type="button">Reinitialiser la progression</button>
+              <button id="close-tables-btn" type="button">Fermer</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>
