@@ -72,6 +72,25 @@
           <div id="game-over" class="game-over hidden">
             <h2>Défaite</h2>
             <p id="game-over-text">Les gobelins ont passé ta défense.</p>
+            <p id="final-score-text" class="final-score-text">Score final: 0</p>
+            <div id="score-submit" class="score-submit">
+              <label for="player-name-input">Ton nom pour le leaderboard</label>
+              <div class="score-submit-row">
+                <input
+                  id="player-name-input"
+                  type="text"
+                  maxlength="18"
+                  placeholder="Ex: Alex"
+                  autocomplete="nickname"
+                />
+                <button id="save-score-btn" type="button">Enregistrer</button>
+              </div>
+              <p id="score-save-feedback" class="score-save-feedback"></p>
+            </div>
+            <div class="leaderboard">
+              <h3>Leaderboard</h3>
+              <ol id="leaderboard-list"></ol>
+            </div>
             <button id="restart-btn" type="button">Rejouer</button>
           </div>
         </main>

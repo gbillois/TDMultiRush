@@ -22,6 +22,12 @@
     waveBanner: document.getElementById("wave-banner"),
     gameOver: document.getElementById("game-over"),
     gameOverText: document.getElementById("game-over-text"),
+    finalScoreText: document.getElementById("final-score-text"),
+    scoreSubmit: document.getElementById("score-submit"),
+    playerNameInput: document.getElementById("player-name-input"),
+    saveScoreBtn: document.getElementById("save-score-btn"),
+    scoreSaveFeedback: document.getElementById("score-save-feedback"),
+    leaderboardList: document.getElementById("leaderboard-list"),
     restartBtn: document.getElementById("restart-btn"),
     titleScreen: document.getElementById("title-screen"),
     startBtn: document.getElementById("start-btn"),
@@ -39,6 +45,9 @@
   };
 
   const STORAGE_KEY = "multipliRush.profile.v1";
+  const LEADERBOARD_KEY = "multipliRush.leaderboard.v1";
+  const LAST_PLAYER_KEY = "multipliRush.lastPlayerName.v1";
+  const LEADERBOARD_MAX_ENTRIES = 10;
   const ALL_TABLES = Array.from({ length: 12 }, (_, idx) => idx + 1);
   const SIMPLE_MAX_MISTAKES = 5;
   const SIMPLE_STEP_ADVANCE = 0.15;
@@ -87,6 +96,9 @@
     gameOver: false,
     simpleAdvanceAnimation: null,
     shakeTimeoutId: null,
+    leaderboard: [],
+    scoreSubmitted: false,
+    lastPlayerName: "",
     lastFrame: 0,
     sessionId: 0
   };
@@ -162,6 +174,103 @@
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  }
+
+  function sanitizePlayerName(rawName) {
+    const normalized = String(rawName || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 18);
+    return normalized;
+  }
+
+  function loadLeaderboard() {
+    try {
+      const raw = localStorage.getItem(LEADERBOARD_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(parsed)) {
+        state.leaderboard = [];
+      } else {
+        state.leaderboard = parsed
+          .filter((entry) => entry && typeof entry === "object")
+          .map((entry) => ({
+            name: sanitizePlayerName(entry.name),
+            score: Math.max(0, Number.parseInt(entry.score, 10) || 0),
+            wave: Math.max(1, Number.parseInt(entry.wave, 10) || 1),
+            mode: entry.mode === MODES.SIMPLE ? MODES.SIMPLE : MODES.NORMAL,
+            timestamp: Number.parseInt(entry.timestamp, 10) || Date.now()
+          }))
+          .filter((entry) => entry.name.length > 0)
+          .sort((a, b) => b.score - a.score || b.wave - a.wave || a.timestamp - b.timestamp)
+          .slice(0, LEADERBOARD_MAX_ENTRIES);
+      }
+    } catch {
+      state.leaderboard = [];
+    }
+
+    state.lastPlayerName = sanitizePlayerName(localStorage.getItem(LAST_PLAYER_KEY) || "");
+  }
+
+  function persistLeaderboard() {
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(state.leaderboard));
+    if (state.lastPlayerName) {
+      localStorage.setItem(LAST_PLAYER_KEY, state.lastPlayerName);
+    }
+  }
+
+  function modeLabel(mode) {
+    return mode === MODES.SIMPLE ? "Simple" : "Normal";
+  }
+
+  function renderLeaderboard() {
+    if (!dom.leaderboardList) {
+      return;
+    }
+
+    if (!state.leaderboard.length) {
+      dom.leaderboardList.innerHTML = "<li>Aucun score enregistre.</li>";
+      return;
+    }
+
+    dom.leaderboardList.innerHTML = state.leaderboard
+      .map(
+        (entry) =>
+          `<li>${entry.name} - ${entry.score} pts (V${entry.wave}, ${modeLabel(entry.mode)})</li>`
+      )
+      .join("");
+  }
+
+  function saveCurrentScore() {
+    if (state.scoreSubmitted) {
+      dom.scoreSaveFeedback.textContent = "Score deja enregistre.";
+      return;
+    }
+
+    const name = sanitizePlayerName(dom.playerNameInput.value);
+    if (!name) {
+      dom.scoreSaveFeedback.textContent = "Entre un nom valide.";
+      return;
+    }
+
+    state.lastPlayerName = name;
+    state.leaderboard.push({
+      name,
+      score: state.score,
+      wave: state.wave,
+      mode: state.mode,
+      timestamp: Date.now()
+    });
+
+    state.leaderboard = state.leaderboard
+      .sort((a, b) => b.score - a.score || b.wave - a.wave || a.timestamp - b.timestamp)
+      .slice(0, LEADERBOARD_MAX_ENTRIES);
+
+    state.scoreSubmitted = true;
+    dom.scoreSaveFeedback.textContent = "Score enregistre.";
+    dom.playerNameInput.disabled = true;
+    dom.saveScoreBtn.disabled = true;
+    renderLeaderboard();
+    persistLeaderboard();
   }
 
   function isSimpleMode() {
@@ -535,9 +644,22 @@
     }
 
     state.gameOver = true;
+    state.scoreSubmitted = false;
     dom.gameOverText.textContent = message;
+    dom.finalScoreText.textContent = `Score final: ${state.score}`;
+    dom.scoreSaveFeedback.textContent = "";
+    dom.playerNameInput.value = state.lastPlayerName || "";
+    dom.playerNameInput.disabled = false;
+    dom.saveScoreBtn.disabled = false;
+    dom.scoreSubmit.classList.remove("hidden");
+    renderLeaderboard();
     dom.gameOver.classList.remove("hidden");
     showFeedback("Partie terminee. Clique sur Rejouer.", "bad");
+
+    setTimeout(() => {
+      dom.playerNameInput.focus();
+      dom.playerNameInput.select();
+    }, 30);
   }
 
   function beginSimpleAdvanceAnimation(options = {}) {
@@ -785,10 +907,15 @@
     state.gameOver = false;
     state.simpleAdvanceAnimation = null;
     state.shakeTimeoutId = null;
+    state.scoreSubmitted = false;
     state.lastFrame = 0;
     state.sessionId += 1;
 
     dom.gameOver.classList.add("hidden");
+    dom.finalScoreText.textContent = "Score final: 0";
+    dom.scoreSaveFeedback.textContent = "";
+    dom.playerNameInput.disabled = false;
+    dom.saveScoreBtn.disabled = false;
     dom.gameOverText.textContent = isSimpleMode()
       ? "5 erreurs et les ennemis rentrent dans le chateau."
       : "Les gobelins ont passe ta defense.";
@@ -884,6 +1011,13 @@
 
   dom.fireBtn.addEventListener("click", submitAnswer);
   dom.restartBtn.addEventListener("click", resetGame);
+  dom.saveScoreBtn.addEventListener("click", saveCurrentScore);
+  dom.playerNameInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      saveCurrentScore();
+    }
+  });
 
   dom.modeSelect.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-mode]");
@@ -944,6 +1078,10 @@
   });
 
   window.addEventListener("keydown", (event) => {
+    if (event.target === dom.playerNameInput) {
+      return;
+    }
+
     if (event.key === "Escape" && !dom.tablesModal.classList.contains("hidden")) {
       closeTablesModal();
       return;
@@ -963,9 +1101,11 @@
   });
 
   loadProfile();
+  loadLeaderboard();
   updateModeButtons();
   updateHud();
   renderTablesGrid();
+  renderLeaderboard();
   showFeedback("Choisis un mode puis lance la partie.", "");
   requestAnimationFrame(gameLoop);
 })();
