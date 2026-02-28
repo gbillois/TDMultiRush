@@ -1341,7 +1341,38 @@
     requestAnimationFrame(gameLoop);
   }
 
-  dom.keypad.addEventListener("click", (event) => {
+  function bindFastPress(element, handler) {
+    if (!element) {
+      return;
+    }
+
+    if (window.PointerEvent) {
+      element.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "mouse" && event.button !== 0) {
+          return;
+        }
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+        handler(event);
+      });
+      return;
+    }
+
+    element.addEventListener(
+      "touchstart",
+      (event) => {
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+        handler(event);
+      },
+      { passive: false }
+    );
+    element.addEventListener("click", handler);
+  }
+
+  function handleVirtualKeyPress(event) {
     const button = event.target.closest("button");
     if (!button) {
       return;
@@ -1353,9 +1384,10 @@
     }
 
     handleKeyInput(key);
-  });
+  }
 
-  dom.fireBtn.addEventListener("click", submitAnswer);
+  bindFastPress(dom.keypad, handleVirtualKeyPress);
+  bindFastPress(dom.fireBtn, submitAnswer);
   dom.restartBtn.addEventListener("click", resetGame);
   dom.saveScoreBtn.addEventListener("click", saveCurrentScore);
   dom.playerNameInput.addEventListener("keydown", (event) => {
