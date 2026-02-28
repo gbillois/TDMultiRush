@@ -9,6 +9,13 @@
   --danger: #ff6978;
   --text: #f9fbff;
   --shadow: 0 12px 32px rgba(8, 12, 30, 0.42);
+  --projectile-image: url("assets/pixel/projectile-arcane.png");
+  --debug-bg-offset-y: 0px;
+  --debug-path-offset-y: 0px;
+  --debug-tower-offset-y: 0px;
+  --debug-castle-offset-y: 0px;
+  --debug-tower-scale: 1;
+  --debug-castle-scale: 1;
 }
 
 * {
@@ -40,6 +47,9 @@ body {
 
 .game-shell {
   width: min(100vw, 480px);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .phone-frame {
@@ -54,6 +64,55 @@ body {
   background: linear-gradient(180deg, #6ea6ff 0%, #3f7ccf 56%, #28466a 100%);
   display: flex;
   flex-direction: column;
+  --layer-sky-epic: url("assets/pixel/bg-sky-epic.png");
+  --layer-sky-alt: url("assets/pixel/bg-sky.png");
+  --layer-hills-epic: url("assets/pixel/bg-mountains-epic.png");
+  --layer-hills-alt: url("assets/pixel/bg-hills.png");
+  --layer-forest: url("assets/pixel/bg-forest-foreground.png");
+  --world-bg-forest: url("assets/pixel/bg-forest.png");
+  --world-bg-snow: url("assets/pixel/bg-snow.png");
+  --world-bg-mountains: url("assets/pixel/bg-mountains.png");
+  --world-bg-desert: url("assets/pixel/bg-desert.png");
+  --world-bg-desolation: url("assets/pixel/bg-desolation.png");
+}
+
+.phone-frame.visual-style-basic {
+  --layer-sky-epic: url("assets/bg-sky-epic.svg");
+  --layer-sky-alt: url("assets/bg-sky.svg");
+  --layer-hills-epic: url("assets/bg-mountains-epic.svg");
+  --layer-hills-alt: url("assets/bg-hills.svg");
+  --layer-forest: url("assets/bg-forest-foreground.svg");
+  --world-bg-forest: url("assets/bg-forest-foreground.svg");
+  --world-bg-snow: url("assets/bg-hills.svg");
+  --world-bg-mountains: url("assets/bg-mountains-epic.svg");
+  --world-bg-desert: url("assets/bg-hills.svg");
+  --world-bg-desolation: url("assets/bg-hills.svg");
+}
+
+.phone-frame.visual-style-castle {
+  --layer-sky-epic: url("assets/pixel/bg-sky-epic.png");
+  --layer-sky-alt: url("assets/pixel/bg-sky.png");
+  --layer-hills-epic: url("assets/pixel/bg-mountains-epic.png");
+  --layer-hills-alt: url("assets/pixel/bg-hills.png");
+  --layer-forest: url("assets/pixel/bg-forest-foreground.png");
+  --world-bg-forest: url("assets/pixel/bg-forest.png");
+  --world-bg-snow: url("assets/pixel/bg-snow.png");
+  --world-bg-mountains: url("assets/pixel/bg-mountains.png");
+  --world-bg-desert: url("assets/pixel/bg-desert.png");
+  --world-bg-desolation: url("assets/pixel/bg-desolation.png");
+}
+
+.phone-frame.visual-style-fairy {
+  --layer-sky-epic: url("assets/pixel-fairy/bg-sky-epic.png");
+  --layer-sky-alt: url("assets/pixel-fairy/bg-sky.png");
+  --layer-hills-epic: url("assets/pixel-fairy/bg-mountains-epic.png");
+  --layer-hills-alt: url("assets/pixel-fairy/bg-hills.png");
+  --layer-forest: url("assets/pixel-fairy/bg-forest-foreground.png");
+  --world-bg-forest: url("assets/pixel-fairy/bg-forest.png");
+  --world-bg-snow: url("assets/pixel-fairy/bg-snow.png");
+  --world-bg-mountains: url("assets/pixel-fairy/bg-mountains.png");
+  --world-bg-desert: url("assets/pixel-fairy/bg-desert.png");
+  --world-bg-desolation: url("assets/pixel-fairy/bg-desolation.png");
 }
 
 .phone-frame.shake-small {
@@ -163,6 +222,10 @@ body {
   font-size: 1rem;
 }
 
+.hud-item.combo-debug {
+  cursor: pointer;
+}
+
 .hud-pause-btn {
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 12px;
@@ -185,36 +248,32 @@ body {
 }
 
 .battlefield::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 78% 24%, rgba(255, 244, 187, 0.45), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 28%);
-  pointer-events: none;
-  z-index: 1;
+  content: none;
 }
 
 .layer {
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center;
+  background-position: center calc(100% + var(--debug-bg-offset-y));
   pointer-events: none;
   transition: filter 520ms ease, opacity 520ms ease, transform 520ms ease;
 }
 
 .layer-sky {
-  background-image: url("assets/bg-sky-epic.svg");
+  background-image: var(--layer-sky-epic);
+  background-position: center calc(0% + var(--debug-bg-offset-y));
 }
 
 .layer-hills {
-  background-image: url("assets/bg-mountains-epic.svg");
+  background-image: var(--layer-hills-epic);
+  background-position: center calc(72% + var(--debug-bg-offset-y));
   transform: scale(1.06);
 }
 
 .layer-forest {
-  background-image: url("assets/bg-forest-foreground.svg");
+  background-image: var(--layer-forest);
+  background-position: center calc(100% + var(--debug-bg-offset-y));
   transform: scale(1.03);
   z-index: 2;
 }
@@ -223,8 +282,8 @@ body {
   position: absolute;
   left: 16%;
   right: -6%;
-  top: 58%;
-  height: 18%;
+  top: calc(64% + var(--debug-path-offset-y));
+  height: 16%;
   border-radius: 60px;
   background:
     repeating-linear-gradient(
@@ -239,145 +298,172 @@ body {
   z-index: 3;
 }
 
-.battlefield.world-plains .layer-sky {
-  filter: saturate(1) brightness(1);
+.visual-style-castle .layer,
+.visual-style-fairy .layer {
+  background-position: center calc(88% + var(--debug-bg-offset-y));
 }
 
-.battlefield.world-plains .layer-hills {
-  background-image: url("assets/bg-mountains-epic.svg");
-  filter: saturate(1) brightness(1);
+.visual-style-castle .layer-sky,
+.visual-style-fairy .layer-sky {
+  background-position: center calc(0% + var(--debug-bg-offset-y));
 }
 
-.battlefield.world-plains .layer-forest {
-  background-image: url("assets/bg-forest-foreground.svg");
+.visual-style-castle .layer-hills,
+.visual-style-fairy .layer-hills {
+  background-position: center calc(86% + var(--debug-bg-offset-y));
+}
+
+.visual-style-castle .layer-forest,
+.visual-style-fairy .layer-forest {
+  background-position: center calc(100% + var(--debug-bg-offset-y));
+}
+
+.visual-style-castle .path,
+.visual-style-fairy .path {
+  top: calc(78% + var(--debug-path-offset-y));
+  height: 10%;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  opacity: 0;
+}
+
+.visual-style-castle .battlefield.world-forest .layer-sky,
+.visual-style-castle .battlefield.world-snow .layer-sky,
+.visual-style-castle .battlefield.world-mountains .layer-sky,
+.visual-style-castle .battlefield.world-desert .layer-sky,
+.visual-style-castle .battlefield.world-desolation .layer-sky,
+.visual-style-fairy .battlefield.world-forest .layer-sky,
+.visual-style-fairy .battlefield.world-snow .layer-sky,
+.visual-style-fairy .battlefield.world-mountains .layer-sky,
+.visual-style-fairy .battlefield.world-desert .layer-sky,
+.visual-style-fairy .battlefield.world-desolation .layer-sky {
+  filter: none;
+}
+
+.visual-style-castle .battlefield.world-forest .layer-sky,
+.visual-style-castle .battlefield.world-forest .layer-hills,
+.visual-style-castle .battlefield.world-forest .layer-forest,
+.visual-style-fairy .battlefield.world-forest .layer-sky,
+.visual-style-fairy .battlefield.world-forest .layer-hills,
+.visual-style-fairy .battlefield.world-forest .layer-forest {
+  background-image: var(--world-bg-forest);
   opacity: 1;
-  filter: saturate(1) brightness(1);
+  filter: none;
+  transform: scale(1);
 }
 
-.battlefield.world-mountain .layer-sky {
-  background-image: url("assets/bg-sky.svg");
-  filter: saturate(0.85) brightness(0.94) contrast(1.08);
+.visual-style-castle .battlefield.world-snow .layer-sky,
+.visual-style-castle .battlefield.world-snow .layer-hills,
+.visual-style-castle .battlefield.world-snow .layer-forest,
+.visual-style-fairy .battlefield.world-snow .layer-sky,
+.visual-style-fairy .battlefield.world-snow .layer-hills,
+.visual-style-fairy .battlefield.world-snow .layer-forest {
+  background-image: var(--world-bg-snow);
+  opacity: 1;
+  filter: none;
+  transform: scale(1);
 }
 
-.battlefield.world-mountain .layer-hills {
-  background-image: url("assets/bg-hills.svg");
-  transform: scale(1.08);
-  filter: saturate(0.86) brightness(0.9);
+.visual-style-castle .battlefield.world-mountains .layer-sky,
+.visual-style-castle .battlefield.world-mountains .layer-hills,
+.visual-style-castle .battlefield.world-mountains .layer-forest,
+.visual-style-fairy .battlefield.world-mountains .layer-sky,
+.visual-style-fairy .battlefield.world-mountains .layer-hills,
+.visual-style-fairy .battlefield.world-mountains .layer-forest {
+  background-image: var(--world-bg-mountains);
+  opacity: 1;
+  filter: none;
+  transform: scale(1);
 }
 
-.battlefield.world-mountain .layer-forest {
-  opacity: 0.5;
-  filter: saturate(0.72) brightness(0.88);
+.visual-style-castle .battlefield.world-desert .layer-sky,
+.visual-style-castle .battlefield.world-desert .layer-hills,
+.visual-style-castle .battlefield.world-desert .layer-forest,
+.visual-style-fairy .battlefield.world-desert .layer-sky,
+.visual-style-fairy .battlefield.world-desert .layer-hills,
+.visual-style-fairy .battlefield.world-desert .layer-forest {
+  background-image: var(--world-bg-desert);
+  opacity: 1;
+  filter: none;
+  transform: scale(1);
 }
 
-.battlefield.world-snow .layer-sky {
-  background-image: url("assets/bg-sky.svg");
-  filter: saturate(0.28) brightness(1.22) contrast(1.04);
+.visual-style-castle .battlefield.world-desolation .layer-sky,
+.visual-style-castle .battlefield.world-desolation .layer-hills,
+.visual-style-castle .battlefield.world-desolation .layer-forest,
+.visual-style-fairy .battlefield.world-desolation .layer-sky,
+.visual-style-fairy .battlefield.world-desolation .layer-hills,
+.visual-style-fairy .battlefield.world-desolation .layer-forest {
+  background-image: var(--world-bg-desolation);
+  opacity: 1;
+  filter: none;
+  transform: scale(1);
 }
 
-.battlefield.world-snow .layer-hills {
-  background-image: url("assets/bg-hills.svg");
-  filter: saturate(0.18) brightness(1.33) hue-rotate(12deg);
+.visual-style-castle .battlefield.world-desolation::after,
+.visual-style-castle .battlefield.world-snow::after,
+.visual-style-fairy .battlefield.world-desolation::after,
+.visual-style-fairy .battlefield.world-snow::after {
+  content: none;
 }
 
-.battlefield.world-snow .layer-forest {
-  opacity: 0.42;
-  filter: saturate(0.14) brightness(1.22);
+.visual-style-basic .battlefield.world-forest .layer-sky {
+  background-image: var(--layer-sky-epic);
 }
 
-.battlefield.world-snow::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 16% 24%, rgba(255, 255, 255, 0.8) 0 2px, transparent 3px),
-    radial-gradient(circle at 63% 18%, rgba(255, 255, 255, 0.68) 0 2px, transparent 3px),
-    radial-gradient(circle at 78% 54%, rgba(255, 255, 255, 0.6) 0 2px, transparent 3px),
-    radial-gradient(circle at 30% 66%, rgba(255, 255, 255, 0.75) 0 2px, transparent 3px);
-  background-size: 240px 240px;
-  opacity: 0.38;
+.visual-style-basic .battlefield.world-forest .layer-hills {
+  background-image: var(--layer-hills-epic);
 }
 
-.battlefield.world-desert .layer-sky {
-  filter: sepia(0.38) saturate(1.3) hue-rotate(-16deg) brightness(1.08);
+.visual-style-basic .battlefield.world-forest .layer-forest {
+  background-image: var(--layer-forest);
+  opacity: 1;
 }
 
-.battlefield.world-desert .layer-hills {
-  background-image: url("assets/bg-hills.svg");
-  filter: sepia(0.56) saturate(1.42) hue-rotate(-15deg) brightness(1.02);
+.visual-style-basic .battlefield.world-snow .layer-sky,
+.visual-style-basic .battlefield.world-mountains .layer-sky,
+.visual-style-basic .battlefield.world-desert .layer-sky,
+.visual-style-basic .battlefield.world-desolation .layer-sky {
+  background-image: var(--layer-sky-alt);
 }
 
-.battlefield.world-desert .layer-forest {
-  opacity: 0.46;
-  filter: sepia(0.8) saturate(0.76) hue-rotate(-8deg) brightness(0.82);
+.visual-style-basic .battlefield.world-snow .layer-hills,
+.visual-style-basic .battlefield.world-mountains .layer-hills,
+.visual-style-basic .battlefield.world-desert .layer-hills,
+.visual-style-basic .battlefield.world-desolation .layer-hills {
+  background-image: var(--layer-hills-alt);
 }
 
-.battlefield.world-desert .path {
-  background:
-    repeating-linear-gradient(
-      88deg,
-      #e8ba66 0,
-      #e8ba66 36px,
-      #cf9848 36px,
-      #cf9848 72px
-    );
-  border-color: rgba(126, 84, 31, 0.64);
-}
-
-.battlefield.world-dark .layer-sky {
-  filter: saturate(0.56) brightness(0.42) hue-rotate(42deg);
-}
-
-.battlefield.world-dark .layer-hills {
-  background-image: url("assets/bg-hills.svg");
-  filter: saturate(0.48) brightness(0.4) hue-rotate(34deg);
-}
-
-.battlefield.world-dark .layer-forest {
-  opacity: 0.72;
-  filter: saturate(0.5) brightness(0.3) hue-rotate(30deg);
-}
-
-.battlefield.world-dark .path {
-  background:
-    repeating-linear-gradient(
-      88deg,
-      #675564 0,
-      #675564 36px,
-      #45333f 36px,
-      #45333f 72px
-    );
-  border-color: rgba(46, 33, 47, 0.7);
-}
-
-.battlefield.world-dark::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(18, 8, 33, 0.24), rgba(5, 6, 20, 0.66));
+.visual-style-basic .battlefield.world-snow .layer-forest,
+.visual-style-basic .battlefield.world-mountains .layer-forest,
+.visual-style-basic .battlefield.world-desert .layer-forest,
+.visual-style-basic .battlefield.world-desolation .layer-forest {
+  background-image: var(--layer-forest);
+  opacity: 1;
 }
 
 .castle-door {
   position: absolute;
   right: -8%;
-  bottom: 10%;
+  bottom: calc(5% + var(--debug-castle-offset-y));
   width: clamp(132px, 30vw, 210px);
   z-index: 4;
   filter: none;
+  transform: scale(var(--debug-castle-scale));
+  transform-origin: bottom right;
 }
 
 .castle-fire {
   position: absolute;
-  right: -15%;
-  bottom: 10%;
+  right: -14%;
+  bottom: calc(5% + var(--debug-castle-offset-y));
   width: clamp(170px, 40vw, 280px);
   z-index: 10;
   pointer-events: none;
   opacity: 0;
+  transform: scale(var(--debug-castle-scale));
   transform-origin: 60% 80%;
 }
 
@@ -390,14 +476,37 @@ body {
   position: absolute;
   width: clamp(100px, 24vw, 160px);
   left: 3%;
-  bottom: 13%;
+  bottom: calc(13% + var(--debug-tower-offset-y));
   filter: none;
   z-index: 6;
   transition: filter 220ms ease, transform 220ms ease;
+  transform: scale(var(--debug-tower-scale));
+  transform-origin: bottom left;
+}
+
+.visual-style-castle .castle-door,
+.visual-style-fairy .castle-door {
+  right: -5%;
+  bottom: calc(3% + var(--debug-castle-offset-y));
+  width: clamp(92px, 21vw, 150px);
+}
+
+.visual-style-castle .castle-fire,
+.visual-style-fairy .castle-fire {
+  right: -11%;
+  bottom: calc(3% + var(--debug-castle-offset-y));
+  width: clamp(124px, 30vw, 198px);
+}
+
+.visual-style-castle .tower,
+.visual-style-fairy .tower {
+  left: 3%;
+  bottom: calc(9% + var(--debug-tower-offset-y));
+  width: clamp(70px, 16vw, 112px);
 }
 
 .tower.cast {
-  transform: scale(1.04) rotate(-2deg);
+  transform: scale(calc(var(--debug-tower-scale) * 1.04)) rotate(-2deg);
   filter: drop-shadow(0 0 14px rgba(132, 234, 255, 0.92));
 }
 
@@ -422,19 +531,38 @@ body {
 
 .enemy {
   --enemy-scale: 1;
+  --spawn-shift-x: 0px;
   position: absolute;
   width: clamp(68px, 18vw, 100px);
-  transform: translate(-50%, -50%) scale(var(--enemy-scale));
+  transform: translate(calc(-50% + var(--spawn-shift-x)), -40%) scale(var(--enemy-scale));
   z-index: 5;
-  animation: bob 0.8s infinite alternate ease-in-out;
+  animation: none;
+}
+
+.visual-style-castle .enemy,
+.visual-style-fairy .enemy {
+  transform: translate(calc(-50% + var(--spawn-shift-x)), -28%) scale(var(--enemy-scale));
 }
 
 .enemy img {
   width: 100%;
   height: auto;
   display: block;
-  filter: drop-shadow(0 8px 6px rgba(6, 36, 14, 0.3));
+  filter: none;
+  animation: enemy-walk-bob 360ms ease-in-out infinite;
 }
+
+.visual-style-castle .castle-door,
+.visual-style-castle .castle-fire,
+.visual-style-castle .tower,
+.visual-style-castle .enemy img,
+.visual-style-fairy .castle-door,
+.visual-style-fairy .castle-fire,
+.visual-style-fairy .tower,
+.visual-style-fairy .enemy img {
+  image-rendering: pixelated;
+}
+
 
 .enemy.enraged img {
   filter: saturate(1.4) brightness(1.08) drop-shadow(0 8px 10px rgba(130, 20, 15, 0.64));
@@ -445,6 +573,7 @@ body {
 }
 
 .hp-bar {
+  display: none;
   width: 78%;
   height: 7px;
   margin: 0 auto;
@@ -464,7 +593,7 @@ body {
   position: absolute;
   width: 28px;
   height: 28px;
-  background-image: url("assets/projectile-arcane.svg");
+  background-image: var(--projectile-image);
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -509,16 +638,20 @@ body {
 
 .game-over {
   position: absolute;
-  inset: 24% 12%;
+  inset: 10% 8% 6%;
   background: rgba(17, 22, 42, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 18px;
   box-shadow: var(--shadow);
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   text-align: center;
   padding: 14px;
-  gap: 8px;
+  gap: 10px;
+  overflow-y: auto;
+  scroll-padding-bottom: 14px;
   z-index: 20;
 }
 
@@ -617,12 +750,22 @@ body {
   background: linear-gradient(180deg, #ffe183, #ffbf4f);
 }
 
+#restart-btn {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 4px;
+}
+
+.score-submit {
+  margin-bottom: 4px;
+}
+
 .hidden {
   display: none;
 }
 
 .question-panel {
-  padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+  padding: 12px 12px calc(18px + env(safe-area-inset-bottom));
   background: linear-gradient(180deg, var(--panel), rgba(8, 12, 28, 0.88));
   border-top: 1px solid var(--panel-border);
 }
@@ -807,6 +950,137 @@ body {
   display: none;
 }
 
+.debug-hidden {
+  display: none;
+}
+
+.debug-modal {
+  display: none;
+  width: min(360px, 42vw);
+}
+
+.game-shell.debug-open {
+  width: min(100vw, 860px);
+}
+
+.game-shell.debug-open .debug-modal {
+  display: block;
+}
+
+@media (max-width: 980px) {
+  .game-shell {
+    width: min(100vw, 480px);
+  }
+
+  .debug-modal {
+    position: fixed;
+    inset: 8px;
+    z-index: 70;
+    width: auto;
+    background: rgba(5, 10, 24, 0.76);
+    padding: 10px;
+    overflow-y: auto;
+  }
+
+  .game-shell.debug-open .debug-modal {
+    display: grid;
+    place-items: center;
+  }
+}
+
+.debug-card {
+  width: 100%;
+  max-height: calc(100dvh - 20px);
+  overflow-y: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(11, 18, 43, 0.98);
+  box-shadow: 0 16px 30px rgba(4, 8, 20, 0.58);
+  padding: 14px;
+}
+
+.debug-card h2 {
+  margin: 0;
+  font-family: "Bangers", cursive;
+  letter-spacing: 0.05em;
+  font-size: 1.7rem;
+}
+
+.debug-subtitle {
+  margin: 6px 0 10px;
+  font-size: 0.84rem;
+  opacity: 0.92;
+}
+
+.debug-control {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.debug-control input[type="range"],
+.debug-control select {
+  width: 100%;
+}
+
+.debug-control strong {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #ffe083;
+}
+
+.debug-export-wrap {
+  margin-top: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  background: rgba(8, 12, 28, 0.42);
+  padding: 8px;
+}
+
+.debug-export-wrap p {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+
+#debug-export {
+  width: 100%;
+  min-height: 114px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(7, 10, 26, 0.9);
+  color: #d8f0ff;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  padding: 8px;
+  resize: vertical;
+}
+
+.debug-actions {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.debug-actions button {
+  border: none;
+  border-radius: 12px;
+  min-height: 38px;
+  color: #f7fbff;
+  font-weight: 800;
+}
+
+#debug-reset-btn {
+  background: linear-gradient(180deg, #61728f, #445169);
+}
+
+#close-debug-btn {
+  background: linear-gradient(180deg, #ffb15c, #e16b35);
+}
+
 .pause-card {
   width: min(100%, 330px);
   border-radius: 18px;
@@ -880,6 +1154,41 @@ body {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+}
+
+.visual-style-select {
+  margin: 0 0 10px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.visual-style-label {
+  margin: 0 0 6px;
+  font-size: 0.76rem;
+  opacity: 0.92;
+}
+
+.visual-style-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.visual-style-buttons button {
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 10px;
+  min-height: 34px;
+  color: #f7fbff;
+  font-weight: 800;
+  font-size: 0.82rem;
+  background: linear-gradient(180deg, #3d5dae, #2a4083);
+}
+
+.visual-style-buttons button.active {
+  border-color: rgba(255, 245, 175, 0.75);
+  background: linear-gradient(180deg, #ffb15c, #e16b35);
 }
 
 .table-option {
@@ -1002,7 +1311,8 @@ body {
 .feedback {
   min-height: 24px;
   margin: 10px 0 8px;
-  font-size: 0.92rem;
+  font-size: 1.03rem;
+  font-weight: 800;
 }
 
 .feedback.good {
@@ -1128,6 +1438,18 @@ body {
   }
 }
 
+@keyframes enemy-walk-bob {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 @media (min-width: 860px) {
   body {
     padding: 20px;
@@ -1135,6 +1457,10 @@ body {
 
   .phone-frame {
     height: min(900px, calc(100dvh - 40px));
+  }
+
+  .game-shell.debug-open .phone-frame {
+    width: min(100vw, 480px);
   }
 }
 
@@ -1167,7 +1493,7 @@ body {
   }
 
   .question-panel {
-    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    padding: 10px 10px calc(16px + env(safe-area-inset-bottom));
   }
 
   .question-text {
@@ -1187,7 +1513,7 @@ body {
   .feedback {
     min-height: 20px;
     margin: 8px 0 6px;
-    font-size: 0.84rem;
+    font-size: 0.95rem;
   }
 
   .keypad button {

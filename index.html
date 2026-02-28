@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>MultipliRush TD</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,8 +13,8 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="game-shell">
-      <div class="phone-frame">
+    <div class="game-shell" id="game-shell">
+      <div class="phone-frame visual-style-castle">
         <section id="title-screen" class="title-screen">
           <div class="title-card">
             <p class="title-kicker">Tower Defense des multiplications</p>
@@ -25,7 +25,7 @@
             </p>
             <div class="title-actions">
               <button id="start-btn" type="button">Lancer la partie</button>
-              <button id="open-tables-btn" type="button">Configurer les tables</button>
+              <button id="open-tables-btn" type="button">Réglages</button>
               <button id="open-stats-btn" type="button">Voir le leaderboard et la matrice</button>
             </div>
           </div>
@@ -56,21 +56,21 @@
           <div class="layer layer-hills"></div>
           <div class="layer layer-forest"></div>
           <div class="path"></div>
-          <img class="castle-door" src="assets/castle-right.svg" alt="Porte du château" />
+          <img id="castle-door-img" class="castle-door" src="assets/pixel/castle-right.PNG" alt="Porte du château" />
           <img
             id="castle-fire"
             class="castle-fire hidden"
-            src="assets/fire-castle.svg"
+            src="assets/pixel/fire-castle.png"
             alt="Flammes sur le château"
           />
 
-          <img id="tower-img" class="tower" src="assets/tower-arcane.svg" alt="Tour de défense" />
+          <img id="tower-img" class="tower" src="assets/pixel/tower-arcane.PNG" alt="Tour de défense" />
 
           <div id="enemy-layer" class="enemy-layer" aria-live="polite"></div>
           <div id="projectile-layer" class="projectile-layer"></div>
           <div id="fx-layer" class="fx-layer"></div>
 
-          <div id="wave-banner" class="wave-banner">Vague 1</div>
+          <div id="wave-banner" class="wave-banner">Niveau 1</div>
           <div id="game-over" class="game-over hidden">
             <h2 id="game-over-title">Défaite</h2>
             <p id="game-over-text">Les gobelins ont passé ta défense.</p>
@@ -89,11 +89,11 @@
               </div>
               <p id="score-save-feedback" class="score-save-feedback"></p>
             </div>
+            <button id="restart-btn" type="button">Rejouer</button>
             <div class="leaderboard">
               <h3>Leaderboard</h3>
               <ol id="leaderboard-list"></ol>
             </div>
-            <button id="restart-btn" type="button">Rejouer</button>
           </div>
         </main>
 
@@ -103,10 +103,13 @@
               <p class="question-title">Canon des Multiplications</p>
               <div class="mini-actions">
                 <button id="open-tables-inline-btn" class="mini-action" type="button">
-                  Tables
+                  Réglages
                 </button>
                 <button id="open-stats-inline-btn" class="mini-action" type="button">
                   Stats
+                </button>
+                <button id="open-debug-inline-btn" class="mini-action debug-hidden" type="button">
+                  Debug
                 </button>
               </div>
             </div>
@@ -147,6 +150,14 @@
               Choisis les tables actives. Le moteur favorise ensuite celles que tu maîtrises
               moins.
             </p>
+            <div id="visual-style-select" class="visual-style-select">
+              <p class="visual-style-label">Style visuel</p>
+              <div class="visual-style-buttons">
+                <button type="button" data-visual-style="basic">Basic</button>
+                <button type="button" data-visual-style="castle" class="active">Castle</button>
+                <button type="button" data-visual-style="fairy">Fairy</button>
+              </div>
+            </div>
             <div id="tables-grid" class="tables-grid"></div>
             <div class="tables-actions">
               <button id="reset-mastery-btn" type="button">Réinitialiser la progression</button>
@@ -184,6 +195,70 @@
           </div>
         </section>
       </div>
+      <section id="debug-modal" class="debug-modal hidden">
+        <div class="debug-card">
+          <h2>Debug Visuel</h2>
+          <p class="debug-subtitle">Ajuste les éléments en direct et copie les valeurs.</p>
+
+          <label class="debug-control">
+            <span>Fond affiché</span>
+            <select id="debug-world-select">
+              <option value="auto">Auto (selon vague)</option>
+              <option value="forest">Forêt</option>
+              <option value="snow">Neige</option>
+              <option value="mountains">Montagnes</option>
+              <option value="desert">Désert</option>
+              <option value="desolation">Désolation</option>
+            </select>
+          </label>
+
+          <label class="debug-control">
+            <span>Décalage vertical du fond</span>
+            <input id="debug-bg-offset" type="range" min="-220" max="220" step="2" />
+            <strong id="debug-bg-offset-value">0 px</strong>
+          </label>
+
+          <label class="debug-control">
+            <span>Décalage vertical du chemin des ennemis</span>
+            <input id="debug-enemy-path-offset" type="range" min="-200" max="200" step="2" />
+            <strong id="debug-enemy-path-offset-value">0 px</strong>
+          </label>
+
+          <label class="debug-control">
+            <span>Taille de la tour</span>
+            <input id="debug-tower-scale" type="range" min="0.4" max="1.6" step="0.01" />
+            <strong id="debug-tower-scale-value">1.00x</strong>
+          </label>
+
+          <label class="debug-control">
+            <span>Position verticale de la tour</span>
+            <input id="debug-tower-offset" type="range" min="-200" max="200" step="2" />
+            <strong id="debug-tower-offset-value">0 px</strong>
+          </label>
+
+          <label class="debug-control">
+            <span>Taille du château</span>
+            <input id="debug-castle-scale" type="range" min="0.4" max="1.6" step="0.01" />
+            <strong id="debug-castle-scale-value">1.00x</strong>
+          </label>
+
+          <label class="debug-control">
+            <span>Position verticale du château</span>
+            <input id="debug-castle-offset" type="range" min="-200" max="200" step="2" />
+            <strong id="debug-castle-offset-value">0 px</strong>
+          </label>
+
+          <div class="debug-export-wrap">
+            <p>Valeurs à me renvoyer</p>
+            <textarea id="debug-export" readonly></textarea>
+          </div>
+
+          <div class="debug-actions">
+            <button id="debug-reset-btn" type="button">Réinitialiser ce style</button>
+            <button id="close-debug-btn" type="button">Fermer</button>
+          </div>
+        </div>
+      </section>
     </div>
 
     <script src="game.js"></script>
