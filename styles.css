@@ -40,8 +40,8 @@ body {
 .phone-frame {
   position: relative;
   width: 100%;
-  min-height: calc(100vh - 20px);
-  max-height: 920px;
+  height: min(900px, calc(100dvh - 12px));
+  min-height: 640px;
   border-radius: 30px;
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.35);
@@ -132,7 +132,7 @@ body {
 
 .hud {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
   gap: 8px;
   padding: 10px;
   background: rgba(8, 10, 34, 0.55);
@@ -158,10 +158,24 @@ body {
   font-size: 1rem;
 }
 
+.hud-pause-btn {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  min-width: 62px;
+  padding: 0 10px;
+  color: #f7fbff;
+  font-weight: 800;
+  background: linear-gradient(180deg, #486dcb, #2f4b9c);
+}
+
+.hud-pause-btn:disabled {
+  opacity: 0.45;
+}
+
 .battlefield {
   position: relative;
   flex: 1;
-  min-height: 380px;
+  min-height: clamp(240px, 42vh, 380px);
   overflow: hidden;
 }
 
@@ -182,6 +196,7 @@ body {
   background-size: cover;
   background-position: center;
   pointer-events: none;
+  transition: filter 520ms ease, opacity 520ms ease, transform 520ms ease;
 }
 
 .layer-sky {
@@ -219,13 +234,135 @@ body {
   z-index: 3;
 }
 
+.battlefield.world-plains .layer-sky {
+  filter: saturate(1) brightness(1);
+}
+
+.battlefield.world-plains .layer-hills {
+  background-image: url("assets/bg-mountains-epic.svg");
+  filter: saturate(1) brightness(1);
+}
+
+.battlefield.world-plains .layer-forest {
+  background-image: url("assets/bg-forest-foreground.svg");
+  opacity: 1;
+  filter: saturate(1) brightness(1);
+}
+
+.battlefield.world-mountain .layer-sky {
+  background-image: url("assets/bg-sky.svg");
+  filter: saturate(0.85) brightness(0.94) contrast(1.08);
+}
+
+.battlefield.world-mountain .layer-hills {
+  background-image: url("assets/bg-hills.svg");
+  transform: scale(1.08);
+  filter: saturate(0.86) brightness(0.9);
+}
+
+.battlefield.world-mountain .layer-forest {
+  opacity: 0.5;
+  filter: saturate(0.72) brightness(0.88);
+}
+
+.battlefield.world-snow .layer-sky {
+  background-image: url("assets/bg-sky.svg");
+  filter: saturate(0.28) brightness(1.22) contrast(1.04);
+}
+
+.battlefield.world-snow .layer-hills {
+  background-image: url("assets/bg-hills.svg");
+  filter: saturate(0.18) brightness(1.33) hue-rotate(12deg);
+}
+
+.battlefield.world-snow .layer-forest {
+  opacity: 0.42;
+  filter: saturate(0.14) brightness(1.22);
+}
+
+.battlefield.world-snow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 16% 24%, rgba(255, 255, 255, 0.8) 0 2px, transparent 3px),
+    radial-gradient(circle at 63% 18%, rgba(255, 255, 255, 0.68) 0 2px, transparent 3px),
+    radial-gradient(circle at 78% 54%, rgba(255, 255, 255, 0.6) 0 2px, transparent 3px),
+    radial-gradient(circle at 30% 66%, rgba(255, 255, 255, 0.75) 0 2px, transparent 3px);
+  background-size: 240px 240px;
+  opacity: 0.38;
+}
+
+.battlefield.world-desert .layer-sky {
+  filter: sepia(0.38) saturate(1.3) hue-rotate(-16deg) brightness(1.08);
+}
+
+.battlefield.world-desert .layer-hills {
+  background-image: url("assets/bg-hills.svg");
+  filter: sepia(0.56) saturate(1.42) hue-rotate(-15deg) brightness(1.02);
+}
+
+.battlefield.world-desert .layer-forest {
+  opacity: 0.46;
+  filter: sepia(0.8) saturate(0.76) hue-rotate(-8deg) brightness(0.82);
+}
+
+.battlefield.world-desert .path {
+  background:
+    repeating-linear-gradient(
+      88deg,
+      #e8ba66 0,
+      #e8ba66 36px,
+      #cf9848 36px,
+      #cf9848 72px
+    );
+  border-color: rgba(126, 84, 31, 0.64);
+}
+
+.battlefield.world-dark .layer-sky {
+  filter: saturate(0.56) brightness(0.42) hue-rotate(42deg);
+}
+
+.battlefield.world-dark .layer-hills {
+  background-image: url("assets/bg-hills.svg");
+  filter: saturate(0.48) brightness(0.4) hue-rotate(34deg);
+}
+
+.battlefield.world-dark .layer-forest {
+  opacity: 0.72;
+  filter: saturate(0.5) brightness(0.3) hue-rotate(30deg);
+}
+
+.battlefield.world-dark .path {
+  background:
+    repeating-linear-gradient(
+      88deg,
+      #675564 0,
+      #675564 36px,
+      #45333f 36px,
+      #45333f 72px
+    );
+  border-color: rgba(46, 33, 47, 0.7);
+}
+
+.battlefield.world-dark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(18, 8, 33, 0.24), rgba(5, 6, 20, 0.66));
+}
+
 .castle-door {
   position: absolute;
   right: -8%;
-  bottom: 13%;
+  bottom: 10%;
   width: clamp(132px, 30vw, 210px);
   z-index: 4;
-  filter: drop-shadow(-6px 8px 12px rgba(18, 28, 46, 0.48));
+  filter: none;
 }
 
 .castle-fire {
@@ -248,8 +385,8 @@ body {
   position: absolute;
   width: clamp(100px, 24vw, 160px);
   left: 3%;
-  bottom: 16%;
-  filter: drop-shadow(0 12px 14px rgba(17, 36, 57, 0.52));
+  bottom: 13%;
+  filter: none;
   z-index: 6;
   transition: filter 220ms ease, transform 220ms ease;
 }
@@ -562,7 +699,7 @@ body {
 
 .stats-card {
   width: min(100%, 430px);
-  max-height: calc(100vh - 70px);
+  max-height: calc(100dvh - 70px);
   overflow-y: auto;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.28);
@@ -651,9 +788,68 @@ body {
   background: linear-gradient(180deg, #ffb15c, #e16b35);
 }
 
+.pause-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 53;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(5, 10, 24, 0.72);
+}
+
+.pause-modal.hidden {
+  display: none;
+}
+
+.pause-card {
+  width: min(100%, 330px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(11, 18, 43, 0.96);
+  box-shadow: 0 16px 30px rgba(4, 8, 20, 0.58);
+  text-align: center;
+  padding: 16px 14px;
+}
+
+.pause-card h2 {
+  margin: 0;
+  font-family: "Bangers", cursive;
+  letter-spacing: 0.05em;
+  font-size: 1.8rem;
+}
+
+.pause-card p {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  opacity: 0.92;
+}
+
+.pause-actions {
+  margin-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.pause-actions button {
+  border: none;
+  border-radius: 12px;
+  min-height: 40px;
+  color: #f7fbff;
+  font-weight: 800;
+}
+
+#resume-btn {
+  background: linear-gradient(180deg, #ffb15c, #e16b35);
+}
+
+#back-title-btn {
+  background: linear-gradient(180deg, #61728f, #445169);
+}
+
 .tables-card {
   width: min(100%, 390px);
-  max-height: calc(100vh - 76px);
+  max-height: calc(100dvh - 76px);
   overflow-y: auto;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.28);
@@ -755,9 +951,10 @@ body {
 
 .question-text {
   margin: 4px 0 10px;
-  font-family: "Bangers", cursive;
-  font-size: 2rem;
-  letter-spacing: 0.06em;
+  font-family: "Nunito", "Trebuchet MS", sans-serif;
+  font-weight: 900;
+  font-size: 1.94rem;
+  letter-spacing: 0.02em;
   color: var(--gold);
   text-shadow: 0 3px 0 rgba(0, 0, 0, 0.3);
 }
@@ -775,6 +972,7 @@ body {
   background: rgba(13, 19, 44, 0.76);
   color: #fff;
   font-weight: 800;
+  font-family: "Nunito", "Trebuchet MS", sans-serif;
   font-size: 1.4rem;
   padding: 10px 12px;
   text-align: center;
@@ -931,6 +1129,64 @@ body {
   }
 
   .phone-frame {
-    min-height: min(900px, calc(100vh - 40px));
+    height: min(900px, calc(100dvh - 40px));
+  }
+}
+
+@media (max-height: 880px) {
+  body {
+    padding: 6px;
+  }
+
+  .phone-frame {
+    height: calc(100dvh - 8px);
+    min-height: 0;
+    border-radius: 20px;
+  }
+
+  .hud {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .hud-label {
+    font-size: 0.64rem;
+  }
+
+  .hud-item strong {
+    font-size: 0.9rem;
+  }
+
+  .battlefield {
+    min-height: clamp(210px, 36vh, 300px);
+  }
+
+  .question-panel {
+    padding: 10px;
+  }
+
+  .question-text {
+    margin: 2px 0 8px;
+    font-size: 1.72rem;
+  }
+
+  .mode-select {
+    margin: 2px 0 8px;
+  }
+
+  #answer-input {
+    font-size: 1.16rem;
+    padding: 8px 10px;
+  }
+
+  .feedback {
+    min-height: 20px;
+    margin: 8px 0 6px;
+    font-size: 0.84rem;
+  }
+
+  .keypad button {
+    min-height: 38px;
+    font-size: 1rem;
   }
 }

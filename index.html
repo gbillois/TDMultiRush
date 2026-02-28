@@ -48,6 +48,7 @@
             <span class="hud-label">Combo</span>
             <strong id="combo-value">x0</strong>
           </div>
+          <button id="pause-btn" class="hud-pause-btn" type="button">Pause</button>
         </header>
 
         <main class="battlefield" id="battlefield">
@@ -71,7 +72,7 @@
 
           <div id="wave-banner" class="wave-banner">Vague 1</div>
           <div id="game-over" class="game-over hidden">
-            <h2>Défaite</h2>
+            <h2 id="game-over-title">Défaite</h2>
             <p id="game-over-text">Les gobelins ont passé ta défense.</p>
             <p id="final-score-text" class="final-score-text">Score final: 0</p>
             <div id="score-submit" class="score-submit">
@@ -113,7 +114,7 @@
           </div>
           <div class="mode-select" id="mode-select">
             <button type="button" data-mode="simple">Mode Simple</button>
-            <button type="button" data-mode="normal" class="active">Mode Normal (Difficile)</button>
+            <button type="button" data-mode="normal" class="active">Mode normal</button>
           </div>
 
           <div class="answer-row">
@@ -169,6 +170,17 @@
             </div>
 
             <button id="close-stats-btn" type="button">Fermer</button>
+          </div>
+        </section>
+
+        <section id="pause-modal" class="pause-modal hidden">
+          <div class="pause-card">
+            <h2>Pause</h2>
+            <p>La partie est en pause.</p>
+            <div class="pause-actions">
+              <button id="resume-btn" type="button">Reprendre</button>
+              <button id="back-title-btn" type="button">Retour à l'écran titre</button>
+            </div>
           </div>
         </section>
       </div>

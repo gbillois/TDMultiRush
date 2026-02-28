@@ -12,6 +12,7 @@
     livesValue: document.getElementById("lives-value"),
     scoreValue: document.getElementById("score-value"),
     comboValue: document.getElementById("combo-value"),
+    pauseBtn: document.getElementById("pause-btn"),
     questionText: document.getElementById("question-text"),
     answerInput: document.getElementById("answer-input"),
     feedback: document.getElementById("feedback"),
@@ -21,6 +22,7 @@
     modeButtons: Array.from(document.querySelectorAll("#mode-select [data-mode]")),
     waveBanner: document.getElementById("wave-banner"),
     gameOver: document.getElementById("game-over"),
+    gameOverTitle: document.getElementById("game-over-title"),
     gameOverText: document.getElementById("game-over-text"),
     finalScoreText: document.getElementById("final-score-text"),
     scoreSubmit: document.getElementById("score-submit"),
@@ -38,10 +40,13 @@
     openStatsInlineBtn: document.getElementById("open-stats-inline-btn"),
     tablesModal: document.getElementById("tables-modal"),
     statsModal: document.getElementById("stats-modal"),
+    pauseModal: document.getElementById("pause-modal"),
     tablesGrid: document.getElementById("tables-grid"),
     masteryMatrix: document.getElementById("mastery-matrix"),
     closeTablesBtn: document.getElementById("close-tables-btn"),
     closeStatsBtn: document.getElementById("close-stats-btn"),
+    resumeBtn: document.getElementById("resume-btn"),
+    backTitleBtn: document.getElementById("back-title-btn"),
     resetMasteryBtn: document.getElementById("reset-mastery-btn")
   };
 
@@ -59,6 +64,23 @@
   const SIMPLE_MAX_MISTAKES = 5;
   const SIMPLE_STEP_ADVANCE = 0.15;
   const SIMPLE_ADVANCE_ANIMATION_MS = 560;
+  const WAVES_PER_WORLD = 2;
+  const WORLD_THEMES = [
+    { id: "plains", label: "Plaines" },
+    { id: "mountain", label: "Montagnes" },
+    { id: "snow", label: "Neige" },
+    { id: "desert", label: "Désert" },
+    { id: "dark", label: "Monde sombre" }
+  ];
+  const MAX_WAVES = WORLD_THEMES.length * WAVES_PER_WORLD;
+  const TABLE_COMPLEXITY_BONUS = {
+    6: 4,
+    7: 6,
+    8: 8,
+    9: 10
+  };
+  const TARGET_SOLVE_TIME_SECONDS = 0.75;
+  const DIFFICULTY_SAFETY_MARGIN_SECONDS = 1.2;
 
   const TOWER_SKINS = {
     arcane: "assets/tower-arcane.svg",
@@ -124,6 +146,7 @@
     leaderboard: [],
     scoreSubmitted: false,
     lastPlayerName: "",
+    lastQuestionKey: "",
     lastFrame: 0,
     sessionId: 0
   };
@@ -376,6 +399,9 @@
     dom.scoreValue.textContent = String(state.score);
     dom.comboValue.textContent = `x${state.combo}`;
     dom.answerInput.value = state.inputBuffer;
+    if (dom.pauseBtn) {
+      dom.pauseBtn.disabled = !state.started || state.gameOver;
+    }
 
     if (isSimpleMode()) {
       dom.livesLabel.textContent = "Erreurs";
@@ -438,6 +464,82 @@
 
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function getWorldIndexForWave(wave) {
+    return Math.min(
+      WORLD_THEMES.length - 1,
+      Math.max(0, Math.floor((wave - 1) / WAVES_PER_WORLD))
+    );
+  }
+
+  function applyWorldTheme() {
+    if (!dom.battlefield) {
+      return WORLD_THEMES[0];
+    }
+
+    const worldIndex = getWorldIndexForWave(state.wave);
+    const world = WORLD_THEMES[worldIndex];
+
+    for (const theme of WORLD_THEMES) {
+      dom.battlefield.classList.remove(`world-${theme.id}`);
+    }
+    dom.battlefield.classList.add(`world-${world.id}`);
+
+    return world;
+  }
+
+  function getTableComplexityBonus(table) {
+    return TABLE_COMPLEXITY_BONUS[table] || 0;
+  }
+
+  function getWaveDifficultyProgress() {
+    return Math.min(1, Math.max(0, (state.wave - 1) / (MAX_WAVES - 1)));
+  }
+
+  function getEnemyCountForWave() {
+    return isSimpleMode() ? 3 + state.wave : 4 + state.wave * 2;
+  }
+
+  function getSpawnIntervalForWave() {
+    if (isSimpleMode()) {
+      return 0;
+    }
+    return Math.max(0.85, 1.2 - state.wave * 0.035);
+  }
+
+  function computeEnemySpeed(variant) {
+    const progress = getWaveDifficultyProgress();
+    const baseSpeed = 0.038 + progress * 0.02;
+    const variantImpact = variant.speedBonus * 0.3;
+    const jitter = Math.random() * 0.003;
+    return Math.max(0.03, baseSpeed + variantImpact + jitter);
+  }
+
+  function computeEnemyHp(variant, speed, spawnProgress) {
+    const progress = getWaveDifficultyProgress();
+    const desiredHp = 1 + progress * 1.4 + variant.hpBonus * 0.18;
+    const desiredRoundedHp = Math.max(1, Math.round(desiredHp));
+
+    if (isSimpleMode()) {
+      return desiredRoundedHp;
+    }
+
+    const enemyCount = getEnemyCountForWave();
+    const spawnInterval = getSpawnIntervalForWave();
+    const travelDistance = Math.max(0.35, 1 - spawnProgress);
+    const travelTime = travelDistance / Math.max(0.01, speed);
+
+    // Budget formula: with 0.75s/question, the last wave remains beatable if
+    // total time to clear N enemies stays under spawn cadence + travel window.
+    const availableTime =
+      travelTime + (enemyCount - 1) * spawnInterval - DIFFICULTY_SAFETY_MARGIN_SECONDS;
+    const maxHpForPacing = Math.max(
+      1,
+      Math.floor(availableTime / (enemyCount * TARGET_SOLVE_TIME_SECONDS))
+    );
+
+    return Math.max(1, Math.min(desiredRoundedHp, maxHpForPacing));
   }
 
   function tableAccuracy(table) {
@@ -560,11 +662,24 @@
   }
 
   function nextQuestion() {
-    const table = pickAdaptiveTable();
     const maxB = Math.min(12, 4 + Math.floor(state.wave * 1.2));
-    const b = randomInt(1, maxB);
+    const possibleOperations = state.selectedTables.length * maxB;
+    const canAvoidRepeat = possibleOperations > 1 && state.lastQuestionKey.length > 0;
+
+    let table = pickAdaptiveTable();
+    let b = randomInt(1, maxB);
+    let key = multiplicationKey(table, b);
+    let guard = 0;
+
+    while (canAvoidRepeat && key === state.lastQuestionKey && guard < 24) {
+      table = pickAdaptiveTable();
+      b = randomInt(1, maxB);
+      key = multiplicationKey(table, b);
+      guard += 1;
+    }
 
     state.question = { a: table, b, answer: table * b };
+    state.lastQuestionKey = key;
     state.inputBuffer = "";
     dom.questionText.textContent = `${table} x ${b} = ?`;
     updateHud();
@@ -600,19 +715,19 @@
     el.appendChild(hpBar);
     dom.enemyLayer.appendChild(el);
 
-    const hp = 1 + Math.floor((state.wave - 1) / 2) + variant.hpBonus;
-    const speed =
-      0.048 + state.wave * 0.005 + Math.random() * 0.005 + variant.speedBonus;
+    const spawnProgress =
+      typeof initialProgress === "number"
+        ? initialProgress
+        : -0.18 - Math.random() * 0.12;
+    const speed = computeEnemySpeed(variant);
+    const hp = computeEnemyHp(variant, speed, spawnProgress);
 
     const enemy = {
       id: ++state.enemyId,
       hp,
       maxHp: hp,
       speed,
-      progress:
-        typeof initialProgress === "number"
-          ? initialProgress
-          : -0.18 - Math.random() * 0.12,
+      progress: spawnProgress,
       sway: Math.random() * Math.PI * 2,
       enraged: false,
       el,
@@ -732,13 +847,21 @@
     }, 240);
   }
 
-  function triggerGameOver(message) {
+  function triggerGameOver(message, options = {}) {
     if (state.gameOver) {
       return;
     }
 
+    const title = options.title || "Défaite";
+    const feedbackText = options.feedbackText || "Partie terminée. Clique sur Rejouer.";
+    const feedbackKind = options.feedbackKind || "bad";
+
     state.gameOver = true;
+    updateHud();
     state.scoreSubmitted = false;
+    if (dom.gameOverTitle) {
+      dom.gameOverTitle.textContent = title;
+    }
     dom.gameOverText.textContent = message;
     dom.finalScoreText.textContent = `Score final: ${state.score}`;
     dom.scoreSaveFeedback.textContent = "";
@@ -748,12 +871,20 @@
     dom.scoreSubmit.classList.remove("hidden");
     renderLeaderboard();
     dom.gameOver.classList.remove("hidden");
-    showFeedback("Partie terminée. Clique sur Rejouer.", "bad");
+    showFeedback(feedbackText, feedbackKind);
 
     setTimeout(() => {
       dom.playerNameInput.focus();
       dom.playerNameInput.select();
     }, 30);
+  }
+
+  function triggerVictory() {
+    triggerGameOver("Tu as traversé tous les mondes. Le château est sauvé.", {
+      title: "Victoire",
+      feedbackText: "Bravo, tu as terminé la campagne.",
+      feedbackKind: "good"
+    });
   }
 
   function beginSimpleAdvanceAnimation(options = {}) {
@@ -863,8 +994,14 @@
     if (guess === state.question.answer) {
       recordAnswer(state.question.a, state.question.b, true);
       state.combo += 1;
-      state.score += 10 + state.wave * 4 + state.combo * 2;
-      showFeedback("Parfait. Tir magique lancé.", "good");
+      const tableBonus = getTableComplexityBonus(state.question.a);
+      state.score += 10 + state.wave * 4 + state.combo * 2 + tableBonus;
+      showFeedback(
+        tableBonus > 0
+          ? `Parfait. Tir magique lancé. Bonus table ${state.question.a}: +${tableBonus}`
+          : "Parfait. Tir magique lancé.",
+        "good"
+      );
 
       if (target) {
         launchProjectile(target);
@@ -933,12 +1070,13 @@
   }
 
   function setupWave() {
-    const enemyCount = isSimpleMode() ? 3 + state.wave : 4 + state.wave * 2;
+    const enemyCount = getEnemyCountForWave();
     state.queuedSpawns = enemyCount;
-    state.spawnCooldown = isSimpleMode() ? 0 : 0.35;
+    state.spawnCooldown = getSpawnIntervalForWave();
     state.betweenWaves = false;
+    const world = applyWorldTheme();
     updateTowerSkin();
-    banner(`Vague ${state.wave}`);
+    banner(`Vague ${state.wave} - ${world.label}`);
 
     if (isSimpleMode()) {
       for (let index = 0; index < enemyCount; index += 1) {
@@ -963,6 +1101,17 @@
     state.score += 40 + state.wave * 12;
     showFeedback("Vague nettoyée. Prépare-toi.", "good");
     updateHud();
+
+    if (state.wave >= MAX_WAVES) {
+      const localSessionId = state.sessionId;
+      setTimeout(() => {
+        if (state.gameOver || localSessionId !== state.sessionId) {
+          return;
+        }
+        triggerVictory();
+      }, 900);
+      return;
+    }
 
     const localSessionId = state.sessionId;
     setTimeout(() => {
@@ -1012,10 +1161,14 @@
     state.simpleAdvanceAnimation = null;
     state.shakeTimeoutId = null;
     state.scoreSubmitted = false;
+    state.lastQuestionKey = "";
     state.lastFrame = 0;
     state.sessionId += 1;
 
     dom.gameOver.classList.add("hidden");
+    if (dom.gameOverTitle) {
+      dom.gameOverTitle.textContent = "Défaite";
+    }
     dom.finalScoreText.textContent = "Score final: 0";
     dom.scoreSaveFeedback.textContent = "";
     dom.playerNameInput.disabled = false;
@@ -1032,6 +1185,7 @@
     );
 
     updateHud();
+    applyWorldTheme();
     nextQuestion();
     setupWave();
   }
@@ -1044,11 +1198,13 @@
 
     const tablesOpen = !dom.tablesModal.classList.contains("hidden");
     const statsOpen = !dom.statsModal.classList.contains("hidden");
-    state.paused = tablesOpen || statsOpen;
+    const pauseOpen = !dom.pauseModal.classList.contains("hidden");
+    state.paused = tablesOpen || statsOpen || pauseOpen;
   }
 
   function openTablesModal() {
     renderTablesGrid();
+    dom.pauseModal.classList.add("hidden");
     dom.statsModal.classList.add("hidden");
     dom.tablesModal.classList.remove("hidden");
     refreshPauseState();
@@ -1066,6 +1222,7 @@
   function openStatsModal() {
     renderLeaderboard();
     renderMasteryMatrix();
+    dom.pauseModal.classList.add("hidden");
     dom.tablesModal.classList.add("hidden");
     dom.statsModal.classList.remove("hidden");
     refreshPauseState();
@@ -1076,6 +1233,63 @@
     refreshPauseState();
   }
 
+  function openPauseModal() {
+    if (!state.started || state.gameOver) {
+      return;
+    }
+
+    dom.tablesModal.classList.add("hidden");
+    dom.statsModal.classList.add("hidden");
+    dom.pauseModal.classList.remove("hidden");
+    refreshPauseState();
+  }
+
+  function closePauseModal() {
+    dom.pauseModal.classList.add("hidden");
+    refreshPauseState();
+  }
+
+  function returnToTitleScreen() {
+    clearAllEnemies();
+    setCastleFire(false);
+
+    state.started = false;
+    state.paused = false;
+    state.wave = 1;
+    state.lives = 20;
+    state.simpleMistakes = 0;
+    state.score = 0;
+    state.combo = 0;
+    state.spawnCooldown = 0;
+    state.enemyId = 0;
+    state.question = null;
+    state.inputBuffer = "";
+    state.betweenWaves = false;
+    state.gameOver = false;
+    state.simpleAdvanceAnimation = null;
+    state.lastQuestionKey = "";
+    state.lastFrame = 0;
+    state.sessionId += 1;
+
+    dom.pauseModal.classList.add("hidden");
+    dom.tablesModal.classList.add("hidden");
+    dom.statsModal.classList.add("hidden");
+    dom.gameOver.classList.add("hidden");
+    if (dom.gameOverTitle) {
+      dom.gameOverTitle.textContent = "Défaite";
+    }
+    dom.finalScoreText.textContent = "Score final: 0";
+    dom.scoreSaveFeedback.textContent = "";
+    dom.playerNameInput.disabled = false;
+    dom.saveScoreBtn.disabled = false;
+    dom.questionText.textContent = "6 x 7 = ?";
+    dom.titleScreen.classList.remove("hidden");
+
+    updateHud();
+    applyWorldTheme();
+    showFeedback("Choisis un mode puis lance la partie.", "");
+  }
+
   function startGame() {
     if (state.started) {
       return;
@@ -1083,6 +1297,7 @@
 
     state.started = true;
     state.paused = false;
+    dom.pauseModal.classList.add("hidden");
     dom.tablesModal.classList.add("hidden");
     dom.statsModal.classList.add("hidden");
     dom.titleScreen.classList.add("hidden");
@@ -1103,7 +1318,7 @@
         if (state.spawnCooldown <= 0) {
           createEnemy();
           state.queuedSpawns -= 1;
-          state.spawnCooldown = Math.max(0.52, 1.15 - state.wave * 0.03);
+          state.spawnCooldown = getSpawnIntervalForWave();
         }
       }
 
@@ -1163,12 +1378,15 @@
   });
 
   dom.startBtn.addEventListener("click", startGame);
+  dom.pauseBtn.addEventListener("click", openPauseModal);
   dom.openTablesBtn.addEventListener("click", openTablesModal);
   dom.openStatsBtn.addEventListener("click", openStatsModal);
   dom.openTablesInlineBtn.addEventListener("click", openTablesModal);
   dom.openStatsInlineBtn.addEventListener("click", openStatsModal);
   dom.closeTablesBtn.addEventListener("click", closeTablesModal);
   dom.closeStatsBtn.addEventListener("click", closeStatsModal);
+  dom.resumeBtn.addEventListener("click", closePauseModal);
+  dom.backTitleBtn.addEventListener("click", returnToTitleScreen);
 
   dom.tablesGrid.addEventListener("change", (event) => {
     const input = event.target.closest("input[data-table-checkbox]");
@@ -1223,8 +1441,22 @@
       return;
     }
 
+    if (event.key === "Escape" && !dom.pauseModal.classList.contains("hidden")) {
+      closePauseModal();
+      return;
+    }
+
     if (event.key === "Escape" && !dom.tablesModal.classList.contains("hidden")) {
       closeTablesModal();
+      return;
+    }
+
+    if ((event.key === "p" || event.key === "P") && state.started && !state.gameOver) {
+      if (dom.pauseModal.classList.contains("hidden")) {
+        openPauseModal();
+      } else {
+        closePauseModal();
+      }
       return;
     }
 
@@ -1248,6 +1480,7 @@
   renderTablesGrid();
   renderLeaderboard();
   renderMasteryMatrix();
+  applyWorldTheme();
   showFeedback("Choisis un mode puis lance la partie.", "");
   requestAnimationFrame(gameLoop);
 })();
