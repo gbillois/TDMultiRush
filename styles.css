@@ -256,6 +256,7 @@ body {
   position: absolute;
   inset: 0;
   background-size: cover;
+  background-repeat: no-repeat;
   background-position: center calc(100% + var(--debug-bg-offset-y));
   pointer-events: none;
   transition: filter 520ms ease, opacity 520ms ease, transform 520ms ease;
@@ -301,6 +302,7 @@ body {
 
 .visual-style-castle .layer,
 .visual-style-fairy .layer {
+  background-size: 100% auto;
   background-position: center calc(88% + var(--debug-bg-offset-y));
 }
 
@@ -1552,7 +1554,7 @@ body {
   }
 }
 
-@media (max-height: 880px) {
+@media (max-height: 880px) and (hover: hover) {
   body {
     padding: 6px;
   }
@@ -1607,5 +1609,19 @@ body {
   .keypad button {
     min-height: 38px;
     font-size: 1rem;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  :root {
+    --keypad-bottom-extra: 42px;
+  }
+
+  .question-panel {
+    max-height: 44dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: calc(20px + var(--keypad-bottom-extra) + env(safe-area-inset-bottom));
   }
 }

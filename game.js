@@ -92,6 +92,7 @@
   const MASTERY_TARGET = 20;
   const LEADERBOARD_MAX_ENTRIES = 10;
   const ALL_TABLES = Array.from({ length: 12 }, (_, idx) => idx + 1);
+  const MAX_MULTIPLIER_VALUE = 10;
   const SIMPLE_MAX_MISTAKES = 4;
   const SIMPLE_STEP_ADVANCE = 0.15;
   const SIMPLE_ADVANCE_ANIMATION_MS = 560;
@@ -1119,7 +1120,7 @@
   }
 
   function nextQuestion() {
-    const maxB = Math.min(12, 4 + Math.floor(state.wave * 1.2));
+    const maxB = Math.min(MAX_MULTIPLIER_VALUE, 4 + Math.floor(state.wave * 1.2));
     const possibleOperations = state.selectedTables.length * maxB;
     const canAvoidRepeat = possibleOperations > 1 && state.lastQuestionKey.length > 0;
 
@@ -1380,7 +1381,10 @@
   }
 
   function requestSettingsUnlock() {
-    const multiplierCandidates = ALL_TABLES.filter((value) => ![1, 2, 10].includes(value));
+    const multiplierCandidates = Array.from(
+      { length: MAX_MULTIPLIER_VALUE },
+      (_, idx) => idx + 1
+    ).filter((value) => ![1, 2, 10].includes(value));
     const b = multiplierCandidates[randomInt(0, multiplierCandidates.length - 1)];
     const expected = 12 * b;
     const answer = window.prompt(`Sécurité Réglages: 12 x ${b} = ?`);
