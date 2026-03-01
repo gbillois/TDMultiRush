@@ -73,11 +73,11 @@ body {
   background: linear-gradient(180deg, #6ea6ff 0%, #3f7ccf 56%, #28466a 100%);
   display: flex;
   flex-direction: column;
-  --layer-sky-epic: url("assets/pixel/bg-sky-epic.png");
-  --layer-sky-alt: url("assets/pixel/bg-sky.png");
-  --layer-hills-epic: url("assets/pixel/bg-mountains-epic.png");
-  --layer-hills-alt: url("assets/pixel/bg-hills.png");
-  --layer-forest: url("assets/pixel/bg-forest-foreground.png");
+  --layer-sky-epic: url("assets/bg-sky-epic.svg");
+  --layer-sky-alt: url("assets/bg-sky.svg");
+  --layer-hills-epic: url("assets/bg-mountains-epic.svg");
+  --layer-hills-alt: url("assets/bg-hills.svg");
+  --layer-forest: url("assets/bg-forest-foreground.svg");
   --world-bg-forest: url("assets/pixel/bg-forest.png");
   --world-bg-snow: url("assets/pixel/bg-snow.png");
   --world-bg-mountains: url("assets/pixel/bg-mountains.png");
@@ -99,11 +99,11 @@ body {
 }
 
 .phone-frame.visual-style-castle {
-  --layer-sky-epic: url("assets/pixel/bg-sky-epic.png");
-  --layer-sky-alt: url("assets/pixel/bg-sky.png");
-  --layer-hills-epic: url("assets/pixel/bg-mountains-epic.png");
-  --layer-hills-alt: url("assets/pixel/bg-hills.png");
-  --layer-forest: url("assets/pixel/bg-forest-foreground.png");
+  --layer-sky-epic: url("assets/bg-sky-epic.svg");
+  --layer-sky-alt: url("assets/bg-sky.svg");
+  --layer-hills-epic: url("assets/bg-mountains-epic.svg");
+  --layer-hills-alt: url("assets/bg-hills.svg");
+  --layer-forest: url("assets/bg-forest-foreground.svg");
   --world-bg-forest: url("assets/pixel/bg-forest.png");
   --world-bg-snow: url("assets/pixel/bg-snow.png");
   --world-bg-mountains: url("assets/pixel/bg-mountains.png");
@@ -112,11 +112,11 @@ body {
 }
 
 .phone-frame.visual-style-fairy {
-  --layer-sky-epic: url("assets/pixel-fairy/bg-sky-epic.png");
-  --layer-sky-alt: url("assets/pixel-fairy/bg-sky.png");
-  --layer-hills-epic: url("assets/pixel-fairy/bg-mountains-epic.png");
-  --layer-hills-alt: url("assets/pixel-fairy/bg-hills.png");
-  --layer-forest: url("assets/pixel-fairy/bg-forest-foreground.png");
+  --layer-sky-epic: url("assets/bg-sky-epic.svg");
+  --layer-sky-alt: url("assets/bg-sky.svg");
+  --layer-hills-epic: url("assets/bg-mountains-epic.svg");
+  --layer-hills-alt: url("assets/bg-hills.svg");
+  --layer-forest: url("assets/bg-forest-foreground.svg");
   --world-bg-forest: url("assets/pixel-fairy/bg-forest.png");
   --world-bg-snow: url("assets/pixel-fairy/bg-snow.png");
   --world-bg-mountains: url("assets/pixel-fairy/bg-mountains.png");
