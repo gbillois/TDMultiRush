@@ -1910,21 +1910,21 @@ body {
   }
 
   body {
-    padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+    padding: 0;
   }
 
   .game-shell,
   .game-shell.debug-open {
     width: min(100vw, var(--app-max-width));
     max-width: var(--app-max-width);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    box-sizing: border-box;
     gap: 0;
   }
 
   .phone-frame {
-    width: min(
-      calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right)),
-      var(--app-max-width)
-    );
+    width: 100%;
     max-width: var(--app-max-width);
     height: 100svh;
     min-height: 0;
@@ -1977,7 +1977,8 @@ body {
 
   .mode-select button {
     min-height: 34px;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
+    padding: 0 6px;
   }
 
   .answer-row {

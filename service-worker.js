@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const STATIC_CACHE = `multipliRush-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `multipliRush-runtime-${CACHE_VERSION}`;
 
