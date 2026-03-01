@@ -1383,8 +1383,7 @@
         ? castleRect.left - rect.left + castleRect.width * 0.34
         : pathEndX;
       const endX = Math.max(startX + 24, Math.min(pathEndX, doorX));
-      const baseY =
-        pathRect.top - rect.top + pathRect.height * baseYFactor + tuning.enemyPathOffsetY;
+      const baseY = pathRect.top - rect.top + pathRect.height * baseYFactor;
 
       return {
         startX,
@@ -2079,6 +2078,11 @@
       state.inputBuffer = state.inputBuffer.slice(0, -1);
     } else if (key === "clear") {
       state.inputBuffer = "";
+    }
+
+    if (state.inputBuffer === "888") {
+      state.inputBuffer = "";
+      openDebugModal();
     }
 
     updateHud();

@@ -16,6 +16,8 @@
   --debug-castle-offset-y: 0px;
   --debug-tower-scale: 1;
   --debug-castle-scale: 1;
+  --battle-upshift-y: 50px;
+  --castle-extra-shift-y: -10px;
   --keypad-bottom-extra: 30px;
   --app-max-width: 560px;
 }
@@ -287,7 +289,8 @@ body {
   position: absolute;
   left: 16%;
   right: -6%;
-  top: calc(64% + var(--debug-path-offset-y));
+  top: auto;
+  bottom: calc(20% + var(--battle-upshift-y) - var(--debug-path-offset-y));
   height: 16%;
   border-radius: 60px;
   background:
@@ -305,7 +308,7 @@ body {
 
 .visual-style-castle .layer,
 .visual-style-fairy .layer {
-  background-size: cover;
+  background-size: 100% auto;
   background-position: center calc(100% + var(--debug-bg-offset-y));
 }
 
@@ -326,7 +329,8 @@ body {
 
 .visual-style-castle .path,
 .visual-style-fairy .path {
-  top: calc(78% + var(--debug-path-offset-y));
+  top: auto;
+  bottom: calc(12% + var(--battle-upshift-y) - var(--debug-path-offset-y));
   height: 10%;
   background: transparent;
   border: 0;
@@ -486,7 +490,9 @@ body {
 .castle-door {
   position: absolute;
   right: -8%;
-  bottom: calc(5% + var(--debug-castle-offset-y));
+  bottom: calc(
+    5% + var(--battle-upshift-y) + var(--castle-extra-shift-y) + var(--debug-castle-offset-y)
+  );
   width: clamp(132px, 30vw, 210px);
   z-index: 4;
   filter: none;
@@ -497,7 +503,9 @@ body {
 .castle-fire {
   position: absolute;
   right: -14%;
-  bottom: calc(5% + var(--debug-castle-offset-y));
+  bottom: calc(
+    5% + var(--battle-upshift-y) + var(--castle-extra-shift-y) + var(--debug-castle-offset-y)
+  );
   width: clamp(170px, 40vw, 280px);
   z-index: 10;
   pointer-events: none;
@@ -515,7 +523,7 @@ body {
   position: absolute;
   width: clamp(100px, 24vw, 160px);
   left: 3%;
-  bottom: calc(13% + var(--debug-tower-offset-y));
+  bottom: calc(13% + var(--battle-upshift-y) + var(--debug-tower-offset-y));
   filter: none;
   z-index: 6;
   transition: filter 220ms ease, transform 220ms ease;
@@ -526,21 +534,25 @@ body {
 .visual-style-castle .castle-door,
 .visual-style-fairy .castle-door {
   right: -5%;
-  bottom: calc(3% + var(--debug-castle-offset-y));
+  bottom: calc(
+    3% + var(--battle-upshift-y) + var(--castle-extra-shift-y) + var(--debug-castle-offset-y)
+  );
   width: clamp(92px, 21vw, 150px);
 }
 
 .visual-style-castle .castle-fire,
 .visual-style-fairy .castle-fire {
   right: -11%;
-  bottom: calc(3% + var(--debug-castle-offset-y));
+  bottom: calc(
+    3% + var(--battle-upshift-y) + var(--castle-extra-shift-y) + var(--debug-castle-offset-y)
+  );
   width: clamp(124px, 30vw, 198px);
 }
 
 .visual-style-castle .tower,
 .visual-style-fairy .tower {
   left: 3%;
-  bottom: calc(9% + var(--debug-tower-offset-y));
+  bottom: calc(9% + var(--battle-upshift-y) + var(--debug-tower-offset-y));
   width: clamp(70px, 16vw, 112px);
 }
 
@@ -552,7 +564,7 @@ body {
 .boss-dragon {
   position: absolute;
   left: 50%;
-  bottom: 20%;
+  bottom: calc(20% + 30px);
   width: clamp(130px, 30vw, 210px);
   z-index: 11;
   pointer-events: none;
