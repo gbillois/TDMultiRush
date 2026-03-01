@@ -154,6 +154,15 @@
   };
   const TARGET_SOLVE_TIME_SECONDS = 0.75;
   const DIFFICULTY_SAFETY_MARGIN_SECONDS = 1.2;
+  const BONUS_CHEST_SRC = "assets/coffre-sprite.png";
+  const BONUS_CHEST_SPAWN_CHANCE = 1 / 6;
+  const BONUS_CHEST_MIN_SHOTS = 3;
+  const BONUS_CHEST_CLICK_WINDOW_MS = 5000;
+  const BONUS_CHEST_REWARD_MIN = 5;
+  const BONUS_CHEST_REWARD_MAX = 30;
+  const BONUS_CHEST_SIZE_SCALE = 0.4;
+  const BONUS_CHEST_FADE_MS = 260;
+  const BONUS_CHEST_Y_OFFSET_PX = 30;
   const ENABLE_COMBO_DEBUG_GESTURE = false;
   const PLATFORM_UPSHIFT_NARROW_MAX_WIDTH = 430;
   const PLATFORM_UPSHIFT_Y_PX = 50;
@@ -295,47 +304,47 @@
     [VISUAL_STYLES.CASTLE]: {
       [SHOP_CATEGORIES.TOWER]: [
         { key: "base", name: "Tour de base", nameEn: "Base Tower", cost: 0, unlockWave: 1 },
-        { key: "ember", name: "Castelet", nameEn: "Small Keep", cost: 160, unlockWave: 2 },
-        { key: "rune", name: "Orbe destructrice", nameEn: "Destructive Orb", cost: 420, unlockWave: 4 },
-        { key: "obsidian", name: "Le nid", nameEn: "The Nest", cost: 980, unlockWave: 7 },
-        { key: "royal", name: "La forteresse", nameEn: "The Fortress", cost: 2300, unlockWave: 10 }
+        { key: "ember", name: "Castelet", nameEn: "Small Keep", cost: 100, unlockWave: 2 },
+        { key: "rune", name: "Orbe destructrice", nameEn: "Destructive Orb", cost: 200, unlockWave: 4 },
+        { key: "obsidian", name: "Le nid", nameEn: "The Nest", cost: 400, unlockWave: 7 },
+        { key: "royal", name: "La forteresse", nameEn: "The Fortress", cost: 800, unlockWave: 10 }
       ],
       [SHOP_CATEGORIES.CASTLE]: [
         { key: "base", name: "Château de base", nameEn: "Base Castle", cost: 0, unlockWave: 1 },
-        { key: "bastion", name: "Le bastion", nameEn: "The Bastion", cost: 210, unlockWave: 3 },
-        { key: "citadel", name: "La citadelle", nameEn: "The Citadel", cost: 520, unlockWave: 5 },
-        { key: "ironkeep", name: "La tour de guet", nameEn: "The Watchtower", cost: 1250, unlockWave: 8 },
-        { key: "dawnfort", name: "La forteresse", nameEn: "The Fortress", cost: 2900, unlockWave: 10 }
+        { key: "bastion", name: "Le bastion", nameEn: "The Bastion", cost: 100, unlockWave: 3 },
+        { key: "citadel", name: "La citadelle", nameEn: "The Citadel", cost: 200, unlockWave: 5 },
+        { key: "ironkeep", name: "La tour de guet", nameEn: "The Watchtower", cost: 400, unlockWave: 8 },
+        { key: "dawnfort", name: "La forteresse", nameEn: "The Fortress", cost: 800, unlockWave: 10 }
       ],
       [SHOP_CATEGORIES.PROJECTILE]: [
         { key: "base", name: "Tir de base", nameEn: "Base Shot", cost: 0, unlockWave: 1 },
-        { key: "spark", name: "Glue verte", nameEn: "Green Glue", cost: 120, unlockWave: 2 },
-        { key: "flare", name: "Boule de glace", nameEn: "Ice Orb", cost: 360, unlockWave: 4 },
-        { key: "comet", name: "Flèche glacée", nameEn: "Frozen Arrow", cost: 860, unlockWave: 7 },
-        { key: "prismfire", name: "Lave foudroyante", nameEn: "Thunder Lava", cost: 3900, unlockWave: 10 }
+        { key: "spark", name: "Glue verte", nameEn: "Green Glue", cost: 100, unlockWave: 2 },
+        { key: "flare", name: "Boule de glace", nameEn: "Ice Orb", cost: 200, unlockWave: 4 },
+        { key: "comet", name: "Flèche glacée", nameEn: "Frozen Arrow", cost: 400, unlockWave: 7 },
+        { key: "prismfire", name: "Lave foudroyante", nameEn: "Thunder Lava", cost: 800, unlockWave: 10 }
       ]
     },
     [VISUAL_STYLES.FAIRY]: {
       [SHOP_CATEGORIES.TOWER]: [
         { key: "base", name: "Tour féerique de base", nameEn: "Base Fairy Tower", cost: 0, unlockWave: 1 },
-        { key: "blossom", name: "Tour boréale", nameEn: "Boreal Tower", cost: 170, unlockWave: 2 },
-        { key: "moon", name: "Tour émeraude", nameEn: "Emerald Tower", cost: 430, unlockWave: 4 },
-        { key: "stardust", name: "Tour solaire", nameEn: "Solar Tower", cost: 1020, unlockWave: 7 },
-        { key: "eclipse", name: "Tour saphir", nameEn: "Sapphire Tower", cost: 2400, unlockWave: 10 }
+        { key: "blossom", name: "Tour boréale", nameEn: "Boreal Tower", cost: 100, unlockWave: 2 },
+        { key: "moon", name: "Tour émeraude", nameEn: "Emerald Tower", cost: 200, unlockWave: 4 },
+        { key: "stardust", name: "Tour solaire", nameEn: "Solar Tower", cost: 400, unlockWave: 7 },
+        { key: "eclipse", name: "Tour saphir", nameEn: "Sapphire Tower", cost: 800, unlockWave: 10 }
       ],
       [SHOP_CATEGORIES.CASTLE]: [
         { key: "base", name: "Château féerique de base", nameEn: "Base Fairy Castle", cost: 0, unlockWave: 1 },
-        { key: "petalspire", name: "Sanctuaire émeraude", nameEn: "Emerald Sanctuary", cost: 220, unlockWave: 3 },
-        { key: "moonhall", name: "Citadelle azurée", nameEn: "Azure Citadel", cost: 540, unlockWave: 5 },
-        { key: "wildroot", name: "Palais améthyste", nameEn: "Amethyst Palace", cost: 1310, unlockWave: 8 },
-        { key: "starcourt", name: "Bastion lotus", nameEn: "Lotus Bastion", cost: 3000, unlockWave: 10 }
+        { key: "petalspire", name: "Sanctuaire émeraude", nameEn: "Emerald Sanctuary", cost: 100, unlockWave: 3 },
+        { key: "moonhall", name: "Citadelle azurée", nameEn: "Azure Citadel", cost: 200, unlockWave: 5 },
+        { key: "wildroot", name: "Palais améthyste", nameEn: "Amethyst Palace", cost: 400, unlockWave: 8 },
+        { key: "starcourt", name: "Bastion lotus", nameEn: "Lotus Bastion", cost: 800, unlockWave: 10 }
       ],
       [SHOP_CATEGORIES.PROJECTILE]: [
         { key: "base", name: "Tir féerique de base", nameEn: "Base Fairy Shot", cost: 0, unlockWave: 1 },
-        { key: "pollen", name: "Éclair améthyste", nameEn: "Amethyst Bolt", cost: 130, unlockWave: 2 },
-        { key: "prism", name: "Éclair émeraude", nameEn: "Emerald Bolt", cost: 390, unlockWave: 4 },
-        { key: "spiral", name: "Flèche solaire", nameEn: "Solar Arrow", cost: 890, unlockWave: 7 },
-        { key: "aurora", name: "Lance saphir", nameEn: "Sapphire Lance", cost: 2150, unlockWave: 10 }
+        { key: "pollen", name: "Éclair améthyste", nameEn: "Amethyst Bolt", cost: 100, unlockWave: 2 },
+        { key: "prism", name: "Éclair émeraude", nameEn: "Emerald Bolt", cost: 200, unlockWave: 4 },
+        { key: "spiral", name: "Flèche solaire", nameEn: "Solar Arrow", cost: 400, unlockWave: 7 },
+        { key: "aurora", name: "Lance saphir", nameEn: "Sapphire Lance", cost: 800, unlockWave: 10 }
       ]
     }
   };
@@ -500,6 +509,15 @@
       finishTimeoutId: null
     },
     bossDefeatOverlayActive: false,
+    bonusChest: {
+      active: false,
+      el: null,
+      timeoutId: null,
+      spawnPlanned: false,
+      spawnedThisWave: false,
+      shotsThisWave: 0,
+      forceEveryWave: false
+    },
     pendingModeChange: null
   };
   state.locale = detectLocale();
@@ -2171,6 +2189,182 @@
     };
   }
 
+  function getEnemyDisplaySizePx() {
+    let size = 84;
+    const trackedEnemy = state.enemies.find((enemy) => enemy?.el?.isConnected);
+    if (trackedEnemy?.el) {
+      const width = trackedEnemy.el.getBoundingClientRect().width;
+      if (width > 0) {
+        size = clamp(width, 44, 160);
+      }
+    } else {
+      const track = getTrackGeometry();
+      size = clamp(track.width * 0.18, 68, 100);
+    }
+    return clamp(size * BONUS_CHEST_SIZE_SCALE, 28, 72);
+  }
+
+  function getBonusChestSpawnPosition(chestSize) {
+    const rect = dom.battlefield.getBoundingClientRect();
+    const towerRect = dom.tower?.getBoundingClientRect();
+    const castleRect = dom.castleDoor?.getBoundingClientRect();
+    const pathRect = dom.path?.getBoundingClientRect();
+    const track = getTrackGeometry();
+
+    let minX = rect.width * 0.24;
+    let maxX = rect.width * 0.76;
+    if (towerRect) {
+      minX = Math.max(minX, towerRect.right - rect.left + chestSize * 0.55 + 8);
+    }
+    if (castleRect) {
+      maxX = Math.min(maxX, castleRect.left - rect.left - chestSize * 0.55 - 8);
+    }
+    if (maxX - minX < chestSize * 0.45) {
+      minX = track.startX + chestSize * 0.6;
+      maxX = track.endX - chestSize * 0.6;
+    }
+    if (maxX <= minX) {
+      minX = rect.width * 0.45;
+      maxX = rect.width * 0.6;
+    }
+
+    const x = minX + Math.random() * Math.max(1, maxX - minX);
+    const enemyLevelY = pathRect
+      ? pathRect.top - rect.top + pathRect.height * 0.78
+      : track.baseY;
+    const y = clamp(
+      enemyLevelY + chestSize * 0.46 + BONUS_CHEST_Y_OFFSET_PX,
+      chestSize * 0.68,
+      rect.height - chestSize * 0.55
+    );
+
+    return { x, y };
+  }
+
+  function clearBonusChest(options = {}) {
+    const immediate = options.immediate !== false;
+    if (state.bonusChest.timeoutId) {
+      clearTimeout(state.bonusChest.timeoutId);
+      state.bonusChest.timeoutId = null;
+    }
+    const chestEl = state.bonusChest.el;
+    state.bonusChest.el = null;
+    state.bonusChest.active = false;
+    if (!chestEl) {
+      return;
+    }
+    if (immediate) {
+      chestEl.remove();
+      return;
+    }
+    chestEl.classList.remove("is-visible");
+    chestEl.classList.add("is-fading-out");
+    setTimeout(() => chestEl.remove(), BONUS_CHEST_FADE_MS);
+  }
+
+  function collectBonusChest() {
+    if (!state.bonusChest.active) {
+      return;
+    }
+    const reward = randomInt(BONUS_CHEST_REWARD_MIN, BONUS_CHEST_REWARD_MAX);
+    state.coins += reward;
+    saveProfile();
+    updateHud();
+    if (!dom.shopModal.classList.contains("hidden")) {
+      renderShop();
+    }
+    showFeedback(
+      l(
+        `Coffre ouvert : +${reward} pièces d'or.`,
+        `Chest opened: +${reward} gold.`
+      ),
+      "good"
+    );
+    clearBonusChest({ immediate: false });
+  }
+
+  function spawnBonusChest(source = "wave") {
+    if (
+      !state.started ||
+      state.gameOver ||
+      state.betweenWaves ||
+      state.bossBattle.active ||
+      state.bonusChest.active ||
+      state.bonusChest.spawnedThisWave
+    ) {
+      return false;
+    }
+
+    clearBonusChest();
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "bonus-chest";
+    button.setAttribute("aria-label", l("Coffre bonus", "Bonus chest"));
+    button.title = l("Clique pour récupérer de l'or", "Tap to claim gold");
+
+    const img = document.createElement("img");
+    img.src = BONUS_CHEST_SRC;
+    img.alt = l("Coffre bonus", "Bonus chest");
+    button.appendChild(img);
+
+    dom.battlefield.appendChild(button);
+    const chestSize = getEnemyDisplaySizePx();
+    button.style.width = `${chestSize.toFixed(2)}px`;
+    const position = getBonusChestSpawnPosition(chestSize);
+    button.style.left = `${position.x.toFixed(2)}px`;
+    button.style.top = `${position.y.toFixed(2)}px`;
+    bindFastPress(button, () => collectBonusChest());
+    requestAnimationFrame(() => {
+      button.classList.add("is-visible");
+    });
+
+    state.bonusChest.el = button;
+    state.bonusChest.active = true;
+    state.bonusChest.spawnedThisWave = true;
+    if (source === "cheat") {
+      showFeedback(l("Coffre de test apparu.", "Test chest appeared."), "good");
+    }
+    state.bonusChest.timeoutId = setTimeout(() => {
+      if (!state.bonusChest.active) {
+        return;
+      }
+      clearBonusChest({ immediate: false });
+      showFeedback(l("Le coffre a disparu.", "The chest disappeared."), "");
+    }, BONUS_CHEST_CLICK_WINDOW_MS);
+    return true;
+  }
+
+  function prepareBonusChestForWave() {
+    clearBonusChest();
+    state.bonusChest.spawnedThisWave = false;
+    state.bonusChest.shotsThisWave = 0;
+    state.bonusChest.spawnPlanned =
+      !state.bonusChest.forceEveryWave && Math.random() < BONUS_CHEST_SPAWN_CHANCE;
+
+    if (state.bonusChest.forceEveryWave) {
+      spawnBonusChest("cheat");
+    }
+  }
+
+  function recordWaveShotForBonusChest() {
+    if (state.bossBattle.active || state.gameOver || state.betweenWaves || !state.started) {
+      return;
+    }
+    state.bonusChest.shotsThisWave += 1;
+    if (
+      state.bonusChest.forceEveryWave ||
+      state.bonusChest.active ||
+      state.bonusChest.spawnedThisWave ||
+      !state.bonusChest.spawnPlanned
+    ) {
+      return;
+    }
+    if (state.bonusChest.shotsThisWave >= BONUS_CHEST_MIN_SHOTS) {
+      spawnBonusChest();
+    }
+  }
+
   function renderEnemies() {
     const track = getTrackGeometry();
     const swayAmplitude = state.visualStyle === VISUAL_STYLES.BASIC ? 5 : 2.2;
@@ -2206,6 +2400,7 @@
     }
     state.enemies = [];
     state.queuedSpawns = 0;
+    clearBonusChest();
     state.simpleAdvanceAnimation = null;
     if (state.shakeTimeoutId) {
       clearTimeout(state.shakeTimeoutId);
@@ -2234,6 +2429,7 @@
   }
 
   function launchProjectile(target) {
+    recordWaveShotForBonusChest();
     const track = getTrackGeometry();
     let originX = track.width * 0.16;
     let originY = track.height * 0.50;
@@ -2292,6 +2488,7 @@
     const feedbackKind = options.feedbackKind || "bad";
 
     state.gameOver = true;
+    clearBonusChest();
     state.bossBattle.active = false;
     setBossVisibility(false);
     stopVictoryCelebration();
@@ -2887,6 +3084,32 @@
       openDebugModal();
     }
 
+    if (state.inputBuffer === "555") {
+      state.inputBuffer = "";
+      state.bonusChest.forceEveryWave = !state.bonusChest.forceEveryWave;
+      if (
+        state.bonusChest.forceEveryWave &&
+        state.started &&
+        !state.gameOver &&
+        !state.betweenWaves &&
+        !state.bossBattle.active
+      ) {
+        spawnBonusChest("cheat");
+      }
+      showFeedback(
+        state.bonusChest.forceEveryWave
+          ? l(
+            "Cheat coffre activé : un coffre apparaît au début de chaque niveau.",
+            "Chest cheat enabled: a chest appears at the start of every wave."
+          )
+          : l(
+            "Cheat coffre désactivé.",
+            "Chest cheat disabled."
+          ),
+        state.bonusChest.forceEveryWave ? "good" : ""
+      );
+    }
+
     if (state.inputBuffer === "777") {
       state.inputBuffer = "";
       state.coins += 999;
@@ -2920,6 +3143,7 @@
     applyWorldTheme();
     updateTowerSkin();
     banner(state.locale === LOCALES.FR ? `Niveau ${state.wave}` : `Level ${state.wave}`);
+    prepareBonusChestForWave();
 
     if (isSimpleMode()) {
       const targets = generateSimpleEntryTargets(enemyCount);
@@ -2948,6 +3172,7 @@
     }
 
     state.betweenWaves = true;
+    clearBonusChest();
     state.score += 40 + state.wave * 12;
     showFeedback(l("Vague nettoyée. Prépare-toi.", "Wave cleared. Get ready."), "good");
     updateHud();
@@ -3606,6 +3831,12 @@
     dom.frame?.style.setProperty("--platform-upshift-y", `${getPlatformUpshiftY()}px`);
     updateWorldSpaceAnchors();
     renderEnemies();
+    if (state.bonusChest.active && state.bonusChest.el) {
+      const chestSize = state.bonusChest.el.getBoundingClientRect().width || getEnemyDisplaySizePx();
+      const position = getBonusChestSpawnPosition(chestSize);
+      state.bonusChest.el.style.left = `${position.x.toFixed(2)}px`;
+      state.bonusChest.el.style.top = `${position.y.toFixed(2)}px`;
+    }
   };
   window.addEventListener("resize", handleViewportResize);
   window.visualViewport?.addEventListener("resize", handleViewportResize);
