@@ -65,12 +65,33 @@
           />
 
           <img id="tower-img" class="tower" src="assets/pixel/tower-arcane.PNG" alt="Tour de défense" />
+          <img
+            id="boss-dragon-img"
+            class="boss-dragon hidden"
+            src="assets/pixel/fiercedragon.PNG"
+            alt="Dragon final"
+          />
 
           <div id="enemy-layer" class="enemy-layer" aria-live="polite"></div>
           <div id="projectile-layer" class="projectile-layer"></div>
           <div id="fx-layer" class="fx-layer"></div>
+          <div id="boss-rain-layer" class="boss-rain-layer hidden"></div>
 
           <div id="wave-banner" class="wave-banner">Niveau 1</div>
+          <div id="boss-panel" class="boss-panel hidden">
+            <p id="boss-progress-text" class="boss-progress-text">Dragon: 0/5</p>
+            <div class="boss-fire-track">
+              <div id="boss-fire-fill" class="boss-fire-fill"></div>
+            </div>
+            <p id="boss-timer-text" class="boss-timer-text">5.0s</p>
+          </div>
+          <div id="boss-victory-banner" class="boss-victory-banner hidden">
+            Victoire ! Tu es le champion des multiplications
+          </div>
+          <div id="boss-defeat-overlay" class="boss-defeat-overlay hidden">
+            <p>Le dragon a gagné, tu dois être plus rapide. Retour au niveau précédent, réessaye !</p>
+            <button id="boss-defeat-go-btn" type="button">OK</button>
+          </div>
           <div id="game-over" class="game-over hidden">
             <h2 id="game-over-title">Défaite</h2>
             <p id="game-over-text">Les gobelins ont passé ta défense.</p>

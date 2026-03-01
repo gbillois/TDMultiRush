@@ -10,6 +10,15 @@
     enemyLayer: document.getElementById("enemy-layer"),
     projectileLayer: document.getElementById("projectile-layer"),
     fxLayer: document.getElementById("fx-layer"),
+    bossDragonImg: document.getElementById("boss-dragon-img"),
+    bossPanel: document.getElementById("boss-panel"),
+    bossProgressText: document.getElementById("boss-progress-text"),
+    bossFireFill: document.getElementById("boss-fire-fill"),
+    bossTimerText: document.getElementById("boss-timer-text"),
+    bossRainLayer: document.getElementById("boss-rain-layer"),
+    bossVictoryBanner: document.getElementById("boss-victory-banner"),
+    bossDefeatOverlay: document.getElementById("boss-defeat-overlay"),
+    bossDefeatGoBtn: document.getElementById("boss-defeat-go-btn"),
     waveValue: document.getElementById("wave-value"),
     livesLabel: document.getElementById("lives-label"),
     livesValue: document.getElementById("lives-value"),
@@ -99,6 +108,13 @@
   const SIMPLE_SUCCESS_NUDGE_PIXELS = 12;
   const SIMPLE_SUCCESS_NUDGE_ANIMATION_MS = 220;
   const ENEMY_SPAWN_REVEAL_SECONDS = 0.3;
+  const BOSS_REQUIRED_STREAK = 5;
+  const BOSS_TIME_LIMIT_SECONDS = 5;
+  const BOSS_VICTORY_CELEBRATION_MS = 6000;
+  const BOSS_SUCCESS_SCORE_BASE = 120;
+  const BOSS_SUCCESS_TIME_MULTIPLIER = 26;
+  const BOSS_BLOCKED_TABLES = new Set([1, 2, 10]);
+  const BOSS_ALLOWED_MULTIPLIERS = [6, 7, 8, 9];
   const WAVES_PER_WORLD = 2;
   const WORLD_THEMES = [
     { id: "forest", label: "Forêt" },
@@ -108,6 +124,7 @@
     { id: "desolation", label: "Désolation" }
   ];
   const MAX_WAVES = WORLD_THEMES.length * WAVES_PER_WORLD;
+  const BOSS_RETURN_WAVE = MAX_WAVES;
   const TABLE_COMPLEXITY_BONUS = {
     6: 4,
     7: 6,
@@ -126,6 +143,7 @@
       },
       castleDoor: "assets/pixel/castle-right.PNG",
       castleFire: "assets/pixel/fire-castle.png",
+      bossDragon: "assets/pixel/fiercedragon.PNG",
       projectile: "assets/pixel/projectile-arcane.png",
       enemySrcs: {
         goblin: "assets/pixel/enemy-goblin-green.png",
@@ -151,6 +169,7 @@
       },
       castleDoor: "assets/castle-right.svg",
       castleFire: "assets/fire-castle.svg",
+      bossDragon: "assets/pixel/fiercedragon.PNG",
       projectile: "assets/projectile-arcane.svg",
       enemySrcs: {
         goblin: "assets/enemy-goblin-green.svg",
@@ -176,6 +195,7 @@
       },
       castleDoor: "assets/pixel-fairy/castle-right.PNG",
       castleFire: "assets/pixel-fairy/fire-castle.png",
+      bossDragon: "assets/pixel-fairy/fairydragon.png",
       projectile: "assets/pixel-fairy/projectile-arcane.png",
       enemySrcs: {
         goblin: "assets/pixel-fairy/enemy-goblin-green.png",
@@ -289,11 +309,27 @@
     shakeTimeoutId: null,
     leaderboard: [],
     scoreSubmitted: false,
+    pendingChampion: false,
     lastPlayerName: "",
     lastQuestionKey: "",
     lastFrame: 0,
     sessionId: 0,
-    debugTuning: createDefaultDebugTuning()
+    debugTuning: createDefaultDebugTuning(),
+    bossBattle: {
+      active: false,
+      streak: 0,
+      requiredStreak: BOSS_REQUIRED_STREAK,
+      timeLimit: BOSS_TIME_LIMIT_SECONDS,
+      timeRemaining: BOSS_TIME_LIMIT_SECONDS,
+      usedKeys: new Set()
+    },
+    celebration: {
+      active: false,
+      rainIntervalId: null,
+      stopTimeoutId: null,
+      finishTimeoutId: null
+    },
+    bossDefeatOverlayActive: false
   };
 
   function createEmptyMastery() {
@@ -523,6 +559,7 @@
             score: Math.max(0, Number.parseInt(entry.score, 10) || 0),
             wave: Math.max(1, Number.parseInt(entry.wave, 10) || 1),
             mode: entry.mode === MODES.SIMPLE ? MODES.SIMPLE : MODES.NORMAL,
+            champion: !!entry.champion,
             timestamp: Number.parseInt(entry.timestamp, 10) || Date.now()
           }))
           .filter((entry) => entry.name.length > 0)
@@ -552,7 +589,7 @@
       ? state.leaderboard
       .map(
         (entry) =>
-          `<li>${entry.name} - ${entry.score} pts (V${entry.wave}, ${modeLabel(entry.mode)})</li>`
+          `<li>${entry.champion ? "👑 " : ""}${entry.name} - ${entry.score} pts (V${entry.wave}, ${modeLabel(entry.mode)})</li>`
       )
       .join("")
       : "<li>Aucun score enregistré.</li>";
@@ -609,6 +646,7 @@
       score: state.score,
       wave: state.wave,
       mode: state.mode,
+      champion: state.pendingChampion,
       timestamp: Date.now()
     });
 
@@ -617,6 +655,7 @@
       .slice(0, LEADERBOARD_MAX_ENTRIES);
 
     state.scoreSubmitted = true;
+    state.pendingChampion = false;
     dom.scoreSaveFeedback.textContent = "Score enregistré.";
     dom.playerNameInput.disabled = true;
     dom.playerNameInput.blur();
@@ -714,6 +753,12 @@
       WORLD_THEMES.length - 1,
       Math.max(0, Math.floor((wave - 1) / WAVES_PER_WORLD))
     );
+  }
+
+  function getWaveLabel(wave) {
+    const world = WORLD_THEMES[getWorldIndexForWave(wave)] || WORLD_THEMES[0];
+    const localLevel = ((wave - 1) % WAVES_PER_WORLD) + 1;
+    return `${world.label} niveau ${localLevel}`;
   }
 
   function getCurrentWorldTheme() {
@@ -988,6 +1033,68 @@
     return weighted[weighted.length - 1].table;
   }
 
+  function getMultiplierWeight(table, multiplier, maxB) {
+    const progress = getWaveDifficultyProgress();
+    const key = multiplicationKey(table, multiplier);
+    const stats = state.multiplicationMastery[key] || { correct: 0, wrong: 0 };
+    const attempts = stats.correct + stats.wrong;
+    const accuracy = attempts > 0 ? stats.correct / attempts : 0;
+    const unmasteredBias =
+      Math.max(0, MASTERY_TARGET - Math.min(MASTERY_TARGET, stats.correct)) / MASTERY_TARGET;
+
+    let weight = 1;
+    if (attempts === 0) {
+      weight += 1.2 + progress * 0.8;
+    }
+    weight += (1 - accuracy) * 2.4;
+    weight += unmasteredBias * 2;
+    weight += stats.wrong * 0.08;
+
+    if ([1, 2, 3, 10].includes(multiplier)) {
+      weight *= Math.max(0.05, 1 - progress * 0.9);
+      if (progress >= 0.7) {
+        weight *= 0.32;
+      }
+    } else if ([6, 7, 8, 9].includes(multiplier)) {
+      weight *= 1 + progress * 1.8;
+    } else {
+      weight *= 1 + progress * 0.6;
+    }
+
+    if (maxB <= 5 && multiplier >= 4) {
+      weight *= 0.92;
+    }
+
+    return Math.max(0.02, weight);
+  }
+
+  function pickAdaptiveMultiplier(table, maxB, excludedOperationKey = "") {
+    const weighted = [];
+    for (let multiplier = 1; multiplier <= maxB; multiplier += 1) {
+      const key = multiplicationKey(table, multiplier);
+      let weight = getMultiplierWeight(table, multiplier, maxB);
+      if (excludedOperationKey && key === excludedOperationKey && maxB > 1) {
+        weight *= 0.02;
+      }
+      weighted.push({ multiplier, weight });
+    }
+
+    const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0);
+    if (totalWeight <= 0) {
+      return randomInt(1, maxB);
+    }
+
+    let cursor = Math.random() * totalWeight;
+    for (const item of weighted) {
+      cursor -= item.weight;
+      if (cursor <= 0) {
+        return item.multiplier;
+      }
+    }
+
+    return weighted[weighted.length - 1].multiplier;
+  }
+
   function getTableStatus(table) {
     const stats = state.tableMastery[table] || { correct: 0, wrong: 0 };
     const attempts = stats.correct + stats.wrong;
@@ -1068,6 +1175,9 @@
     if (dom.castleFire) {
       dom.castleFire.src = styleAssets.castleFire;
     }
+    if (dom.bossDragonImg) {
+      dom.bossDragonImg.src = styleAssets.bossDragon;
+    }
     if (dom.frame) {
       dom.frame.style.setProperty("--projectile-image", `url("${styleAssets.projectile}")`);
     }
@@ -1125,13 +1235,13 @@
     const canAvoidRepeat = possibleOperations > 1 && state.lastQuestionKey.length > 0;
 
     let table = pickAdaptiveTable();
-    let b = randomInt(1, maxB);
+    let b = pickAdaptiveMultiplier(table, maxB, state.lastQuestionKey);
     let key = multiplicationKey(table, b);
     let guard = 0;
 
     while (canAvoidRepeat && key === state.lastQuestionKey && guard < 24) {
       table = pickAdaptiveTable();
-      b = randomInt(1, maxB);
+      b = pickAdaptiveMultiplier(table, maxB, state.lastQuestionKey);
       key = multiplicationKey(table, b);
       guard += 1;
     }
@@ -1161,7 +1271,29 @@
     };
   }
 
-  function createEnemy(initialProgress) {
+  function generateSimpleEntryTargets(enemyCount) {
+    const targetMin = 0.08;
+    const targetMax = 0.34;
+    const minGap = 0.028;
+    const targets = [];
+
+    for (let index = 0; index < enemyCount; index += 1) {
+      let tries = 0;
+      let value = targetMin + Math.random() * (targetMax - targetMin);
+      while (
+        tries < 36 &&
+        targets.some((existing) => Math.abs(existing - value) < minGap)
+      ) {
+        value = targetMin + Math.random() * (targetMax - targetMin);
+        tries += 1;
+      }
+      targets.push(value);
+    }
+
+    return targets;
+  }
+
+  function createEnemy(initialProgress, options = {}) {
     const variantKey = pickEnemyVariantKey();
     const variant = getEnemyVariant(variantKey);
     const el = document.createElement("div");
@@ -1190,15 +1322,34 @@
     const speed = computeEnemySpeed(variant);
     const hp = 1;
 
+    const simpleMode = isSimpleMode();
+    const simpleTargetProgress = simpleMode
+      ? clamp(
+          typeof options.simpleTargetProgress === "number"
+            ? options.simpleTargetProgress
+            : 0.12 + Math.random() * 0.2,
+          0.05,
+          0.45
+        )
+      : 1;
     const enemy = {
       id: ++state.enemyId,
       hp,
       maxHp: hp,
       speed,
       scale: variant.scale,
-      spawnReveal: 0,
-      spawnShiftX: -(48 + Math.random() * 18),
+      spawnReveal: simpleMode ? 1 : 0,
+      spawnShiftX: simpleMode ? 0 : -(48 + Math.random() * 18),
       progress: spawnProgress,
+      simpleTargetProgress,
+      simpleEntryDelay:
+        simpleMode && typeof options.simpleEntryDelay === "number"
+          ? Math.max(0, options.simpleEntryDelay)
+          : 0,
+      simpleEntrySpeed:
+        simpleMode && typeof options.simpleEntrySpeed === "number"
+          ? clamp(options.simpleEntrySpeed, 0.14, 0.9)
+          : 0.42 + Math.random() * 0.16,
       sway: Math.random() * Math.PI * 2,
       enraged: false,
       variantKey,
@@ -1256,6 +1407,7 @@
   function renderEnemies() {
     const track = getTrackGeometry();
     const swayAmplitude = state.visualStyle === VISUAL_STYLES.BASIC ? 5 : 2.2;
+    const simpleMode = isSimpleMode();
 
     for (const enemy of state.enemies) {
       const idealX = track.startX + (track.endX - track.startX) * enemy.progress;
@@ -1363,6 +1515,9 @@
     const feedbackKind = options.feedbackKind || "bad";
 
     state.gameOver = true;
+    state.bossBattle.active = false;
+    setBossVisibility(false);
+    stopVictoryCelebration();
     updateHud();
     state.scoreSubmitted = false;
     if (dom.gameOverTitle) {
@@ -1378,6 +1533,257 @@
     renderLeaderboard();
     dom.gameOver.classList.remove("hidden");
     showFeedback(feedbackText, feedbackKind);
+  }
+
+  function clearCelebrationTimers() {
+    if (state.celebration.rainIntervalId) {
+      clearInterval(state.celebration.rainIntervalId);
+      state.celebration.rainIntervalId = null;
+    }
+    if (state.celebration.stopTimeoutId) {
+      clearTimeout(state.celebration.stopTimeoutId);
+      state.celebration.stopTimeoutId = null;
+    }
+    if (state.celebration.finishTimeoutId) {
+      clearTimeout(state.celebration.finishTimeoutId);
+      state.celebration.finishTimeoutId = null;
+    }
+  }
+
+  function stopVictoryCelebration() {
+    clearCelebrationTimers();
+    state.celebration.active = false;
+    if (dom.bossRainLayer) {
+      dom.bossRainLayer.innerHTML = "";
+      dom.bossRainLayer.classList.add("hidden");
+    }
+    dom.bossVictoryBanner?.classList.add("hidden");
+  }
+
+  function setBossVisibility(isVisible) {
+    dom.bossDragonImg?.classList.toggle("hidden", !isVisible);
+    dom.bossPanel?.classList.toggle("hidden", !isVisible);
+  }
+
+  function setBossDefeatOverlayVisible(isVisible) {
+    state.bossDefeatOverlayActive = isVisible;
+    dom.bossDefeatOverlay?.classList.toggle("hidden", !isVisible);
+  }
+
+  function updateBossPanel() {
+    if (!state.bossBattle.active) {
+      setBossVisibility(false);
+      return;
+    }
+
+    setBossVisibility(true);
+    const currentStep = Math.min(state.bossBattle.requiredStreak, state.bossBattle.streak + 1);
+    if (dom.bossProgressText) {
+      dom.bossProgressText.textContent = `Dragon: ${state.bossBattle.streak}/${state.bossBattle.requiredStreak} | Épreuve ${currentStep}/${state.bossBattle.requiredStreak}`;
+    }
+    const ratio = Math.max(
+      0,
+      Math.min(1, 1 - state.bossBattle.timeRemaining / state.bossBattle.timeLimit)
+    );
+    if (dom.bossFireFill) {
+      dom.bossFireFill.style.width = `${ratio * 100}%`;
+    }
+    if (dom.bossTimerText) {
+      dom.bossTimerText.textContent = `${state.bossBattle.timeRemaining.toFixed(1)}s`;
+    }
+  }
+
+  function getBossCandidateOperations() {
+    const selectedTables = state.selectedTables.length ? state.selectedTables : [...ALL_TABLES];
+    const tables = selectedTables.filter((table) => !BOSS_BLOCKED_TABLES.has(table));
+    const bossTables = tables.length
+      ? tables
+      : ALL_TABLES.filter((table) => !BOSS_BLOCKED_TABLES.has(table));
+    const multiplierValues = BOSS_ALLOWED_MULTIPLIERS.filter(
+      (value) => value <= MAX_MULTIPLIER_VALUE
+    );
+
+    const candidates = [];
+    for (const a of bossTables) {
+      for (const b of multiplierValues) {
+        const key = multiplicationKey(a, b);
+        const stats = state.multiplicationMastery[key] || { correct: 0, wrong: 0 };
+        const attempts = stats.correct + stats.wrong;
+        const notMastered = Math.max(0, MASTERY_TARGET - Math.min(MASTERY_TARGET, stats.correct));
+        const weakness = notMastered + stats.wrong * 2.2 + (attempts === 0 ? 6 : 0);
+        candidates.push({ a, b, key, weakness });
+      }
+    }
+
+    return candidates.sort((left, right) => right.weakness - left.weakness);
+  }
+
+  function pickBossQuestion() {
+    const sorted = getBossCandidateOperations();
+    if (!sorted.length) {
+      return { a: 12, b: 9, answer: 108, key: multiplicationKey(12, 9) };
+    }
+
+    const notUsed = sorted.filter((item) => !state.bossBattle.usedKeys.has(item.key));
+    const pool = notUsed.length ? notUsed : sorted;
+    const topSlice = pool.slice(0, Math.max(1, Math.min(8, pool.length)));
+    const selected = topSlice[randomInt(0, topSlice.length - 1)];
+    return {
+      a: selected.a,
+      b: selected.b,
+      answer: selected.a * selected.b,
+      key: selected.key
+    };
+  }
+
+  function setBossQuestion() {
+    const question = pickBossQuestion();
+    state.bossBattle.usedKeys.add(question.key);
+    state.question = { a: question.a, b: question.b, answer: question.answer };
+    state.lastQuestionKey = question.key;
+    state.inputBuffer = "";
+    state.bossBattle.timeRemaining = state.bossBattle.timeLimit;
+    dom.questionText.textContent = `${question.a} x ${question.b} = ?`;
+    updateHud();
+    updateBossPanel();
+  }
+
+  function failBossBattle(reasonText) {
+    state.bossBattle.active = false;
+    state.pendingChampion = false;
+    setBossVisibility(true);
+    state.combo = 0;
+    state.betweenWaves = true;
+    clearAllEnemies();
+    setCastleFire(false);
+
+    state.wave = BOSS_RETURN_WAVE;
+    state.lives = 20;
+    state.simpleMistakes = 0;
+    state.question = null;
+    state.inputBuffer = "";
+    state.lastQuestionKey = "";
+
+    updateHud();
+    showFeedback(reasonText, "bad");
+    setBossDefeatOverlayVisible(true);
+  }
+
+  function confirmBossDefeatReturn() {
+    if (!state.bossDefeatOverlayActive) {
+      return;
+    }
+
+    setBossDefeatOverlayVisible(false);
+    setBossVisibility(false);
+    state.betweenWaves = false;
+    nextQuestion();
+    setupWave();
+  }
+
+  function jumpToPreBossLevel() {
+    if (!state.started || state.gameOver) {
+      return;
+    }
+
+    clearAllEnemies();
+    stopVictoryCelebration();
+    state.bossBattle.active = false;
+    state.pendingChampion = false;
+    setBossVisibility(false);
+    setBossDefeatOverlayVisible(false);
+
+    state.wave = BOSS_RETURN_WAVE;
+    state.lives = 20;
+    state.simpleMistakes = 0;
+    state.combo = 0;
+    state.spawnCooldown = 0;
+    state.betweenWaves = false;
+    state.inputBuffer = "";
+    state.lastQuestionKey = "";
+
+    updateHud();
+    showFeedback(`Cheat activé: accès direct à ${getWaveLabel(BOSS_RETURN_WAVE)}.`, "good");
+    nextQuestion();
+    setupWave();
+  }
+
+  function spawnVictoryDrop() {
+    if (!dom.bossRainLayer) {
+      return;
+    }
+    const styleAssets = getActiveStyleAssets();
+    const enemyKeys = Object.keys(styleAssets.enemySrcs);
+    const key = enemyKeys[randomInt(0, enemyKeys.length - 1)];
+    const src = styleAssets.enemySrcs[key];
+    if (!src) {
+      return;
+    }
+
+    const img = document.createElement("img");
+    img.className = "victory-drop";
+    img.src = src;
+    img.alt = "Ennemi battu";
+    img.style.left = `${Math.random() * 92}%`;
+    img.style.animationDuration = `${2.2 + Math.random() * 1.8}s`;
+    img.style.opacity = `${0.62 + Math.random() * 0.35}`;
+    dom.bossRainLayer.appendChild(img);
+    setTimeout(() => img.remove(), 4300);
+  }
+
+  function startBossVictoryCelebration() {
+    state.celebration.active = true;
+    dom.bossVictoryBanner?.classList.remove("hidden");
+    dom.bossRainLayer?.classList.remove("hidden");
+
+    for (let index = 0; index < 8; index += 1) {
+      spawnVictoryDrop();
+    }
+
+    state.celebration.rainIntervalId = setInterval(spawnVictoryDrop, 110);
+    state.celebration.stopTimeoutId = setTimeout(() => {
+      if (state.celebration.rainIntervalId) {
+        clearInterval(state.celebration.rainIntervalId);
+        state.celebration.rainIntervalId = null;
+      }
+    }, BOSS_VICTORY_CELEBRATION_MS - 300);
+
+    state.celebration.finishTimeoutId = setTimeout(() => {
+      stopVictoryCelebration();
+      triggerVictory({ champion: true });
+    }, BOSS_VICTORY_CELEBRATION_MS);
+  }
+
+  function completeBossBattle() {
+    state.bossBattle.active = false;
+    state.betweenWaves = true;
+    state.pendingChampion = true;
+    setBossDefeatOverlayVisible(false);
+    setBossVisibility(false);
+    showFeedback("Dragon vaincu. Célébration en cours.", "good");
+    updateHud();
+    startBossVictoryCelebration();
+  }
+
+  function startBossBattle() {
+    clearAllEnemies();
+    setCastleFire(false);
+    setBossDefeatOverlayVisible(false);
+    state.bossBattle.active = true;
+    state.pendingChampion = false;
+    state.bossBattle.streak = 0;
+    state.bossBattle.requiredStreak = BOSS_REQUIRED_STREAK;
+    state.bossBattle.timeLimit = BOSS_TIME_LIMIT_SECONDS;
+    state.bossBattle.timeRemaining = BOSS_TIME_LIMIT_SECONDS;
+    state.bossBattle.usedKeys = new Set();
+    state.betweenWaves = true;
+    banner("Boss final : Dragon");
+    showFeedback("5 multiplications parfaites, 5 secondes chacune.", "bad");
+    setBossQuestion();
+  }
+
+  function isBossEnabledForCurrentStyle() {
+    return state.visualStyle !== VISUAL_STYLES.BASIC;
   }
 
   function requestSettingsUnlock() {
@@ -1402,7 +1808,11 @@
     return true;
   }
 
-  function triggerVictory() {
+  function triggerVictory(options = {}) {
+    const championAwarded = isBossEnabledForCurrentStyle() && !!options.champion;
+    state.pendingChampion = championAwarded;
+    setBossVisibility(false);
+    stopVictoryCelebration();
     triggerGameOver("Tu as traversé tous les mondes. Le château est sauvé.", {
       title: "Victoire",
       feedbackText: "Bravo, tu as terminé la campagne.",
@@ -1533,7 +1943,14 @@
   function isInputLocked() {
     const hasBlockingSimpleAnimation =
       !!state.simpleAdvanceAnimation && state.simpleAdvanceAnimation.kind === "advance";
-    return !state.started || state.paused || state.gameOver || hasBlockingSimpleAnimation;
+    return (
+      !state.started ||
+      state.paused ||
+      state.gameOver ||
+      state.bossDefeatOverlayActive ||
+      state.celebration.active ||
+      hasBlockingSimpleAnimation
+    );
   }
 
   function submitAnswer() {
@@ -1542,6 +1959,41 @@
     }
 
     const guess = Number.parseInt(state.inputBuffer, 10);
+    if (guess === 999) {
+      jumpToPreBossLevel();
+      return;
+    }
+
+    if (state.bossBattle.active) {
+      const currentQuestion = state.question;
+      if (guess !== currentQuestion.answer) {
+        recordAnswer(currentQuestion.a, currentQuestion.b, false);
+        failBossBattle(`Le dragon t'a battu. Retour en ${getWaveLabel(BOSS_RETURN_WAVE)}.`);
+        return;
+      }
+
+      recordAnswer(currentQuestion.a, currentQuestion.b, true);
+      state.combo += 1;
+      state.bossBattle.streak += 1;
+      const timeBonus = Math.round(state.bossBattle.timeRemaining * BOSS_SUCCESS_TIME_MULTIPLIER);
+      const tableBonus = getTableComplexityBonus(currentQuestion.a) * 8;
+      const streakBonus = state.bossBattle.streak * 14;
+      const gained = BOSS_SUCCESS_SCORE_BASE + timeBonus + tableBonus + streakBonus;
+      state.score += gained;
+      showFeedback(
+        `Épreuve réussie +${gained} pts (${state.bossBattle.streak}/${state.bossBattle.requiredStreak}).`,
+        "good"
+      );
+
+      updateHud();
+      if (state.bossBattle.streak >= state.bossBattle.requiredStreak) {
+        completeBossBattle();
+      } else {
+        setBossQuestion();
+      }
+      return;
+    }
+
     const target = getFrontEnemy();
 
     if (isSimpleMode() && !target) {
@@ -1645,8 +2097,15 @@
     banner(`Niveau ${state.wave}`);
 
     if (isSimpleMode()) {
+      const targets = generateSimpleEntryTargets(enemyCount);
       for (let index = 0; index < enemyCount; index += 1) {
-        createEnemy(-0.12 - index * 0.09);
+        const progress = -0.24 - Math.random() * 0.18;
+        const target = targets[index] ?? 0.18;
+        createEnemy(progress, {
+          simpleTargetProgress: target,
+          simpleEntryDelay: index * 0.06,
+          simpleEntrySpeed: 0.42 + Math.random() * 0.14
+        });
       }
       state.queuedSpawns = 0;
       renderEnemies();
@@ -1674,7 +2133,11 @@
         if (state.gameOver || localSessionId !== state.sessionId) {
           return;
         }
-        triggerVictory();
+        if (isBossEnabledForCurrentStyle()) {
+          startBossBattle();
+        } else {
+          triggerVictory();
+        }
       }, 900);
       return;
     }
@@ -1712,6 +2175,9 @@
   function resetGame() {
     clearAllEnemies();
     setCastleFire(false);
+    stopVictoryCelebration();
+    setBossVisibility(false);
+    setBossDefeatOverlayVisible(false);
 
     state.wave = 1;
     state.lives = 20;
@@ -1724,12 +2190,19 @@
     state.inputBuffer = "";
     state.betweenWaves = false;
     state.gameOver = false;
+    state.pendingChampion = false;
     state.simpleAdvanceAnimation = null;
     state.shakeTimeoutId = null;
     state.scoreSubmitted = false;
     state.lastQuestionKey = "";
     state.lastFrame = 0;
     state.sessionId += 1;
+    state.bossBattle.active = false;
+    state.bossBattle.streak = 0;
+    state.bossBattle.requiredStreak = BOSS_REQUIRED_STREAK;
+    state.bossBattle.timeLimit = BOSS_TIME_LIMIT_SECONDS;
+    state.bossBattle.timeRemaining = BOSS_TIME_LIMIT_SECONDS;
+    state.bossBattle.usedKeys = new Set();
 
     dom.gameOver.classList.add("hidden");
     if (dom.gameOverTitle) {
@@ -1751,6 +2224,7 @@
     );
 
     updateHud();
+    updateBossPanel();
     applyWorldTheme();
     nextQuestion();
     setupWave();
@@ -1827,6 +2301,9 @@
   function returnToTitleScreen() {
     clearAllEnemies();
     setCastleFire(false);
+    stopVictoryCelebration();
+    setBossVisibility(false);
+    setBossDefeatOverlayVisible(false);
 
     state.started = false;
     state.paused = false;
@@ -1841,10 +2318,17 @@
     state.inputBuffer = "";
     state.betweenWaves = false;
     state.gameOver = false;
+    state.pendingChampion = false;
     state.simpleAdvanceAnimation = null;
     state.lastQuestionKey = "";
     state.lastFrame = 0;
     state.sessionId += 1;
+    state.bossBattle.active = false;
+    state.bossBattle.streak = 0;
+    state.bossBattle.requiredStreak = BOSS_REQUIRED_STREAK;
+    state.bossBattle.timeLimit = BOSS_TIME_LIMIT_SECONDS;
+    state.bossBattle.timeRemaining = BOSS_TIME_LIMIT_SECONDS;
+    state.bossBattle.usedKeys = new Set();
 
     dom.pauseModal.classList.add("hidden");
     dom.tablesModal.classList.add("hidden");
@@ -1862,6 +2346,7 @@
     dom.titleScreen.classList.remove("hidden");
 
     updateHud();
+    updateBossPanel();
     applyWorldTheme();
     showFeedback("Choisis un mode puis lance la partie.", "");
   }
@@ -1890,6 +2375,25 @@
     state.lastFrame = timestamp;
 
     if (state.started && !state.paused && !state.gameOver) {
+      if (state.bossDefeatOverlayActive) {
+        renderEnemies();
+        requestAnimationFrame(gameLoop);
+        return;
+      }
+
+      if (state.bossBattle.active) {
+        state.bossBattle.timeRemaining = Math.max(0, state.bossBattle.timeRemaining - dt);
+        updateBossPanel();
+        if (state.bossBattle.timeRemaining <= 0) {
+          failBossBattle(
+            `Le feu du dragon a explosé. Retour en ${getWaveLabel(BOSS_RETURN_WAVE)}.`
+          );
+        }
+        renderEnemies();
+        requestAnimationFrame(gameLoop);
+        return;
+      }
+
       if (!state.betweenWaves && !isSimpleMode() && state.queuedSpawns > 0) {
         state.spawnCooldown -= dt;
         if (state.spawnCooldown <= 0) {
@@ -1914,6 +2418,17 @@
         for (const enemy of state.enemies) {
           if (enemy.spawnReveal < 1) {
             enemy.spawnReveal = Math.min(1, enemy.spawnReveal + dt / ENEMY_SPAWN_REVEAL_SECONDS);
+          }
+
+          if (!state.simpleAdvanceAnimation) {
+            if (enemy.simpleEntryDelay > 0) {
+              enemy.simpleEntryDelay = Math.max(0, enemy.simpleEntryDelay - dt);
+            } else if (enemy.progress < enemy.simpleTargetProgress) {
+              enemy.progress = Math.min(
+                enemy.simpleTargetProgress,
+                enemy.progress + enemy.simpleEntrySpeed * dt
+              );
+            }
           }
         }
         processSimpleAdvanceAnimation(dt);
@@ -1981,6 +2496,7 @@
 
   bindFastPress(dom.keypad, handleVirtualKeyPress);
   bindFastPress(dom.fireBtn, submitAnswer);
+  dom.bossDefeatGoBtn?.addEventListener("click", confirmBossDefeatReturn);
   dom.restartBtn.addEventListener("click", resetGame);
   dom.saveScoreBtn.addEventListener("click", saveCurrentScore);
   dom.playerNameInput.addEventListener("keydown", (event) => {
@@ -2161,6 +2677,7 @@
   renderLeaderboard();
   renderMasteryMatrix();
   applyWorldTheme();
+  updateBossPanel();
   showFeedback("Choisis un mode puis lance la partie.", "");
   requestAnimationFrame(gameLoop);
 })();

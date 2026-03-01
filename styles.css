@@ -549,6 +549,127 @@ body {
   filter: drop-shadow(0 0 14px rgba(132, 234, 255, 0.92));
 }
 
+.boss-dragon {
+  position: absolute;
+  left: 50%;
+  bottom: 20%;
+  width: clamp(130px, 30vw, 210px);
+  z-index: 11;
+  pointer-events: none;
+  image-rendering: pixelated;
+  animation: boss-hover 1.4s ease-in-out infinite;
+}
+
+.boss-panel {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: min(210px, 46%);
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(12, 14, 32, 0.78);
+  z-index: 13;
+  transform: translateX(-50%);
+}
+
+.boss-progress-text {
+  margin: 0 0 4px;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.boss-fire-track {
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 210, 132, 0.5);
+  background: rgba(15, 8, 4, 0.72);
+}
+
+.boss-fire-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff8b2c, #ffd35c, #ff4e36);
+  box-shadow: 0 0 14px rgba(255, 157, 64, 0.66);
+  transition: width 60ms linear;
+}
+
+.boss-timer-text {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.boss-rain-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 14;
+  overflow: hidden;
+}
+
+.victory-drop {
+  position: absolute;
+  top: -18%;
+  width: clamp(40px, 10vw, 64px);
+  image-rendering: pixelated;
+  animation: victory-rain linear forwards;
+}
+
+.boss-victory-banner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 20px;
+  z-index: 15;
+  pointer-events: none;
+  font-family: "Bangers", cursive;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  font-size: clamp(1.6rem, 5.2vw, 2.6rem);
+  color: #ffe67f;
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.45), 0 0 22px rgba(255, 194, 86, 0.42);
+}
+
+.boss-defeat-overlay {
+  position: absolute;
+  inset: 14% 8% 14%;
+  z-index: 19;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(8, 12, 30, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.boss-defeat-overlay p {
+  margin: 0;
+  font-family: "Bangers", cursive;
+  letter-spacing: 0.04em;
+  font-size: clamp(1rem, 3.2vw, 1.2rem);
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+#boss-defeat-go-btn {
+  border: none;
+  border-radius: 12px;
+  min-height: 44px;
+  min-width: 132px;
+  padding: 0 18px;
+  font-weight: 800;
+  color: #1d2549;
+  background: linear-gradient(180deg, #ffe183, #ffbf4f);
+}
+
 .enemy-layer,
 .projectile-layer,
 .fx-layer {
@@ -1487,6 +1608,32 @@ body {
   }
   100% {
     transform: translateY(0);
+  }
+}
+
+@keyframes boss-hover {
+  0% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-6px);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes victory-rain {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.96;
+  }
+  85% {
+    opacity: 0.94;
+  }
+  100% {
+    transform: translateY(135vh) rotate(540deg);
+    opacity: 0;
   }
 }
 
