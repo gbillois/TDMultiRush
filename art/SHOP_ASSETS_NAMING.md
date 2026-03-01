@@ -3,14 +3,14 @@
 Les skins boutique sont lus directement par `game.js`.
 
 ## Style Castle
-- Tours: `assets/pixel/shop/towers/tower-02.png` a `tower-07.png`
-- Chateaux: `assets/pixel/shop/castles/castle-02.png` a `castle-05.png`
-- Tirs: `assets/pixel/shop/projectiles/projectile-02.png` a `projectile-07.png`
+- Tours: `assets/themes/castle/shop/towers/tower-02.png` a `tower-07.png`
+- Chateaux: `assets/themes/castle/shop/castles/castle-02.png` a `castle-05.png`
+- Tirs: `assets/themes/castle/shop/projectiles/projectile-02.png` a `projectile-07.png`
 
 ## Style Fairy
-- Tours: `assets/pixel-fairy/shop/towers/tower-02.png` a `tower-05.png`
-- Chateaux: `assets/pixel-fairy/shop/castles/castle-02.png` a `castle-05.png`
-- Tirs: `assets/pixel-fairy/shop/projectiles/projectile-02.png` a `projectile-05.png`
+- Tours: `assets/themes/fairy/shop/towers/tower-02.png` a `tower-05.png`
+- Chateaux: `assets/themes/fairy/shop/castles/castle-02.png` a `castle-05.png`
+- Tirs: `assets/themes/fairy/shop/projectiles/projectile-02.png` a `projectile-05.png`
 
 ## Notes
 - Le modele de base reste les fichiers existants (non boutique):

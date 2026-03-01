@@ -89,6 +89,12 @@ TDTable/
   styles.css
   game.js
   assets/
+    icons/
+    themes/
+      basic/
+      castle/
+      fairy/
+    ui/
 ```
 
 ## Stockage local
