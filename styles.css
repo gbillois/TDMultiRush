@@ -210,17 +210,22 @@ body {
 }
 
 .hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   padding: 10px;
-  background: rgba(8, 10, 34, 0.55);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  border-bottom: 0;
 }
 
 .hud-item {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(10, 18, 42, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   padding: 6px 4px;
   text-align: center;
@@ -2006,10 +2011,14 @@ body {
   }
 
   .battlefield {
+    grid-row: 2;
     min-height: 0;
     height: auto;
   }
 
+  .question-panel {
+    grid-row: 3;
+  }
   .question-panel {
     max-height: none;
     overflow: visible;
