@@ -76,6 +76,18 @@ Il lance automatiquement les tests Playwright sur:
 2. `iphone`
 3. `ipad`
 
+Il inclut aussi un check d'integrite des assets:
+
+```bash
+bash scripts/check_asset_references.sh
+```
+
+Option stricte (cherche aussi les fichiers assets non references):
+
+```bash
+CHECK_UNUSED_ASSETS=1 bash scripts/check_asset_references.sh
+```
+
 ## Contrôles
 
 - Clavier numérique à l'écran

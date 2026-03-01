@@ -120,8 +120,8 @@ test("sert les ressources critiques sans erreur 404", async ({ page }) => {
     "/game.js",
     "/manifest.webmanifest",
     "/assets/icons/icon-192.png",
-    "/assets/themes/castle/castle-right.PNG",
-    "/assets/themes/castle/tower-arcane.PNG"
+    "/assets/themes/castle/castle-right.png",
+    "/assets/themes/castle/tower-arcane.png"
   ];
 
   for (const path of criticalPaths) {

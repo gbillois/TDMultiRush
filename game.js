@@ -110,6 +110,10 @@
     FR: "fr",
     EN: "en"
   };
+  const CASTLE_ASSET_DIR = "assets/themes/castle";
+  const FAIRY_ASSET_DIR = "assets/themes/fairy";
+  const BASIC_ASSET_DIR = "assets/themes/basic";
+  const UI_BONUSES_DIR = "assets/ui/bonuses";
 
   const STORAGE_KEY = "multipliRush.profile.v1";
   const LEADERBOARD_KEY = "multipliRush.leaderboard.v1";
@@ -154,7 +158,7 @@
   };
   const TARGET_SOLVE_TIME_SECONDS = 0.75;
   const DIFFICULTY_SAFETY_MARGIN_SECONDS = 1.2;
-  const BONUS_CHEST_SRC = "assets/ui/bonuses/coffre-sprite.png";
+  const BONUS_CHEST_SRC = `${UI_BONUSES_DIR}/coffre-sprite.png`;
   const BONUS_CHEST_SPAWN_CHANCE = 1 / 6;
   const BONUS_HERO_SPAWN_CHANCE = 1 / 6;
   const BONUS_CHEST_MIN_SHOTS = 3;
@@ -163,8 +167,8 @@
   const BONUS_CHEST_REWARD_MAX = 30;
   const BONUS_HERO_REWARD_COINS = 10;
   const BONUS_HERO_NORMAL_LIFE_GAIN = 10;
-  const BONUS_HERO_CASTLE_SRC = "assets/themes/castle/perso-chevalier-rouge.png";
-  const BONUS_HERO_FAIRY_SRC = "assets/themes/castle/perso-princesse-verte.png";
+  const BONUS_HERO_CASTLE_SRC = `${CASTLE_ASSET_DIR}/perso-chevalier-rouge.png`;
+  const BONUS_HERO_FAIRY_SRC = `${CASTLE_ASSET_DIR}/perso-princesse-verte.png`;
   const BONUS_CHEST_SIZE_SCALE = 0.4;
   const BONUS_HERO_SIZE_MULTIPLIER = 2;
   const BONUS_CHEST_FADE_MS = 260;
@@ -195,114 +199,114 @@
   const STYLE_ASSETS = {
     [VISUAL_STYLES.CASTLE]: {
       towerSkins: {
-        base: "assets/themes/castle/tower-arcane.PNG",
-        ember: "assets/themes/castle/shop/towers/tower-02.png",
-        rune: "assets/themes/castle/shop/towers/tower-03.png",
-        obsidian: "assets/themes/castle/shop/towers/tower-04.png",
-        royal: "assets/themes/castle/shop/towers/tower-05.png",
-        mythic: "assets/themes/castle/shop/towers/tower-07.png"
+        base: `${CASTLE_ASSET_DIR}/tower-arcane.png`,
+        ember: `${CASTLE_ASSET_DIR}/shop/towers/tower-02.png`,
+        rune: `${CASTLE_ASSET_DIR}/shop/towers/tower-03.png`,
+        obsidian: `${CASTLE_ASSET_DIR}/shop/towers/tower-04.png`,
+        royal: `${CASTLE_ASSET_DIR}/shop/towers/tower-05.png`,
+        mythic: `${CASTLE_ASSET_DIR}/shop/towers/tower-07.png`
       },
       castleDoors: {
-        base: "assets/themes/castle/castle-right.PNG",
-        bastion: "assets/themes/castle/shop/castles/castle-02.png",
-        citadel: "assets/themes/castle/shop/castles/castle-03.png",
-        ironkeep: "assets/themes/castle/shop/castles/castle-04.png",
-        dawnfort: "assets/themes/castle/shop/castles/castle-05.png"
+        base: `${CASTLE_ASSET_DIR}/castle-right.png`,
+        bastion: `${CASTLE_ASSET_DIR}/shop/castles/castle-02.png`,
+        citadel: `${CASTLE_ASSET_DIR}/shop/castles/castle-03.png`,
+        ironkeep: `${CASTLE_ASSET_DIR}/shop/castles/castle-04.png`,
+        dawnfort: `${CASTLE_ASSET_DIR}/shop/castles/castle-05.png`
       },
-      castleFire: "assets/themes/castle/fire-castle.png",
-      bossDragon: "assets/themes/castle/fiercedragon.PNG",
+      castleFire: `${CASTLE_ASSET_DIR}/fire-castle.png`,
+      bossDragon: `${CASTLE_ASSET_DIR}/fiercedragon.png`,
       projectiles: {
-        base: "assets/themes/castle/projectile-arcane.png",
-        spark: "assets/themes/castle/shop/projectiles/projectile-02.png",
-        flare: "assets/themes/castle/shop/projectiles/projectile-03.png",
-        comet: "assets/themes/castle/shop/projectiles/projectile-04.png",
-        prismfire: "assets/themes/castle/shop/projectiles/projectile-07.png"
+        base: `${CASTLE_ASSET_DIR}/projectile-arcane.png`,
+        spark: `${CASTLE_ASSET_DIR}/shop/projectiles/projectile-02.png`,
+        flare: `${CASTLE_ASSET_DIR}/shop/projectiles/projectile-03.png`,
+        comet: `${CASTLE_ASSET_DIR}/shop/projectiles/projectile-04.png`,
+        prismfire: `${CASTLE_ASSET_DIR}/shop/projectiles/projectile-07.png`
       },
       enemySrcs: {
-        goblin: "assets/themes/castle/enemy-goblin-green.png",
-        scout: "assets/themes/castle/enemy-scout-pink.png",
-        raider: "assets/themes/castle/enemy-raider-yellow.png",
-        imp: "assets/themes/castle/enemy-imp-purple.png",
-        orc: "assets/themes/castle/enemy-orc-red.png",
-        frost: "assets/themes/castle/enemy-frost-blue.png",
-        lizard: "assets/themes/castle/enemy-lizard-teal.png",
-        knight: "assets/themes/castle/enemy-knight-slate.png",
-        ogre: "assets/themes/castle/enemy-ogre-brown.png",
-        shaman: "assets/themes/castle/enemy-shaman-cyan.png",
-        berserker: "assets/themes/castle/enemy-berserker-orange.png",
-        warlock: "assets/themes/castle/enemy-warlock-violet.png",
-        shadow: "assets/themes/castle/enemy-shadow-black.png",
-        guardian: "assets/themes/castle/enemy-guardian-gold.png"
+        goblin: `${CASTLE_ASSET_DIR}/enemy-goblin-green.png`,
+        scout: `${CASTLE_ASSET_DIR}/enemy-scout-pink.png`,
+        raider: `${CASTLE_ASSET_DIR}/enemy-raider-yellow.png`,
+        imp: `${CASTLE_ASSET_DIR}/enemy-imp-purple.png`,
+        orc: `${CASTLE_ASSET_DIR}/enemy-orc-red.png`,
+        frost: `${CASTLE_ASSET_DIR}/enemy-frost-blue.png`,
+        lizard: `${CASTLE_ASSET_DIR}/enemy-lizard-teal.png`,
+        knight: `${CASTLE_ASSET_DIR}/enemy-knight-slate.png`,
+        ogre: `${CASTLE_ASSET_DIR}/enemy-ogre-brown.png`,
+        shaman: `${CASTLE_ASSET_DIR}/enemy-shaman-cyan.png`,
+        berserker: `${CASTLE_ASSET_DIR}/enemy-berserker-orange.png`,
+        warlock: `${CASTLE_ASSET_DIR}/enemy-warlock-violet.png`,
+        shadow: `${CASTLE_ASSET_DIR}/enemy-shadow-black.png`,
+        guardian: `${CASTLE_ASSET_DIR}/enemy-guardian-gold.png`
       }
     },
     [VISUAL_STYLES.BASIC]: {
       towerSkins: {
-        base: "assets/themes/basic/towers/tower-arcane.svg"
+        base: `${BASIC_ASSET_DIR}/towers/tower-arcane.svg`
       },
       castleDoors: {
-        base: "assets/themes/basic/castles/castle-right.svg"
+        base: `${BASIC_ASSET_DIR}/castles/castle-right.svg`
       },
-      castleFire: "assets/themes/basic/castles/fire-castle.svg",
-      bossDragon: "assets/themes/castle/fiercedragon.PNG",
+      castleFire: `${BASIC_ASSET_DIR}/castles/fire-castle.svg`,
+      bossDragon: `${CASTLE_ASSET_DIR}/fiercedragon.png`,
       projectiles: {
-        base: "assets/themes/basic/projectiles/projectile-arcane.svg"
+        base: `${BASIC_ASSET_DIR}/projectiles/projectile-arcane.svg`
       },
       enemySrcs: {
-        goblin: "assets/themes/basic/enemies/enemy-goblin-green.svg",
-        scout: "assets/themes/basic/enemies/enemy-scout-pink.svg",
-        raider: "assets/themes/basic/enemies/enemy-raider-yellow.svg",
-        imp: "assets/themes/basic/enemies/enemy-imp-purple.svg",
-        orc: "assets/themes/basic/enemies/enemy-orc-red.svg",
-        frost: "assets/themes/basic/enemies/enemy-frost-blue.svg",
-        lizard: "assets/themes/basic/enemies/enemy-lizard-teal.svg",
-        knight: "assets/themes/basic/enemies/enemy-knight-slate.svg",
-        ogre: "assets/themes/basic/enemies/enemy-ogre-brown.svg",
-        shaman: "assets/themes/basic/enemies/enemy-shaman-cyan.svg",
-        berserker: "assets/themes/basic/enemies/enemy-berserker-orange.svg",
-        warlock: "assets/themes/basic/enemies/enemy-warlock-violet.svg",
-        shadow: "assets/themes/basic/enemies/enemy-shadow-black.svg",
-        guardian: "assets/themes/basic/enemies/enemy-guardian-gold.svg"
+        goblin: `${BASIC_ASSET_DIR}/enemies/enemy-goblin-green.svg`,
+        scout: `${BASIC_ASSET_DIR}/enemies/enemy-scout-pink.svg`,
+        raider: `${BASIC_ASSET_DIR}/enemies/enemy-raider-yellow.svg`,
+        imp: `${BASIC_ASSET_DIR}/enemies/enemy-imp-purple.svg`,
+        orc: `${BASIC_ASSET_DIR}/enemies/enemy-orc-red.svg`,
+        frost: `${BASIC_ASSET_DIR}/enemies/enemy-frost-blue.svg`,
+        lizard: `${BASIC_ASSET_DIR}/enemies/enemy-lizard-teal.svg`,
+        knight: `${BASIC_ASSET_DIR}/enemies/enemy-knight-slate.svg`,
+        ogre: `${BASIC_ASSET_DIR}/enemies/enemy-ogre-brown.svg`,
+        shaman: `${BASIC_ASSET_DIR}/enemies/enemy-shaman-cyan.svg`,
+        berserker: `${BASIC_ASSET_DIR}/enemies/enemy-berserker-orange.svg`,
+        warlock: `${BASIC_ASSET_DIR}/enemies/enemy-warlock-violet.svg`,
+        shadow: `${BASIC_ASSET_DIR}/enemies/enemy-shadow-black.svg`,
+        guardian: `${BASIC_ASSET_DIR}/enemies/enemy-guardian-gold.svg`
       }
     },
     [VISUAL_STYLES.FAIRY]: {
       towerSkins: {
-        base: "assets/themes/fairy/tower-arcane.PNG",
-        blossom: "assets/themes/fairy/shop/towers/tower-02.png",
-        moon: "assets/themes/fairy/shop/towers/tower-03.png",
-        stardust: "assets/themes/fairy/shop/towers/tower-04.png",
-        eclipse: "assets/themes/fairy/shop/towers/tower-05.png"
+        base: `${FAIRY_ASSET_DIR}/tower-arcane.png`,
+        blossom: `${FAIRY_ASSET_DIR}/shop/towers/tower-02.png`,
+        moon: `${FAIRY_ASSET_DIR}/shop/towers/tower-03.png`,
+        stardust: `${FAIRY_ASSET_DIR}/shop/towers/tower-04.png`,
+        eclipse: `${FAIRY_ASSET_DIR}/shop/towers/tower-05.png`
       },
       castleDoors: {
-        base: "assets/themes/fairy/castle-right.PNG",
-        petalspire: "assets/themes/fairy/shop/castles/castle-02.png",
-        moonhall: "assets/themes/fairy/shop/castles/castle-03.png",
-        wildroot: "assets/themes/fairy/shop/castles/castle-04.png",
-        starcourt: "assets/themes/fairy/shop/castles/castle-05.png"
+        base: `${FAIRY_ASSET_DIR}/castle-right.png`,
+        petalspire: `${FAIRY_ASSET_DIR}/shop/castles/castle-02.png`,
+        moonhall: `${FAIRY_ASSET_DIR}/shop/castles/castle-03.png`,
+        wildroot: `${FAIRY_ASSET_DIR}/shop/castles/castle-04.png`,
+        starcourt: `${FAIRY_ASSET_DIR}/shop/castles/castle-05.png`
       },
-      castleFire: "assets/themes/fairy/fire-castle.png",
-      bossDragon: "assets/themes/fairy/fairydragon.png",
+      castleFire: `${FAIRY_ASSET_DIR}/fire-castle.png`,
+      bossDragon: `${FAIRY_ASSET_DIR}/fairydragon.png`,
       projectiles: {
-        base: "assets/themes/fairy/projectile-arcane.png",
-        pollen: "assets/themes/fairy/shop/projectiles/projectile-02.png",
-        prism: "assets/themes/fairy/shop/projectiles/projectile-03.png",
-        spiral: "assets/themes/fairy/shop/projectiles/projectile-04.png",
-        aurora: "assets/themes/fairy/shop/projectiles/projectile-05.png"
+        base: `${FAIRY_ASSET_DIR}/projectile-arcane.png`,
+        pollen: `${FAIRY_ASSET_DIR}/shop/projectiles/projectile-02.png`,
+        prism: `${FAIRY_ASSET_DIR}/shop/projectiles/projectile-03.png`,
+        spiral: `${FAIRY_ASSET_DIR}/shop/projectiles/projectile-04.png`,
+        aurora: `${FAIRY_ASSET_DIR}/shop/projectiles/projectile-05.png`
       },
       enemySrcs: {
-        goblin: "assets/themes/fairy/enemy-goblin-green.png",
-        scout: "assets/themes/fairy/enemy-scout-pink.png",
-        raider: "assets/themes/fairy/enemy-raider-yellow.png",
-        imp: "assets/themes/fairy/enemy-imp-purple.png",
-        orc: "assets/themes/fairy/enemy-orc-red.png",
-        frost: "assets/themes/fairy/enemy-frost-blue.png",
-        lizard: "assets/themes/fairy/enemy-lizard-teal.png",
-        knight: "assets/themes/fairy/enemy-knight-slate.png",
-        ogre: "assets/themes/fairy/enemy-ogre-brown.png",
-        shaman: "assets/themes/fairy/enemy-shaman-cyan.png",
-        berserker: "assets/themes/fairy/enemy-berserker-orange.png",
-        warlock: "assets/themes/fairy/enemy-warlock-violet.png",
-        shadow: "assets/themes/fairy/enemy-shadow-black.png",
-        guardian: "assets/themes/fairy/enemy-guardian-gold.png"
+        goblin: `${FAIRY_ASSET_DIR}/enemy-goblin-green.png`,
+        scout: `${FAIRY_ASSET_DIR}/enemy-scout-pink.png`,
+        raider: `${FAIRY_ASSET_DIR}/enemy-raider-yellow.png`,
+        imp: `${FAIRY_ASSET_DIR}/enemy-imp-purple.png`,
+        orc: `${FAIRY_ASSET_DIR}/enemy-orc-red.png`,
+        frost: `${FAIRY_ASSET_DIR}/enemy-frost-blue.png`,
+        lizard: `${FAIRY_ASSET_DIR}/enemy-lizard-teal.png`,
+        knight: `${FAIRY_ASSET_DIR}/enemy-knight-slate.png`,
+        ogre: `${FAIRY_ASSET_DIR}/enemy-ogre-brown.png`,
+        shaman: `${FAIRY_ASSET_DIR}/enemy-shaman-cyan.png`,
+        berserker: `${FAIRY_ASSET_DIR}/enemy-berserker-orange.png`,
+        warlock: `${FAIRY_ASSET_DIR}/enemy-warlock-violet.png`,
+        shadow: `${FAIRY_ASSET_DIR}/enemy-shadow-black.png`,
+        guardian: `${FAIRY_ASSET_DIR}/enemy-guardian-gold.png`
       }
     }
   };
