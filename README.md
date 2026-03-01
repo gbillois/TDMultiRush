@@ -36,6 +36,46 @@ python3 -m http.server 8000
 
 Puis ouvrir `http://localhost:8000`.
 
+## Tests automatises (Web, iPhone, iPad)
+
+Le projet inclut des tests E2E Playwright avec 3 cibles:
+
+1. `web-classic` (desktop Chrome)
+2. `iphone` (emulation iPhone + moteur WebKit)
+3. `ipad` (emulation iPad + moteur WebKit)
+
+### Installation
+
+```bash
+cd /Users/gerome/Desktop/TDTable
+npm install
+npm run test:e2e:install
+```
+
+### Execution
+
+```bash
+npm run test:e2e
+```
+
+Execution ciblee (exemple iPhone):
+
+```bash
+npx playwright test --project=iphone
+```
+
+### CI
+
+Un workflow GitHub Actions est ajoute dans:
+
+- `.github/workflows/e2e.yml`
+
+Il lance automatiquement les tests Playwright sur:
+
+1. `web-classic`
+2. `iphone`
+3. `ipad`
+
 ## Contrôles
 
 - Clavier numérique à l'écran
