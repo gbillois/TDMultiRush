@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v5";
+const CACHE_VERSION = "v6";
 const STATIC_CACHE = `multipliRush-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `multipliRush-runtime-${CACHE_VERSION}`;
 
@@ -57,9 +57,12 @@ function isCacheableAsset(pathname) {
 }
 
 function isAppShellRequest(pathname) {
-  const clean = pathname.startsWith("/") ? pathname.slice(1) : pathname;
+  const clean = pathname
+    .split("/")
+    .filter(Boolean)
+    .pop() || "";
   return (
-    clean === "" ||
+    pathname.endsWith("/") ||
     clean === "index.html" ||
     clean === "game.js" ||
     clean === "styles.css" ||
