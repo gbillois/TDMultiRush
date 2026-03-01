@@ -3017,8 +3017,8 @@
     showFeedback(
       isSimpleMode()
         ? l(
-          "Mode simple : pas de timer, les ennemis avancent à chaque erreur.",
-          "Simple mode: no timer, enemies advance on each mistake."
+          "Les ennemis avancent uniquement en cas d'erreurs.",
+          "Enemies move forward only when you make mistakes."
         )
         : l("Mode normal : réponse correcte = tir magique.", "Normal mode: correct answer = magic shot."),
       ""
