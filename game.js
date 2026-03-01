@@ -101,7 +101,9 @@
   const MASTERY_TARGET = 20;
   const LEADERBOARD_MAX_ENTRIES = 10;
   const ALL_TABLES = Array.from({ length: 12 }, (_, idx) => idx + 1);
-  const DEFAULT_SELECTED_TABLES = ALL_TABLES.filter((table) => ![1, 2, 10].includes(table));
+  const DEFAULT_SELECTED_TABLES = ALL_TABLES.filter(
+    (table) => ![1, 2, 10, 11, 12].includes(table)
+  );
   const MAX_MULTIPLIER_VALUE = 10;
   const SIMPLE_MAX_MISTAKES = 4;
   const SIMPLE_STEP_ADVANCE = 0.15;
