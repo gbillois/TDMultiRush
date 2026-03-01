@@ -134,6 +134,17 @@
   const TARGET_SOLVE_TIME_SECONDS = 0.75;
   const DIFFICULTY_SAFETY_MARGIN_SECONDS = 1.2;
   const ENABLE_COMBO_DEBUG_GESTURE = false;
+  const ENEMY_EXTRA_SHIFT_Y = 20;
+  const WORLD_BG_SOURCE_WIDTH = 1536;
+  const WORLD_BG_SOURCE_HEIGHT = 2752;
+  const WORLD_SPACE_ANCHORS = {
+    // Calibrated from the current desktop (Mac) layout so other screens match it.
+    enemyPathY: 2008,
+    towerBottomY: 2080,
+    castleBottomY: 2030,
+    projectileOriginX: 248,
+    projectileOriginY: 1905
+  };
 
   const STYLE_ASSETS = {
     [VISUAL_STYLES.CASTLE]: {
@@ -787,6 +798,63 @@
     return world;
   }
 
+  function usesWorldSpaceAnchors() {
+    return (
+      state.visualStyle === VISUAL_STYLES.CASTLE || state.visualStyle === VISUAL_STYLES.FAIRY
+    );
+  }
+
+  function getWorldSpaceMetrics() {
+    if (!usesWorldSpaceAnchors() || !dom.battlefield) {
+      return null;
+    }
+
+    const rect = dom.battlefield.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) {
+      return null;
+    }
+
+    const tuning = getCurrentDebugStyleTuning();
+    const scale = rect.width / WORLD_BG_SOURCE_WIDTH;
+    const renderedHeight = WORLD_BG_SOURCE_HEIGHT * scale;
+    const imageTop = rect.height - renderedHeight + tuning.bgOffsetY;
+
+    return { rect, scale, imageTop };
+  }
+
+  function sourceYToBattlefieldY(sourceY, metrics) {
+    return metrics.imageTop + sourceY * metrics.scale;
+  }
+
+  function sourceXToBattlefieldX(sourceX, metrics) {
+    return sourceX * metrics.scale;
+  }
+
+  function updateWorldSpaceAnchors() {
+    if (!dom.frame) {
+      return;
+    }
+
+    if (!usesWorldSpaceAnchors()) {
+      dom.frame.style.removeProperty("--world-tower-bottom-px");
+      dom.frame.style.removeProperty("--world-castle-bottom-px");
+      return;
+    }
+
+    const metrics = getWorldSpaceMetrics();
+    if (!metrics) {
+      return;
+    }
+
+    const towerBottom =
+      metrics.rect.height - sourceYToBattlefieldY(WORLD_SPACE_ANCHORS.towerBottomY, metrics);
+    const castleBottom =
+      metrics.rect.height - sourceYToBattlefieldY(WORLD_SPACE_ANCHORS.castleBottomY, metrics);
+
+    dom.frame.style.setProperty("--world-tower-bottom-px", `${towerBottom.toFixed(2)}px`);
+    dom.frame.style.setProperty("--world-castle-bottom-px", `${castleBottom.toFixed(2)}px`);
+  }
+
   function getCurrentDebugStyleTuning() {
     const styleTuning = state.debugTuning.byStyle[state.visualStyle];
     return styleTuning || createDefaultDebugStyleTuning();
@@ -818,6 +886,7 @@
     dom.frame.style.setProperty("--debug-tower-scale", tuning.towerScale.toFixed(3));
     dom.frame.style.setProperty("--debug-castle-scale", tuning.castleScale.toFixed(3));
     applyWorldTheme();
+    updateWorldSpaceAnchors();
     renderEnemies();
     refreshDebugExport();
   }
@@ -1373,6 +1442,32 @@
     const pathRect = dom.path?.getBoundingClientRect();
     const castleRect = dom.castleDoor?.getBoundingClientRect();
     const tuning = getCurrentDebugStyleTuning();
+    const worldMetrics = getWorldSpaceMetrics();
+
+    if (worldMetrics) {
+      let startX = rect.width * 0.2;
+      let endX = rect.width * 0.89;
+
+      if (pathRect && pathRect.width > 12) {
+        startX = pathRect.left - rect.left + pathRect.width * 0.07;
+        const pathEndX = pathRect.right - rect.left - pathRect.width * 0.08;
+        const doorX = castleRect
+          ? castleRect.left - rect.left + castleRect.width * 0.34
+          : pathEndX;
+        endX = Math.max(startX + 24, Math.min(pathEndX, doorX));
+      }
+
+      return {
+        startX,
+        endX,
+        baseY:
+          sourceYToBattlefieldY(WORLD_SPACE_ANCHORS.enemyPathY, worldMetrics) +
+          ENEMY_EXTRA_SHIFT_Y +
+          tuning.enemyPathOffsetY,
+        width: rect.width,
+        height: rect.height
+      };
+    }
 
     if (pathRect && pathRect.width > 12 && pathRect.height > 8) {
       const isBasicStyle = state.visualStyle === VISUAL_STYLES.BASIC;
@@ -1388,7 +1483,7 @@
       return {
         startX,
         endX,
-        baseY,
+        baseY: baseY + ENEMY_EXTRA_SHIFT_Y,
         width: rect.width,
         height: rect.height
       };
@@ -1397,7 +1492,7 @@
     return {
       startX: rect.width * 0.2,
       endX: rect.width * 0.89,
-      baseY: rect.height * 0.72 + tuning.enemyPathOffsetY,
+      baseY: rect.height * 0.72 + ENEMY_EXTRA_SHIFT_Y + tuning.enemyPathOffsetY,
       width: rect.width,
       height: rect.height
     };
@@ -1467,8 +1562,15 @@
 
   function launchProjectile(target) {
     const track = getTrackGeometry();
-    const originX = track.width * 0.16;
-    const originY = track.height * 0.56;
+    let originX = track.width * 0.16;
+    let originY = track.height * 0.56;
+    const worldMetrics = getWorldSpaceMetrics();
+    if (worldMetrics) {
+      originX = sourceXToBattlefieldX(WORLD_SPACE_ANCHORS.projectileOriginX, worldMetrics);
+      originY = sourceYToBattlefieldY(WORLD_SPACE_ANCHORS.projectileOriginY, worldMetrics);
+    }
+    originX = clamp(originX, 0, track.width);
+    originY = clamp(originY, 0, track.height);
     dom.tower?.classList.add("cast");
 
     const p = document.createElement("div");
@@ -2667,6 +2769,13 @@
       submitAnswer();
     }
   });
+
+  const handleViewportResize = () => {
+    updateWorldSpaceAnchors();
+    renderEnemies();
+  };
+  window.addEventListener("resize", handleViewportResize);
+  window.visualViewport?.addEventListener("resize", handleViewportResize);
 
   loadProfile();
   loadDebugTuning();

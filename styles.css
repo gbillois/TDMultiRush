@@ -17,7 +17,9 @@
   --debug-tower-scale: 1;
   --debug-castle-scale: 1;
   --battle-upshift-y: 50px;
-  --castle-extra-shift-y: -10px;
+  --castle-extra-shift-y: -60px;
+  --world-tower-bottom-px: 0px;
+  --world-castle-bottom-px: 0px;
   --keypad-bottom-extra: 30px;
   --app-max-width: 560px;
 }
@@ -535,7 +537,9 @@ body {
 .visual-style-fairy .castle-door {
   right: -5%;
   bottom: calc(
-    3% + var(--battle-upshift-y) + var(--castle-extra-shift-y) + var(--debug-castle-offset-y)
+    var(--world-castle-bottom-px, calc(3% + var(--battle-upshift-y)))
+    + var(--castle-extra-shift-y)
+    + var(--debug-castle-offset-y)
   );
   width: clamp(92px, 21vw, 150px);
 }
@@ -544,7 +548,9 @@ body {
 .visual-style-fairy .castle-fire {
   right: -11%;
   bottom: calc(
-    3% + var(--battle-upshift-y) + var(--castle-extra-shift-y) + var(--debug-castle-offset-y)
+    var(--world-castle-bottom-px, calc(3% + var(--battle-upshift-y)))
+    + var(--castle-extra-shift-y)
+    + var(--debug-castle-offset-y)
   );
   width: clamp(124px, 30vw, 198px);
 }
@@ -552,7 +558,10 @@ body {
 .visual-style-castle .tower,
 .visual-style-fairy .tower {
   left: 3%;
-  bottom: calc(9% + var(--battle-upshift-y) + var(--debug-tower-offset-y));
+  bottom: calc(
+    var(--world-tower-bottom-px, calc(9% + var(--battle-upshift-y)))
+    + var(--debug-tower-offset-y)
+  );
   width: clamp(70px, 16vw, 112px);
 }
 
