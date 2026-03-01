@@ -101,6 +101,7 @@
   const MASTERY_TARGET = 20;
   const LEADERBOARD_MAX_ENTRIES = 10;
   const ALL_TABLES = Array.from({ length: 12 }, (_, idx) => idx + 1);
+  const DEFAULT_SELECTED_TABLES = ALL_TABLES.filter((table) => ![1, 2, 10].includes(table));
   const MAX_MULTIPLIER_VALUE = 10;
   const SIMPLE_MAX_MISTAKES = 4;
   const SIMPLE_STEP_ADVANCE = 0.15;
@@ -302,7 +303,7 @@
     paused: false,
     mode: MODES.NORMAL,
     visualStyle: VISUAL_STYLES.CASTLE,
-    selectedTables: [...ALL_TABLES],
+    selectedTables: [...DEFAULT_SELECTED_TABLES],
     tableMastery: createEmptyMastery(),
     multiplicationMastery: createEmptyMultiplicationMastery(),
     wave: 1,
@@ -369,7 +370,7 @@
 
   function sanitizeSelectedTables(rawValue) {
     if (!Array.isArray(rawValue)) {
-      return [...ALL_TABLES];
+      return [...DEFAULT_SELECTED_TABLES];
     }
 
     const values = rawValue
@@ -377,7 +378,7 @@
       .filter((table) => table >= 1 && table <= 12);
 
     const unique = [...new Set(values)].sort((a, b) => a - b);
-    return unique.length > 0 ? unique : [...ALL_TABLES];
+    return unique.length > 0 ? unique : [...DEFAULT_SELECTED_TABLES];
   }
 
   function normalizeMastery(rawValue) {
@@ -530,7 +531,7 @@
         state.mode = parsed.mode;
       }
     } catch {
-      state.selectedTables = [...ALL_TABLES];
+      state.selectedTables = [...DEFAULT_SELECTED_TABLES];
       state.tableMastery = createEmptyMastery();
       state.multiplicationMastery = createEmptyMultiplicationMastery();
       state.mode = MODES.NORMAL;
