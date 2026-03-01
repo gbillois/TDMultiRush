@@ -134,8 +134,8 @@
   const TARGET_SOLVE_TIME_SECONDS = 0.75;
   const DIFFICULTY_SAFETY_MARGIN_SECONDS = 1.2;
   const ENABLE_COMBO_DEBUG_GESTURE = false;
-  const PLATFORM_UPSHIFT_Y =
-    typeof navigator !== "undefined" && /iPhone/i.test(navigator.userAgent || "") ? 50 : 0;
+  const PLATFORM_UPSHIFT_NARROW_MAX_WIDTH = 430;
+  const PLATFORM_UPSHIFT_Y_PX = 50;
   const ENEMY_EXTRA_SHIFT_Y = 20;
   const WORLD_BG_SOURCE_WIDTH = 1536;
   const WORLD_BG_SOURCE_HEIGHT = 2752;
@@ -761,6 +761,34 @@
     return Math.min(max, Math.max(min, value));
   }
 
+  function getViewportWidth() {
+    if (typeof window === "undefined") {
+      return 0;
+    }
+    return (
+      window.visualViewport?.width ||
+      window.innerWidth ||
+      document.documentElement?.clientWidth ||
+      0
+    );
+  }
+
+  function isIPhoneDevice() {
+    if (typeof navigator === "undefined") {
+      return false;
+    }
+    return /iPhone/i.test(navigator.userAgent || "");
+  }
+
+  function getPlatformUpshiftY() {
+    const viewportWidth = getViewportWidth();
+    const isNarrowScreen =
+      Number.isFinite(viewportWidth) &&
+      viewportWidth > 0 &&
+      viewportWidth <= PLATFORM_UPSHIFT_NARROW_MAX_WIDTH;
+    return isIPhoneDevice() || isNarrowScreen ? PLATFORM_UPSHIFT_Y_PX : 0;
+  }
+
   function getWorldIndexForWave(wave) {
     return Math.min(
       WORLD_THEMES.length - 1,
@@ -819,7 +847,7 @@
     const tuning = getCurrentDebugStyleTuning();
     const scale = rect.width / WORLD_BG_SOURCE_WIDTH;
     const renderedHeight = WORLD_BG_SOURCE_HEIGHT * scale;
-    const imageTop = rect.height - renderedHeight + tuning.bgOffsetY - PLATFORM_UPSHIFT_Y;
+    const imageTop = rect.height - renderedHeight + tuning.bgOffsetY - getPlatformUpshiftY();
 
     return { rect, scale, imageTop };
   }
@@ -887,7 +915,7 @@
     dom.frame.style.setProperty("--debug-castle-offset-y", `${tuning.castleOffsetY}px`);
     dom.frame.style.setProperty("--debug-tower-scale", tuning.towerScale.toFixed(3));
     dom.frame.style.setProperty("--debug-castle-scale", tuning.castleScale.toFixed(3));
-    dom.frame.style.setProperty("--platform-upshift-y", `${PLATFORM_UPSHIFT_Y}px`);
+    dom.frame.style.setProperty("--platform-upshift-y", `${getPlatformUpshiftY()}px`);
     applyWorldTheme();
     updateWorldSpaceAnchors();
     renderEnemies();
@@ -2774,6 +2802,7 @@
   });
 
   const handleViewportResize = () => {
+    dom.frame?.style.setProperty("--platform-upshift-y", `${getPlatformUpshiftY()}px`);
     updateWorldSpaceAnchors();
     renderEnemies();
   };
