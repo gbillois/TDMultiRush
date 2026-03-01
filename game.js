@@ -134,6 +134,8 @@
   const TARGET_SOLVE_TIME_SECONDS = 0.75;
   const DIFFICULTY_SAFETY_MARGIN_SECONDS = 1.2;
   const ENABLE_COMBO_DEBUG_GESTURE = false;
+  const PLATFORM_UPSHIFT_Y =
+    typeof navigator !== "undefined" && /iPhone/i.test(navigator.userAgent || "") ? 50 : 0;
   const ENEMY_EXTRA_SHIFT_Y = 20;
   const WORLD_BG_SOURCE_WIDTH = 1536;
   const WORLD_BG_SOURCE_HEIGHT = 2752;
@@ -817,7 +819,7 @@
     const tuning = getCurrentDebugStyleTuning();
     const scale = rect.width / WORLD_BG_SOURCE_WIDTH;
     const renderedHeight = WORLD_BG_SOURCE_HEIGHT * scale;
-    const imageTop = rect.height - renderedHeight + tuning.bgOffsetY;
+    const imageTop = rect.height - renderedHeight + tuning.bgOffsetY - PLATFORM_UPSHIFT_Y;
 
     return { rect, scale, imageTop };
   }
@@ -885,6 +887,7 @@
     dom.frame.style.setProperty("--debug-castle-offset-y", `${tuning.castleOffsetY}px`);
     dom.frame.style.setProperty("--debug-tower-scale", tuning.towerScale.toFixed(3));
     dom.frame.style.setProperty("--debug-castle-scale", tuning.castleScale.toFixed(3));
+    dom.frame.style.setProperty("--platform-upshift-y", `${PLATFORM_UPSHIFT_Y}px`);
     applyWorldTheme();
     updateWorldSpaceAnchors();
     renderEnemies();

@@ -16,6 +16,7 @@
   --debug-castle-offset-y: 0px;
   --debug-tower-scale: 1;
   --debug-castle-scale: 1;
+  --platform-upshift-y: 0px;
   --battle-upshift-y: 50px;
   --castle-extra-shift-y: -60px;
   --world-tower-bottom-px: 0px;
@@ -264,25 +265,25 @@ body {
   inset: 0;
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: center calc(100% + var(--debug-bg-offset-y));
+  background-position: center calc(100% + var(--debug-bg-offset-y) - var(--platform-upshift-y));
   pointer-events: none;
   transition: filter 520ms ease, opacity 520ms ease, transform 520ms ease;
 }
 
 .layer-sky {
   background-image: var(--layer-sky-epic);
-  background-position: center calc(0% + var(--debug-bg-offset-y));
+  background-position: center calc(0% + var(--debug-bg-offset-y) - var(--platform-upshift-y));
 }
 
 .layer-hills {
   background-image: var(--layer-hills-epic);
-  background-position: center calc(72% + var(--debug-bg-offset-y));
+  background-position: center calc(72% + var(--debug-bg-offset-y) - var(--platform-upshift-y));
   transform: scale(1.06);
 }
 
 .layer-forest {
   background-image: var(--layer-forest);
-  background-position: center calc(100% + var(--debug-bg-offset-y));
+  background-position: center calc(100% + var(--debug-bg-offset-y) - var(--platform-upshift-y));
   transform: scale(1.03);
   z-index: 2;
 }
@@ -292,7 +293,9 @@ body {
   left: 16%;
   right: -6%;
   top: auto;
-  bottom: calc(20% + var(--battle-upshift-y) - var(--debug-path-offset-y));
+  bottom: calc(
+    20% + var(--battle-upshift-y) + var(--platform-upshift-y) - var(--debug-path-offset-y)
+  );
   height: 16%;
   border-radius: 60px;
   background:
@@ -311,28 +314,30 @@ body {
 .visual-style-castle .layer,
 .visual-style-fairy .layer {
   background-size: 100% auto;
-  background-position: center calc(100% + var(--debug-bg-offset-y));
+  background-position: center calc(100% + var(--debug-bg-offset-y) - var(--platform-upshift-y));
 }
 
 .visual-style-castle .layer-sky,
 .visual-style-fairy .layer-sky {
-  background-position: center calc(0% + var(--debug-bg-offset-y));
+  background-position: center calc(0% + var(--debug-bg-offset-y) - var(--platform-upshift-y));
 }
 
 .visual-style-castle .layer-hills,
 .visual-style-fairy .layer-hills {
-  background-position: center calc(86% + var(--debug-bg-offset-y));
+  background-position: center calc(86% + var(--debug-bg-offset-y) - var(--platform-upshift-y));
 }
 
 .visual-style-castle .layer-forest,
 .visual-style-fairy .layer-forest {
-  background-position: center calc(100% + var(--debug-bg-offset-y));
+  background-position: center calc(100% + var(--debug-bg-offset-y) - var(--platform-upshift-y));
 }
 
 .visual-style-castle .path,
 .visual-style-fairy .path {
   top: auto;
-  bottom: calc(12% + var(--battle-upshift-y) - var(--debug-path-offset-y));
+  bottom: calc(
+    12% + var(--battle-upshift-y) + var(--platform-upshift-y) - var(--debug-path-offset-y)
+  );
   height: 10%;
   background: transparent;
   border: 0;
@@ -451,7 +456,7 @@ body {
 .visual-style-fairy .battlefield.world-desolation .layer-sky,
 .visual-style-fairy .battlefield.world-desolation .layer-hills,
 .visual-style-fairy .battlefield.world-desolation .layer-forest {
-  background-position: center calc(100% + var(--debug-bg-offset-y));
+  background-position: center calc(100% + var(--debug-bg-offset-y) - var(--platform-upshift-y));
 }
 
 .visual-style-basic .battlefield.world-forest .layer-sky {
@@ -493,7 +498,11 @@ body {
   position: absolute;
   right: -8%;
   bottom: calc(
-    5% + var(--battle-upshift-y) + var(--castle-extra-shift-y) + var(--debug-castle-offset-y)
+    5%
+    + var(--battle-upshift-y)
+    + var(--platform-upshift-y)
+    + var(--castle-extra-shift-y)
+    + var(--debug-castle-offset-y)
   );
   width: clamp(132px, 30vw, 210px);
   z-index: 4;
@@ -506,7 +515,11 @@ body {
   position: absolute;
   right: -14%;
   bottom: calc(
-    5% + var(--battle-upshift-y) + var(--castle-extra-shift-y) + var(--debug-castle-offset-y)
+    5%
+    + var(--battle-upshift-y)
+    + var(--platform-upshift-y)
+    + var(--castle-extra-shift-y)
+    + var(--debug-castle-offset-y)
   );
   width: clamp(170px, 40vw, 280px);
   z-index: 10;
@@ -525,7 +538,9 @@ body {
   position: absolute;
   width: clamp(100px, 24vw, 160px);
   left: 3%;
-  bottom: calc(13% + var(--battle-upshift-y) + var(--debug-tower-offset-y));
+  bottom: calc(
+    13% + var(--battle-upshift-y) + var(--platform-upshift-y) + var(--debug-tower-offset-y)
+  );
   filter: none;
   z-index: 6;
   transition: filter 220ms ease, transform 220ms ease;
@@ -537,7 +552,7 @@ body {
 .visual-style-fairy .castle-door {
   right: -5%;
   bottom: calc(
-    var(--world-castle-bottom-px, calc(3% + var(--battle-upshift-y)))
+    var(--world-castle-bottom-px, calc(3% + var(--battle-upshift-y) + var(--platform-upshift-y)))
     + var(--castle-extra-shift-y)
     + var(--debug-castle-offset-y)
   );
@@ -548,7 +563,7 @@ body {
 .visual-style-fairy .castle-fire {
   right: -11%;
   bottom: calc(
-    var(--world-castle-bottom-px, calc(3% + var(--battle-upshift-y)))
+    var(--world-castle-bottom-px, calc(3% + var(--battle-upshift-y) + var(--platform-upshift-y)))
     + var(--castle-extra-shift-y)
     + var(--debug-castle-offset-y)
   );
@@ -559,7 +574,7 @@ body {
 .visual-style-fairy .tower {
   left: 3%;
   bottom: calc(
-    var(--world-tower-bottom-px, calc(9% + var(--battle-upshift-y)))
+    var(--world-tower-bottom-px, calc(9% + var(--battle-upshift-y) + var(--platform-upshift-y)))
     + var(--debug-tower-offset-y)
   );
   width: clamp(70px, 16vw, 112px);
@@ -573,7 +588,7 @@ body {
 .boss-dragon {
   position: absolute;
   left: 50%;
-  bottom: calc(20% + 30px);
+  bottom: calc(20% + 30px + var(--platform-upshift-y));
   width: clamp(130px, 30vw, 210px);
   z-index: 11;
   pointer-events: none;
