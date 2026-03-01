@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "assets/pixel-fairy/pixelfairy.png"
+SOURCE = ROOT / "assets/themes/fairy/pixelfairy.png"
 OUT_DIR = ROOT / "assets/pixel-fairy"
 SPRITE_CARD_INSET = 8
 

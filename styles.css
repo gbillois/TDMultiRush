@@ -9,7 +9,7 @@
   --danger: #ff6978;
   --text: #f9fbff;
   --shadow: 0 12px 32px rgba(8, 12, 30, 0.42);
-  --projectile-image: url("assets/pixel/projectile-arcane.png");
+  --projectile-image: url("assets/themes/castle/projectile-arcane.png");
   --debug-bg-offset-y: 0px;
   --debug-path-offset-y: 0px;
   --debug-tower-offset-y: 0px;
@@ -73,55 +73,55 @@ body {
   background: linear-gradient(180deg, #6ea6ff 0%, #3f7ccf 56%, #28466a 100%);
   display: flex;
   flex-direction: column;
-  --layer-sky-epic: url("assets/pixel/bg-snow.png");
-  --layer-sky-alt: url("assets/pixel/bg-snow.png");
-  --layer-hills-epic: url("assets/pixel/bg-mountains.png");
-  --layer-hills-alt: url("assets/pixel/bg-mountains.png");
-  --layer-forest: url("assets/pixel/bg-forest.png");
-  --world-bg-forest: url("assets/pixel/bg-forest.png");
-  --world-bg-snow: url("assets/pixel/bg-snow.png");
-  --world-bg-mountains: url("assets/pixel/bg-mountains.png");
-  --world-bg-desert: url("assets/pixel/bg-desert.png");
-  --world-bg-desolation: url("assets/pixel/bg-desolation.png");
+  --layer-sky-epic: url("assets/themes/basic/backgrounds/bg-sky-epic.svg");
+  --layer-sky-alt: url("assets/themes/basic/backgrounds/bg-sky.svg");
+  --layer-hills-epic: url("assets/themes/basic/backgrounds/bg-mountains-epic.svg");
+  --layer-hills-alt: url("assets/themes/basic/backgrounds/bg-hills.svg");
+  --layer-forest: url("assets/themes/basic/backgrounds/bg-forest-foreground.svg");
+  --world-bg-forest: url("assets/themes/castle/bg-forest.png");
+  --world-bg-snow: url("assets/themes/castle/bg-snow.png");
+  --world-bg-mountains: url("assets/themes/castle/bg-mountains.png");
+  --world-bg-desert: url("assets/themes/castle/bg-desert.png");
+  --world-bg-desolation: url("assets/themes/castle/bg-desolation.png");
 }
 
 .phone-frame.visual-style-basic {
-  --layer-sky-epic: url("assets/bg-sky-epic.svg");
-  --layer-sky-alt: url("assets/bg-sky.svg");
-  --layer-hills-epic: url("assets/bg-mountains-epic.svg");
-  --layer-hills-alt: url("assets/bg-hills.svg");
-  --layer-forest: url("assets/bg-forest-foreground.svg");
-  --world-bg-forest: url("assets/bg-forest-foreground.svg");
-  --world-bg-snow: url("assets/bg-hills.svg");
-  --world-bg-mountains: url("assets/bg-mountains-epic.svg");
-  --world-bg-desert: url("assets/bg-hills.svg");
-  --world-bg-desolation: url("assets/bg-hills.svg");
+  --layer-sky-epic: url("assets/themes/basic/backgrounds/bg-sky-epic.svg");
+  --layer-sky-alt: url("assets/themes/basic/backgrounds/bg-sky.svg");
+  --layer-hills-epic: url("assets/themes/basic/backgrounds/bg-mountains-epic.svg");
+  --layer-hills-alt: url("assets/themes/basic/backgrounds/bg-hills.svg");
+  --layer-forest: url("assets/themes/basic/backgrounds/bg-forest-foreground.svg");
+  --world-bg-forest: url("assets/themes/basic/backgrounds/bg-forest-foreground.svg");
+  --world-bg-snow: url("assets/themes/basic/backgrounds/bg-hills.svg");
+  --world-bg-mountains: url("assets/themes/basic/backgrounds/bg-mountains-epic.svg");
+  --world-bg-desert: url("assets/themes/basic/backgrounds/bg-hills.svg");
+  --world-bg-desolation: url("assets/themes/basic/backgrounds/bg-hills.svg");
 }
 
 .phone-frame.visual-style-castle {
-  --layer-sky-epic: url("assets/pixel/bg-snow.png");
-  --layer-sky-alt: url("assets/pixel/bg-snow.png");
-  --layer-hills-epic: url("assets/pixel/bg-mountains.png");
-  --layer-hills-alt: url("assets/pixel/bg-mountains.png");
-  --layer-forest: url("assets/pixel/bg-forest.png");
-  --world-bg-forest: url("assets/pixel/bg-forest.png");
-  --world-bg-snow: url("assets/pixel/bg-snow.png");
-  --world-bg-mountains: url("assets/pixel/bg-mountains.png");
-  --world-bg-desert: url("assets/pixel/bg-desert.png");
-  --world-bg-desolation: url("assets/pixel/bg-desolation.png");
+  --layer-sky-epic: url("assets/themes/basic/backgrounds/bg-sky-epic.svg");
+  --layer-sky-alt: url("assets/themes/basic/backgrounds/bg-sky.svg");
+  --layer-hills-epic: url("assets/themes/basic/backgrounds/bg-mountains-epic.svg");
+  --layer-hills-alt: url("assets/themes/basic/backgrounds/bg-hills.svg");
+  --layer-forest: url("assets/themes/basic/backgrounds/bg-forest-foreground.svg");
+  --world-bg-forest: url("assets/themes/castle/bg-forest.png");
+  --world-bg-snow: url("assets/themes/castle/bg-snow.png");
+  --world-bg-mountains: url("assets/themes/castle/bg-mountains.png");
+  --world-bg-desert: url("assets/themes/castle/bg-desert.png");
+  --world-bg-desolation: url("assets/themes/castle/bg-desolation.png");
 }
 
 .phone-frame.visual-style-fairy {
-  --layer-sky-epic: url("assets/pixel-fairy/bg-snow.png");
-  --layer-sky-alt: url("assets/pixel-fairy/bg-snow.png");
-  --layer-hills-epic: url("assets/pixel-fairy/bg-mountains.png");
-  --layer-hills-alt: url("assets/pixel-fairy/bg-mountains.png");
-  --layer-forest: url("assets/pixel-fairy/bg-forest.png");
-  --world-bg-forest: url("assets/pixel-fairy/bg-forest.png");
-  --world-bg-snow: url("assets/pixel-fairy/bg-snow.png");
-  --world-bg-mountains: url("assets/pixel-fairy/bg-mountains.png");
-  --world-bg-desert: url("assets/pixel-fairy/bg-desert.png");
-  --world-bg-desolation: url("assets/pixel-fairy/bg-desolation.png");
+  --layer-sky-epic: url("assets/themes/basic/backgrounds/bg-sky-epic.svg");
+  --layer-sky-alt: url("assets/themes/basic/backgrounds/bg-sky.svg");
+  --layer-hills-epic: url("assets/themes/basic/backgrounds/bg-mountains-epic.svg");
+  --layer-hills-alt: url("assets/themes/basic/backgrounds/bg-hills.svg");
+  --layer-forest: url("assets/themes/basic/backgrounds/bg-forest-foreground.svg");
+  --world-bg-forest: url("assets/themes/fairy/bg-forest.png");
+  --world-bg-snow: url("assets/themes/fairy/bg-snow.png");
+  --world-bg-mountains: url("assets/themes/fairy/bg-mountains.png");
+  --world-bg-desert: url("assets/themes/fairy/bg-desert.png");
+  --world-bg-desolation: url("assets/themes/fairy/bg-desolation.png");
 }
 
 .phone-frame.shake-small {
