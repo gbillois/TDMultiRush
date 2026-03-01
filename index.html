@@ -23,7 +23,7 @@
       <div class="phone-frame visual-style-castle">
         <section id="title-screen" class="title-screen">
           <div class="title-card">
-            <p class="title-kicker">Tower Defense des multiplications</p>
+            <p class="title-kicker">Tower defense des multiplications</p>
             <h1>MultipliRush TD</h1>
             <p>
               Défends ton château en répondant aux multiplications. Le jeu s'adapte à tes
@@ -32,7 +32,7 @@
             <div class="title-actions">
               <button id="start-btn" type="button">Lancer la partie</button>
               <button id="open-tables-btn" type="button">Réglages</button>
-              <button id="open-stats-btn" type="button">Voir le leaderboard et la matrice</button>
+              <button id="open-stats-btn" type="button">Voir le classement et la matrice</button>
             </div>
           </div>
         </section>
@@ -54,7 +54,10 @@
             <span class="hud-label">Combo</span>
             <strong id="combo-value">x0</strong>
           </div>
-          <button id="pause-btn" class="hud-pause-btn" type="button">Pause</button>
+          <div class="hud-item hud-item-coins">
+            <span class="hud-label">Pièces d'or</span>
+            <strong id="coins-value">0</strong>
+          </div>
         </header>
 
         <main class="battlefield" id="battlefield">
@@ -95,7 +98,7 @@
             Victoire ! Tu es le champion des multiplications
           </div>
           <div id="boss-defeat-overlay" class="boss-defeat-overlay hidden">
-            <p>Le dragon a gagné, tu dois être plus rapide. Retour au niveau précédent, réessaye !</p>
+            <p>Le dragon a gagné, tu dois être plus rapide. Retour au niveau précédent, réessaie !</p>
             <button id="boss-defeat-go-btn" type="button">OK</button>
           </div>
           <div id="game-over" class="game-over hidden">
@@ -103,7 +106,7 @@
             <p id="game-over-text">Les gobelins ont passé ta défense.</p>
             <p id="final-score-text" class="final-score-text">Score final: 0</p>
             <div id="score-submit" class="score-submit">
-              <label for="player-name-input">Ton nom pour le leaderboard</label>
+              <label for="player-name-input">Ton nom pour le classement</label>
               <div class="score-submit-row">
                 <input
                   id="player-name-input"
@@ -129,6 +132,9 @@
             <div class="question-headline">
               <p class="question-title">Canon des Multiplications</p>
               <div class="mini-actions">
+                <button id="open-shop-inline-btn" class="mini-action mini-action-shop" type="button">
+                  Boutique
+                </button>
                 <button id="open-tables-inline-btn" class="mini-action" type="button">
                   Réglages
                 </button>
@@ -137,6 +143,9 @@
                 </button>
                 <button id="open-debug-inline-btn" class="mini-action debug-hidden" type="button">
                   Debug
+                </button>
+                <button id="pause-btn" class="mini-action mini-action-pause" type="button">
+                  Pause
                 </button>
               </div>
             </div>
@@ -211,6 +220,24 @@
           </div>
         </section>
 
+        <section id="shop-modal" class="shop-modal hidden">
+          <div class="shop-card">
+            <h2>Boutique</h2>
+            <p class="shop-subtitle">Débloque des skins pour Castle/Fairy (Basic exclu).</p>
+            <div class="shop-wallet">Solde: <strong id="shop-coins-value">0</strong> pièces d'or</div>
+            <div id="shop-style-note" class="shop-style-note"></div>
+            <div class="shop-filters" id="shop-category-select">
+              <button type="button" data-shop-category="tower" class="active">Tours</button>
+              <button type="button" data-shop-category="castle">Châteaux</button>
+              <button type="button" data-shop-category="projectile">Tirs</button>
+            </div>
+            <div id="shop-grid" class="shop-grid"></div>
+            <div class="shop-actions">
+              <button id="close-shop-btn" type="button">Fermer</button>
+            </div>
+          </div>
+        </section>
+
         <section id="pause-modal" class="pause-modal hidden">
           <div class="pause-card">
             <h2>Pause</h2>
@@ -218,6 +245,17 @@
             <div class="pause-actions">
               <button id="resume-btn" type="button">Reprendre</button>
               <button id="back-title-btn" type="button">Retour à l'écran titre</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="mode-confirm-modal" class="pause-modal hidden">
+          <div class="pause-card">
+            <h2>Confirmation</h2>
+            <p id="mode-confirm-text">Changer de mode va démarrer une nouvelle partie.</p>
+            <div class="pause-actions">
+              <button id="mode-confirm-cancel-btn" type="button">Annuler</button>
+              <button id="mode-confirm-accept-btn" type="button">Continuer</button>
             </div>
           </div>
         </section>

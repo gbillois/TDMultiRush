@@ -198,6 +198,12 @@ body {
   box-shadow: 0 4px 0 #1b2f65;
 }
 
+#open-shop-btn {
+  background: linear-gradient(180deg, #ffdb78, #c58a2d);
+  box-shadow: 0 4px 0 #80521a;
+  color: #27222e;
+}
+
 #open-stats-btn {
   background: linear-gradient(180deg, #58b7a5, #2d7b6e);
   box-shadow: 0 4px 0 #165047;
@@ -205,7 +211,7 @@ body {
 
 .hud {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   padding: 10px;
   background: rgba(8, 10, 34, 0.55);
@@ -235,18 +241,8 @@ body {
   cursor: pointer;
 }
 
-.hud-pause-btn {
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 12px;
-  min-width: 62px;
-  padding: 0 10px;
-  color: #f7fbff;
-  font-weight: 800;
-  background: linear-gradient(180deg, #486dcb, #2f4b9c);
-}
-
-.hud-pause-btn:disabled {
-  opacity: 0.45;
+.hud-item-coins strong {
+  color: #ffe8a7;
 }
 
 .battlefield {
@@ -556,7 +552,8 @@ body {
     + var(--castle-extra-shift-y)
     + var(--debug-castle-offset-y)
   );
-  width: clamp(92px, 21vw, 150px);
+  width: calc(clamp(92px, 21vw, 150px) * 1.1);
+  transform: scale(calc(var(--debug-castle-scale) * var(--castle-skin-scale, 1)));
 }
 
 .visual-style-castle .castle-fire,
@@ -787,13 +784,13 @@ body {
 
 .projectile {
   position: absolute;
-  width: 28px;
-  height: 28px;
+  width: 88px;
+  height: 48px;
   background-image: var(--projectile-image);
-  background-size: contain;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
-  filter: drop-shadow(0 0 10px rgba(84, 232, 255, 0.9));
+  filter: drop-shadow(0 0 12px rgba(84, 232, 255, 0.95));
   z-index: 8;
   transform: translate(-50%, -50%);
 }
@@ -990,6 +987,19 @@ body {
   background: linear-gradient(180deg, #4f74d4, #2f4f9f);
 }
 
+.mini-action:disabled {
+  opacity: 0.5;
+}
+
+.mini-action-shop {
+  background: linear-gradient(180deg, #ffe28a, #cb9035);
+  color: #2e2635;
+}
+
+.mini-action-pause {
+  background: linear-gradient(180deg, #8da1cf, #61749d);
+}
+
 .mode-select {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1039,6 +1049,204 @@ body {
 
 .stats-modal.hidden {
   display: none;
+}
+
+.shop-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 51;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+  background: rgba(6, 10, 24, 0.74);
+}
+
+.shop-modal.hidden {
+  display: none;
+}
+
+.shop-card {
+  width: min(100%, 430px);
+  max-height: calc(100dvh - 70px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(11, 18, 43, 0.97);
+  box-shadow: 0 16px 30px rgba(4, 8, 20, 0.58);
+  padding: 14px;
+}
+
+.shop-card h2 {
+  margin: 0;
+  font-family: "Bangers", cursive;
+  letter-spacing: 0.05em;
+  font-size: 1.7rem;
+}
+
+.shop-subtitle {
+  margin: 6px 0 8px;
+  font-size: 0.84rem;
+  opacity: 0.92;
+}
+
+.shop-wallet {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 216, 118, 0.42);
+  background: rgba(255, 196, 86, 0.12);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.shop-wallet strong {
+  color: #ffe8a7;
+}
+
+.shop-style-note {
+  margin: 8px 0 6px;
+  font-size: 0.75rem;
+  opacity: 0.88;
+}
+
+.shop-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.shop-filters button {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 10px;
+  min-height: 34px;
+  color: #f7fbff;
+  font-weight: 800;
+  background: linear-gradient(180deg, #3d5dae, #2a4083);
+}
+
+.shop-filters button.active {
+  border-color: rgba(255, 245, 175, 0.75);
+  background: linear-gradient(180deg, #ffb15c, #e16b35);
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
+  align-content: start;
+}
+
+.shop-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.shop-item.shop-cat-projectile .shop-preview-wrap {
+  min-height: 72px;
+}
+
+.shop-item.shop-cat-projectile .shop-preview {
+  width: 100%;
+  max-width: 100%;
+  max-height: 64px;
+  object-fit: contain;
+}
+
+.shop-item.selected {
+  border-color: rgba(255, 236, 152, 0.75);
+  box-shadow: 0 0 0 1px rgba(255, 202, 108, 0.24);
+}
+
+.shop-item.locked {
+  filter: grayscale(1);
+  opacity: 0.78;
+}
+
+.shop-lock {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  font-size: 1rem;
+}
+
+.shop-preview-wrap {
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(8, 12, 26, 0.72);
+  min-height: 62px;
+}
+
+.shop-preview {
+  max-width: 60px;
+  max-height: 52px;
+  image-rendering: pixelated;
+}
+
+.shop-item-body {
+  display: grid;
+  gap: 2px;
+}
+
+.shop-item-name {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.shop-item-meta {
+  margin: 0;
+  font-size: 0.76rem;
+}
+
+.shop-item-requirement {
+  margin: 0;
+  font-size: 0.72rem;
+  opacity: 0.88;
+}
+
+.shop-item button {
+  margin-top: 4px;
+  border: none;
+  border-radius: 10px;
+  min-height: 32px;
+  color: #f7fbff;
+  font-weight: 800;
+  background: linear-gradient(180deg, #4f74d4, #2f4f9f);
+}
+
+.shop-item button:disabled {
+  opacity: 0.56;
+}
+
+.shop-actions {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(11, 18, 43, 0), rgba(11, 18, 43, 0.98) 36%);
+}
+
+#close-shop-btn {
+  border: none;
+  border-radius: 12px;
+  min-height: 40px;
+  width: 100%;
+  color: #f7fbff;
+  font-weight: 800;
+  background: linear-gradient(180deg, #ffb15c, #e16b35);
 }
 
 .stats-card {
@@ -1321,6 +1529,14 @@ body {
 
 #back-title-btn {
   background: linear-gradient(180deg, #61728f, #445169);
+}
+
+#mode-confirm-cancel-btn {
+  background: linear-gradient(180deg, #61728f, #445169);
+}
+
+#mode-confirm-accept-btn {
+  background: linear-gradient(180deg, #ffb15c, #e16b35);
 }
 
 .tables-card {

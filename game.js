@@ -24,6 +24,7 @@
     livesValue: document.getElementById("lives-value"),
     scoreValue: document.getElementById("score-value"),
     comboValue: document.getElementById("combo-value"),
+    coinsValue: document.getElementById("coins-value"),
     comboHudItem: document.getElementById("combo-value")?.closest(".hud-item"),
     pauseBtn: document.getElementById("pause-btn"),
     questionText: document.getElementById("question-text"),
@@ -47,14 +48,21 @@
     restartBtn: document.getElementById("restart-btn"),
     titleScreen: document.getElementById("title-screen"),
     startBtn: document.getElementById("start-btn"),
+    openShopBtn: document.getElementById("open-shop-btn"),
     openTablesBtn: document.getElementById("open-tables-btn"),
     openStatsBtn: document.getElementById("open-stats-btn"),
+    openShopInlineBtn: document.getElementById("open-shop-inline-btn"),
     openTablesInlineBtn: document.getElementById("open-tables-inline-btn"),
     openStatsInlineBtn: document.getElementById("open-stats-inline-btn"),
     openDebugInlineBtn: document.getElementById("open-debug-inline-btn"),
     tablesModal: document.getElementById("tables-modal"),
     statsModal: document.getElementById("stats-modal"),
+    shopModal: document.getElementById("shop-modal"),
     pauseModal: document.getElementById("pause-modal"),
+    modeConfirmModal: document.getElementById("mode-confirm-modal"),
+    modeConfirmText: document.getElementById("mode-confirm-text"),
+    modeConfirmCancelBtn: document.getElementById("mode-confirm-cancel-btn"),
+    modeConfirmAcceptBtn: document.getElementById("mode-confirm-accept-btn"),
     debugModal: document.getElementById("debug-modal"),
     debugWorldSelect: document.getElementById("debug-world-select"),
     debugBgOffset: document.getElementById("debug-bg-offset"),
@@ -78,6 +86,11 @@
     masteryMatrix: document.getElementById("mastery-matrix"),
     closeTablesBtn: document.getElementById("close-tables-btn"),
     closeStatsBtn: document.getElementById("close-stats-btn"),
+    closeShopBtn: document.getElementById("close-shop-btn"),
+    shopCoinsValue: document.getElementById("shop-coins-value"),
+    shopStyleNote: document.getElementById("shop-style-note"),
+    shopCategorySelect: document.getElementById("shop-category-select"),
+    shopGrid: document.getElementById("shop-grid"),
     resumeBtn: document.getElementById("resume-btn"),
     backTitleBtn: document.getElementById("back-title-btn"),
     resetMasteryBtn: document.getElementById("reset-mastery-btn")
@@ -92,6 +105,10 @@
     BASIC: "basic",
     CASTLE: "castle",
     FAIRY: "fairy"
+  };
+  const LOCALES = {
+    FR: "fr",
+    EN: "en"
   };
 
   const STORAGE_KEY = "multipliRush.profile.v1";
@@ -120,13 +137,14 @@
   const BOSS_ALLOWED_MULTIPLIERS = [6, 7, 8, 9];
   const WAVES_PER_WORLD = 2;
   const WORLD_THEMES = [
-    { id: "forest", label: "Forêt" },
-    { id: "snow", label: "Neige" },
-    { id: "mountains", label: "Montagnes" },
-    { id: "desert", label: "Désert" },
-    { id: "desolation", label: "Désolation" }
+    { id: "forest", labelFr: "Forêt", labelEn: "Forest" },
+    { id: "snow", labelFr: "Neige", labelEn: "Snow" },
+    { id: "mountains", labelFr: "Montagnes", labelEn: "Mountains" },
+    { id: "desert", labelFr: "Désert", labelEn: "Desert" },
+    { id: "desolation", labelFr: "Désolation", labelEn: "Wasteland" }
   ];
   const MAX_WAVES = WORLD_THEMES.length * WAVES_PER_WORLD;
+  const SHOP_MAX_UNLOCK_WAVE = 10;
   const BOSS_RETURN_WAVE = MAX_WAVES;
   const TABLE_COMPLEXITY_BONUS = {
     6: 4,
@@ -148,19 +166,42 @@
     towerBottomY: 2080,
     castleBottomY: 2030,
     projectileOriginX: 248,
-    projectileOriginY: 1905
+    projectileOriginY: 1815
   };
 
+  const SHOP_CATEGORIES = {
+    TOWER: "tower",
+    CASTLE: "castle",
+    PROJECTILE: "projectile"
+  };
+  const SHOP_SUPPORTED_STYLES = new Set([VISUAL_STYLES.CASTLE, VISUAL_STYLES.FAIRY]);
+  const SHOP_DEFAULT_CATEGORY = SHOP_CATEGORIES.TOWER;
   const STYLE_ASSETS = {
     [VISUAL_STYLES.CASTLE]: {
       towerSkins: {
-        arcane: "assets/pixel/tower-arcane.PNG",
-        solar: "assets/pixel/tower-solar.PNG"
+        base: "assets/pixel/tower-arcane.PNG",
+        ember: "assets/pixel/shop/towers/tower-02.png",
+        rune: "assets/pixel/shop/towers/tower-03.png",
+        obsidian: "assets/pixel/shop/towers/tower-04.png",
+        royal: "assets/pixel/shop/towers/tower-05.png",
+        mythic: "assets/pixel/shop/towers/tower-07.png"
       },
-      castleDoor: "assets/pixel/castle-right.PNG",
+      castleDoors: {
+        base: "assets/pixel/castle-right.PNG",
+        bastion: "assets/pixel/shop/castles/castle-02.png",
+        citadel: "assets/pixel/shop/castles/castle-03.png",
+        ironkeep: "assets/pixel/shop/castles/castle-04.png",
+        dawnfort: "assets/pixel/shop/castles/castle-05.png"
+      },
       castleFire: "assets/pixel/fire-castle.png",
       bossDragon: "assets/pixel/fiercedragon.PNG",
-      projectile: "assets/pixel/projectile-arcane.png",
+      projectiles: {
+        base: "assets/pixel/projectile-arcane.png",
+        spark: "assets/pixel/shop/projectiles/projectile-02.png",
+        flare: "assets/pixel/shop/projectiles/projectile-03.png",
+        comet: "assets/pixel/shop/projectiles/projectile-04.png",
+        prismfire: "assets/pixel/shop/projectiles/projectile-07.png"
+      },
       enemySrcs: {
         goblin: "assets/pixel/enemy-goblin-green.png",
         scout: "assets/pixel/enemy-scout-pink.png",
@@ -180,13 +221,16 @@
     },
     [VISUAL_STYLES.BASIC]: {
       towerSkins: {
-        arcane: "assets/tower-arcane.svg",
-        solar: "assets/tower-solar.svg"
+        base: "assets/tower-arcane.svg"
       },
-      castleDoor: "assets/castle-right.svg",
+      castleDoors: {
+        base: "assets/castle-right.svg"
+      },
       castleFire: "assets/fire-castle.svg",
       bossDragon: "assets/pixel/fiercedragon.PNG",
-      projectile: "assets/projectile-arcane.svg",
+      projectiles: {
+        base: "assets/projectile-arcane.svg"
+      },
       enemySrcs: {
         goblin: "assets/enemy-goblin-green.svg",
         scout: "assets/enemy-scout-pink.svg",
@@ -206,13 +250,28 @@
     },
     [VISUAL_STYLES.FAIRY]: {
       towerSkins: {
-        arcane: "assets/pixel-fairy/tower-arcane.PNG",
-        solar: "assets/pixel-fairy/tower-solar.PNG"
+        base: "assets/pixel-fairy/tower-arcane.PNG",
+        blossom: "assets/pixel-fairy/shop/towers/tower-02.png",
+        moon: "assets/pixel-fairy/shop/towers/tower-03.png",
+        stardust: "assets/pixel-fairy/shop/towers/tower-04.png",
+        eclipse: "assets/pixel-fairy/shop/towers/tower-05.png"
       },
-      castleDoor: "assets/pixel-fairy/castle-right.PNG",
+      castleDoors: {
+        base: "assets/pixel-fairy/castle-right.PNG",
+        petalspire: "assets/pixel-fairy/shop/castles/castle-02.png",
+        moonhall: "assets/pixel-fairy/shop/castles/castle-03.png",
+        wildroot: "assets/pixel-fairy/shop/castles/castle-04.png",
+        starcourt: "assets/pixel-fairy/shop/castles/castle-05.png"
+      },
       castleFire: "assets/pixel-fairy/fire-castle.png",
       bossDragon: "assets/pixel-fairy/fairydragon.png",
-      projectile: "assets/pixel-fairy/projectile-arcane.png",
+      projectiles: {
+        base: "assets/pixel-fairy/projectile-arcane.png",
+        pollen: "assets/pixel-fairy/shop/projectiles/projectile-02.png",
+        prism: "assets/pixel-fairy/shop/projectiles/projectile-03.png",
+        spiral: "assets/pixel-fairy/shop/projectiles/projectile-04.png",
+        aurora: "assets/pixel-fairy/shop/projectiles/projectile-05.png"
+      },
       enemySrcs: {
         goblin: "assets/pixel-fairy/enemy-goblin-green.png",
         scout: "assets/pixel-fairy/enemy-scout-pink.png",
@@ -229,6 +288,73 @@
         shadow: "assets/pixel-fairy/enemy-shadow-black.png",
         guardian: "assets/pixel-fairy/enemy-guardian-gold.png"
       }
+    }
+  };
+
+  const SHOP_ITEM_CATALOG = {
+    [VISUAL_STYLES.CASTLE]: {
+      [SHOP_CATEGORIES.TOWER]: [
+        { key: "base", name: "Tour de base", nameEn: "Base Tower", cost: 0, unlockWave: 1 },
+        { key: "ember", name: "Tour de la jungle", nameEn: "Jungle Tower", cost: 160, unlockWave: 2 },
+        { key: "rune", name: "Tour glacée", nameEn: "Frozen Tower", cost: 420, unlockWave: 4 },
+        { key: "obsidian", name: "Lave noire", nameEn: "Black Lava", cost: 980, unlockWave: 7 },
+        { key: "royal", name: "Soleil radiant", nameEn: "Radiant Sun", cost: 2300, unlockWave: 10 },
+        { key: "mythic", name: "Émeraude noire", nameEn: "Black Emerald", cost: 4600, unlockWave: 10 }
+      ],
+      [SHOP_CATEGORIES.CASTLE]: [
+        { key: "base", name: "Château de base", nameEn: "Base Castle", cost: 0, unlockWave: 1 },
+        { key: "bastion", name: "Rubis sombre", nameEn: "Dark Ruby", cost: 210, unlockWave: 3 },
+        { key: "citadel", name: "Citadelle glacée", nameEn: "Frozen Citadel", cost: 520, unlockWave: 5 },
+        { key: "ironkeep", name: "Lave noire", nameEn: "Black Lava", cost: 1250, unlockWave: 8 },
+        { key: "dawnfort", name: "Bastion de la jungle", nameEn: "Jungle Bastion", cost: 2900, unlockWave: 10 }
+      ],
+      [SHOP_CATEGORIES.PROJECTILE]: [
+        { key: "base", name: "Tir de base", nameEn: "Base Shot", cost: 0, unlockWave: 1 },
+        { key: "spark", name: "Glue verte", nameEn: "Green Glue", cost: 120, unlockWave: 2 },
+        { key: "flare", name: "Boule de glace", nameEn: "Ice Orb", cost: 360, unlockWave: 4 },
+        { key: "comet", name: "Flèche glacée", nameEn: "Frozen Arrow", cost: 860, unlockWave: 7 },
+        { key: "prismfire", name: "Lave foudroyante", nameEn: "Thunder Lava", cost: 3900, unlockWave: 10 }
+      ]
+    },
+    [VISUAL_STYLES.FAIRY]: {
+      [SHOP_CATEGORIES.TOWER]: [
+        { key: "base", name: "Tour féerique de base", nameEn: "Base Fairy Tower", cost: 0, unlockWave: 1 },
+        { key: "blossom", name: "Tour florale", nameEn: "Floral Tower", cost: 170, unlockWave: 2 },
+        { key: "moon", name: "Tour lunaire", nameEn: "Moon Tower", cost: 430, unlockWave: 4 },
+        { key: "stardust", name: "Tour poussière d'étoile", nameEn: "Stardust Tower", cost: 1020, unlockWave: 7 },
+        { key: "eclipse", name: "Tour éclipse", nameEn: "Eclipse Tower", cost: 2400, unlockWave: 10 }
+      ],
+      [SHOP_CATEGORIES.CASTLE]: [
+        { key: "base", name: "Château féerique de base", nameEn: "Base Fairy Castle", cost: 0, unlockWave: 1 },
+        { key: "petalspire", name: "Tour des pétales", nameEn: "Petal Spire", cost: 220, unlockWave: 3 },
+        { key: "moonhall", name: "Palais de lune", nameEn: "Moon Palace", cost: 540, unlockWave: 5 },
+        { key: "wildroot", name: "Racine sauvage", nameEn: "Wild Root", cost: 1310, unlockWave: 8 },
+        { key: "starcourt", name: "Cour stellaire", nameEn: "Star Court", cost: 3000, unlockWave: 10 }
+      ],
+      [SHOP_CATEGORIES.PROJECTILE]: [
+        { key: "base", name: "Tir féerique de base", nameEn: "Base Fairy Shot", cost: 0, unlockWave: 1 },
+        { key: "pollen", name: "Pollen", nameEn: "Pollen", cost: 130, unlockWave: 2 },
+        { key: "prism", name: "Prisme", nameEn: "Prism", cost: 390, unlockWave: 4 },
+        { key: "spiral", name: "Spirale", nameEn: "Spiral", cost: 890, unlockWave: 7 },
+        { key: "aurora", name: "Aurore", nameEn: "Aurora", cost: 2150, unlockWave: 10 }
+      ]
+    }
+  };
+
+  const CASTLE_SKIN_VISUAL_SCALE = {
+    [VISUAL_STYLES.CASTLE]: {
+      base: 1,
+      bastion: 1.24,
+      citadel: 1.27,
+      ironkeep: 1.29,
+      dawnfort: 1.33
+    },
+    [VISUAL_STYLES.FAIRY]: {
+      base: 1,
+      petalspire: 1.24,
+      moonhall: 1.27,
+      wildroot: 1.29,
+      starcourt: 1.33
     }
   };
 
@@ -295,6 +421,13 @@
     };
   }
 
+  function detectLocale() {
+    if (typeof navigator === "undefined" || typeof navigator.language !== "string") {
+      return LOCALES.FR;
+    }
+    return navigator.language.toLowerCase().startsWith("fr") ? LOCALES.FR : LOCALES.EN;
+  }
+
   function applyHardcodedStyleTuning() {
     state.debugTuning.byStyle[VISUAL_STYLES.CASTLE] = { ...HARDCODED_CASTLE_TUNING };
     state.debugTuning.byStyle[VISUAL_STYLES.FAIRY] = { ...HARDCODED_FAIRY_TUNING };
@@ -305,6 +438,11 @@
     paused: false,
     mode: MODES.NORMAL,
     visualStyle: VISUAL_STYLES.CASTLE,
+    shopCategory: SHOP_DEFAULT_CATEGORY,
+    coins: 0,
+    bestWaveReached: 1,
+    shopUnlocks: createDefaultShopUnlocks(),
+    equippedSkins: createDefaultEquippedSkins(),
     selectedTables: [...DEFAULT_SELECTED_TABLES],
     tableMastery: createEmptyMastery(),
     multiplicationMastery: createEmptyMultiplicationMastery(),
@@ -345,8 +483,171 @@
       stopTimeoutId: null,
       finishTimeoutId: null
     },
-    bossDefeatOverlayActive: false
+    bossDefeatOverlayActive: false,
+    pendingModeChange: null
   };
+  state.locale = detectLocale();
+
+  function l(fr, en) {
+    return state.locale === LOCALES.FR ? fr : en;
+  }
+
+  function localizeCatalogName(item) {
+    return state.locale === LOCALES.FR ? item.name : item.nameEn || item.name;
+  }
+
+  function applyLocalizedStaticTexts() {
+    document.documentElement.lang = state.locale;
+    const textById = {
+      "start-btn": l("Lancer la partie", "Start Game"),
+      "open-tables-btn": l("Réglages", "Settings"),
+      "open-stats-btn": l("Voir le classement et la matrice", "Leaderboard & Matrix"),
+      "lives-label": l("Vies", "Lives"),
+      "open-shop-inline-btn": l("Boutique", "Shop"),
+      "open-tables-inline-btn": l("Réglages", "Settings"),
+      "open-stats-inline-btn": l("Stats", "Stats"),
+      "open-debug-inline-btn": "Debug",
+      "pause-btn": l("Pause", "Pause"),
+      "fire-btn": l("Tirer", "Fire"),
+      "close-tables-btn": l("Fermer", "Close"),
+      "reset-mastery-btn": l("Réinitialiser la progression", "Reset Progress"),
+      "close-stats-btn": l("Fermer", "Close"),
+      "close-shop-btn": l("Fermer", "Close"),
+      "resume-btn": l("Reprendre", "Resume"),
+      "back-title-btn": l("Retour à l'écran titre", "Back to Title"),
+      "mode-confirm-cancel-btn": l("Annuler", "Cancel"),
+      "mode-confirm-accept-btn": l("Continuer", "Continue"),
+      "save-score-btn": l("Enregistrer", "Save"),
+      "restart-btn": l("Rejouer", "Play Again")
+    };
+    for (const [id, value] of Object.entries(textById)) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.textContent = value;
+      }
+    }
+
+    const titleKicker = document.querySelector(".title-kicker");
+    if (titleKicker) titleKicker.textContent = l("Tower defense des multiplications", "Multiplication Tower Defense");
+    const titleDesc = document.querySelector(".title-card p:not(.title-kicker)");
+    if (titleDesc) {
+      titleDesc.textContent = l(
+        "Défends ton château en répondant aux multiplications. Le jeu s'adapte à tes tables les moins maîtrisées.",
+        "Defend your castle by solving multiplications. The game adapts to your weakest tables."
+      );
+    }
+    const questionTitle = document.querySelector(".question-title");
+    if (questionTitle) questionTitle.textContent = l("Canon des multiplications", "Multiplication Cannon");
+    const shopTitle = document.querySelector("#shop-modal h2");
+    if (shopTitle) shopTitle.textContent = l("Boutique", "Shop");
+    const shopSubtitle = document.querySelector(".shop-subtitle");
+    if (shopSubtitle) {
+      shopSubtitle.textContent = l(
+        "Débloque des skins pour Castle/Fairy (Basic exclu).",
+        "Unlock skins for Castle/Fairy (Basic excluded)."
+      );
+    }
+    const shopWallet = document.querySelector(".shop-wallet");
+    if (shopWallet) {
+      shopWallet.innerHTML = `${l("Solde", "Balance")}: <strong id="shop-coins-value">${state.coins}</strong> ${l("pièces d'or", "gold coins")}`;
+      dom.shopCoinsValue = document.getElementById("shop-coins-value");
+    }
+    const shopFilterButtons = dom.shopCategorySelect?.querySelectorAll("button[data-shop-category]") || [];
+    for (const button of shopFilterButtons) {
+      const cat = button.dataset.shopCategory;
+      if (cat === SHOP_CATEGORIES.TOWER) button.textContent = l("Tours", "Towers");
+      if (cat === SHOP_CATEGORIES.CASTLE) button.textContent = l("Châteaux", "Castles");
+      if (cat === SHOP_CATEGORIES.PROJECTILE) button.textContent = l("Projectiles", "Projectiles");
+    }
+    const modeSimple = dom.modeSelect?.querySelector('button[data-mode="simple"]');
+    const modeNormal = dom.modeSelect?.querySelector('button[data-mode="normal"]');
+    if (modeSimple) modeSimple.textContent = l("Mode simple", "Simple Mode");
+    if (modeNormal) modeNormal.textContent = l("Mode normal", "Normal Mode");
+    const statsH2 = document.querySelector("#stats-modal h2");
+    if (statsH2) statsH2.textContent = l("Classement et maîtrise", "Leaderboard & Mastery");
+    const statsH3 = document.querySelector("#stats-modal .leaderboard h3");
+    if (statsH3) statsH3.textContent = l("Meilleurs scores", "Top Scores");
+    const matrixTitle = document.querySelector(".matrix-title");
+    if (matrixTitle) matrixTitle.textContent = l("Matrice des multiplications", "Multiplication Matrix");
+    const matrixSubtitle = document.querySelector(".matrix-subtitle");
+    if (matrixSubtitle) {
+      matrixSubtitle.textContent = l(
+        "Rouge = début, vert = maîtrisée (20 réussites)",
+        "Red = beginner, green = mastered (20 correct)"
+      );
+    }
+    const tablesH2 = document.querySelector("#tables-modal h2");
+    if (tablesH2) tablesH2.textContent = l("Configurer les tables", "Configure Tables");
+    const tablesSub = document.querySelector(".tables-subtitle");
+    if (tablesSub) {
+      tablesSub.textContent = l(
+        "Choisis les tables actives. Le moteur favorise ensuite celles que tu maîtrises moins.",
+        "Choose active tables. The engine then focuses on the ones you master less."
+      );
+    }
+    const visualStyleLabel = document.querySelector(".visual-style-label");
+    if (visualStyleLabel) visualStyleLabel.textContent = l("Style visuel", "Visual Style");
+    const pauseH2 = document.querySelector("#pause-modal h2");
+    if (pauseH2) pauseH2.textContent = l("Pause", "Pause");
+    const pauseP = document.querySelector("#pause-modal p");
+    if (pauseP) pauseP.textContent = l("La partie est en pause.", "Game is paused.");
+    const confirmH2 = document.querySelector("#mode-confirm-modal h2");
+    if (confirmH2) confirmH2.textContent = l("Confirmation", "Confirmation");
+    if (dom.modeConfirmText && !state.pendingModeChange) {
+      dom.modeConfirmText.textContent = l(
+        "Changer de mode va démarrer une nouvelle partie.",
+        "Changing mode will start a new game."
+      );
+    }
+    const gameOverTitle = document.getElementById("game-over-title");
+    if (gameOverTitle && gameOverTitle.textContent.trim() === "Défaite") {
+      gameOverTitle.textContent = l("Défaite", "Defeat");
+    }
+    if (dom.waveBanner && !state.started) {
+      dom.waveBanner.textContent = state.locale === LOCALES.FR ? "Niveau 1" : "Level 1";
+    }
+    if (dom.bossProgressText) {
+      dom.bossProgressText.textContent = state.locale === LOCALES.FR ? "Dragon : 0/5" : "Dragon: 0/5";
+    }
+    if (dom.bossVictoryBanner) {
+      dom.bossVictoryBanner.textContent = l(
+        "Victoire ! Tu es le champion des multiplications",
+        "Victory! You are the multiplication champion"
+      );
+    }
+    const bossDefeatText = dom.bossDefeatOverlay?.querySelector("p");
+    if (bossDefeatText) {
+      bossDefeatText.textContent = l(
+        "Le dragon a gagné, tu dois être plus rapide. Retour au niveau précédent, réessaie !",
+        "The dragon won, you must be faster. Return to the previous level and try again!"
+      );
+    }
+    if (dom.bossDefeatGoBtn) dom.bossDefeatGoBtn.textContent = l("OK", "OK");
+    if (dom.gameOverText && !state.started) {
+      dom.gameOverText.textContent = l("Les gobelins ont passé ta défense.", "Goblins broke through your defense.");
+    }
+    if (dom.finalScoreText && !state.started) {
+      dom.finalScoreText.textContent = `${l("Score final", "Final score")}: 0`;
+    }
+    if (dom.questionText && !state.started) {
+      dom.questionText.textContent = "6 x 7 = ?";
+    }
+    const scoreLabel = document.querySelector('label[for="player-name-input"]');
+    if (scoreLabel) scoreLabel.textContent = l("Ton nom pour le classement", "Your name for the leaderboard");
+    if (dom.playerNameInput) dom.playerNameInput.placeholder = l("Ex : Alex", "e.g. Alex");
+    const leaderboardTitles = document.querySelectorAll(".leaderboard h3");
+    for (const h3 of leaderboardTitles) {
+      if (h3.closest("#game-over")) h3.textContent = "Leaderboard";
+    }
+    const debugTitle = document.querySelector("#debug-modal h2");
+    if (debugTitle) debugTitle.textContent = l("Debug visuel", "Visual Debug");
+    const debugSub = document.querySelector("#debug-modal .debug-subtitle");
+    if (debugSub) debugSub.textContent = l("Ajuste les éléments en direct et copie les valeurs.", "Adjust elements live and copy values.");
+    const feedbackDefault = document.getElementById("feedback");
+    if (feedbackDefault && !state.started) {
+      feedbackDefault.textContent = l("Choisis un mode puis lance la partie.", "Choose a mode and start the game.");
+    }
+  }
 
   function createEmptyMastery() {
     const mastery = {};
@@ -433,6 +734,91 @@
     return VISUAL_STYLES.CASTLE;
   }
 
+  function styleSupportsShop(style) {
+    return SHOP_SUPPORTED_STYLES.has(style);
+  }
+
+  function createDefaultShopUnlocks() {
+    const unlocks = {};
+    for (const style of Object.values(VISUAL_STYLES)) {
+      if (!styleSupportsShop(style)) {
+        continue;
+      }
+      unlocks[style] = {
+        [SHOP_CATEGORIES.TOWER]: ["base"],
+        [SHOP_CATEGORIES.CASTLE]: ["base"],
+        [SHOP_CATEGORIES.PROJECTILE]: ["base"]
+      };
+    }
+    return unlocks;
+  }
+
+  function createDefaultEquippedSkins() {
+    return {
+      [VISUAL_STYLES.CASTLE]: {
+        [SHOP_CATEGORIES.TOWER]: "base",
+        [SHOP_CATEGORIES.CASTLE]: "base",
+        [SHOP_CATEGORIES.PROJECTILE]: "base"
+      },
+      [VISUAL_STYLES.FAIRY]: {
+        [SHOP_CATEGORIES.TOWER]: "base",
+        [SHOP_CATEGORIES.CASTLE]: "base",
+        [SHOP_CATEGORIES.PROJECTILE]: "base"
+      }
+    };
+  }
+
+  function normalizeShopUnlocks(rawValue) {
+    const defaults = createDefaultShopUnlocks();
+    if (!rawValue || typeof rawValue !== "object") {
+      return defaults;
+    }
+
+    const normalized = createDefaultShopUnlocks();
+    for (const style of Object.keys(defaults)) {
+      const styleEntry = rawValue[style];
+      if (!styleEntry || typeof styleEntry !== "object") {
+        continue;
+      }
+      for (const category of Object.values(SHOP_CATEGORIES)) {
+        const catalog = SHOP_ITEM_CATALOG[style]?.[category] || [];
+        const validKeys = new Set(catalog.map((item) => item.key));
+        const list = Array.isArray(styleEntry[category]) ? styleEntry[category] : [];
+        const unlocked = ["base"];
+        for (const candidate of list) {
+          if (typeof candidate === "string" && validKeys.has(candidate) && !unlocked.includes(candidate)) {
+            unlocked.push(candidate);
+          }
+        }
+        normalized[style][category] = unlocked;
+      }
+    }
+
+    return normalized;
+  }
+
+  function normalizeEquippedSkins(rawValue, shopUnlocks) {
+    const defaults = createDefaultEquippedSkins();
+    if (!rawValue || typeof rawValue !== "object") {
+      return defaults;
+    }
+
+    const normalized = createDefaultEquippedSkins();
+    for (const style of Object.keys(defaults)) {
+      const styleEntry = rawValue[style];
+      if (!styleEntry || typeof styleEntry !== "object") {
+        continue;
+      }
+      for (const category of Object.values(SHOP_CATEGORIES)) {
+        const equippedKey = typeof styleEntry[category] === "string" ? styleEntry[category] : "base";
+        const unlockedSet = new Set(shopUnlocks[style]?.[category] || ["base"]);
+        normalized[style][category] = unlockedSet.has(equippedKey) ? equippedKey : "base";
+      }
+    }
+
+    return normalized;
+  }
+
   function clampDebugNumber(value, min, max, fallback) {
     const parsed = Number(value);
     if (!Number.isFinite(parsed)) {
@@ -493,6 +879,43 @@
     return STYLE_ASSETS[state.visualStyle] || STYLE_ASSETS[VISUAL_STYLES.CASTLE];
   }
 
+  function getCatalogFor(style, category) {
+    return SHOP_ITEM_CATALOG[style]?.[category] || [];
+  }
+
+  function getUnlockedSet(style, category) {
+    return new Set(state.shopUnlocks[style]?.[category] || ["base"]);
+  }
+
+  function getEquippedSkinKey(style, category) {
+    if (!styleSupportsShop(style)) {
+      return "base";
+    }
+    return state.equippedSkins[style]?.[category] || "base";
+  }
+
+  function getSkinAssetMap(style, category) {
+    const assets = STYLE_ASSETS[style] || STYLE_ASSETS[VISUAL_STYLES.CASTLE];
+    if (category === SHOP_CATEGORIES.TOWER) {
+      return assets.towerSkins || {};
+    }
+    if (category === SHOP_CATEGORIES.CASTLE) {
+      return assets.castleDoors || {};
+    }
+    return assets.projectiles || {};
+  }
+
+  function getSelectedSkinSrc(style, category) {
+    const map = getSkinAssetMap(style, category);
+    const equipped = getEquippedSkinKey(style, category);
+    return map[equipped] || map.base || "";
+  }
+
+  function getCastleSkinVisualScale(style, skinKey) {
+    const byStyle = CASTLE_SKIN_VISUAL_SCALE[style] || {};
+    return byStyle[skinKey] || 1;
+  }
+
   function safeStorageGet(key) {
     try {
       return localStorage.getItem(key);
@@ -514,6 +937,8 @@
     try {
       const raw = safeStorageGet(STORAGE_KEY);
       if (!raw) {
+        // Ensure first launch starts from base skins and persists this baseline profile.
+        saveProfile();
         return;
       }
 
@@ -528,6 +953,17 @@
         parsed.multiplicationMastery
       );
       state.visualStyle = normalizeVisualStyle(parsed.visualStyle);
+      state.coins = Math.max(0, Number.parseInt(parsed.coins, 10) || 0);
+      state.bestWaveReached = Math.max(1, Number.parseInt(parsed.bestWaveReached, 10) || 1);
+      state.shopUnlocks = normalizeShopUnlocks(parsed.shopUnlocks);
+      state.equippedSkins = normalizeEquippedSkins(parsed.equippedSkins, state.shopUnlocks);
+      if (
+        parsed.shopCategory === SHOP_CATEGORIES.TOWER ||
+        parsed.shopCategory === SHOP_CATEGORIES.CASTLE ||
+        parsed.shopCategory === SHOP_CATEGORIES.PROJECTILE
+      ) {
+        state.shopCategory = parsed.shopCategory;
+      }
 
       if (parsed.mode === MODES.SIMPLE || parsed.mode === MODES.NORMAL) {
         state.mode = parsed.mode;
@@ -538,6 +974,11 @@
       state.multiplicationMastery = createEmptyMultiplicationMastery();
       state.mode = MODES.NORMAL;
       state.visualStyle = VISUAL_STYLES.CASTLE;
+      state.coins = 0;
+      state.bestWaveReached = 1;
+      state.shopUnlocks = createDefaultShopUnlocks();
+      state.equippedSkins = createDefaultEquippedSkins();
+      state.shopCategory = SHOP_DEFAULT_CATEGORY;
     }
   }
 
@@ -545,6 +986,11 @@
     const payload = {
       mode: state.mode,
       visualStyle: state.visualStyle,
+      shopCategory: state.shopCategory,
+      coins: state.coins,
+      bestWaveReached: state.bestWaveReached,
+      shopUnlocks: state.shopUnlocks,
+      equippedSkins: state.equippedSkins,
       selectedTables: [...state.selectedTables],
       tableMastery: state.tableMastery,
       multiplicationMastery: state.multiplicationMastery
@@ -614,7 +1060,7 @@
   }
 
   function modeLabel(mode) {
-    return mode === MODES.SIMPLE ? "Simple" : "Normal";
+    return mode === MODES.SIMPLE ? l("Simple", "Simple") : l("Normal", "Normal");
   }
 
   function renderLeaderboard() {
@@ -622,10 +1068,10 @@
       ? state.leaderboard
       .map(
         (entry) =>
-          `<li>${entry.champion ? "👑 " : ""}${entry.name} - ${entry.score} pts (V${entry.wave}, ${modeLabel(entry.mode)})</li>`
+          `<li>${entry.champion ? "👑 " : ""}${entry.name} - ${entry.score} ${l("pts", "pts")} (${l("V", "W")}${entry.wave}, ${modeLabel(entry.mode)})</li>`
       )
       .join("")
-      : "<li>Aucun score enregistré.</li>";
+      : `<li>${l("Aucun score enregistré.", "No score saved yet.")}</li>`;
 
     if (dom.leaderboardList) {
       dom.leaderboardList.innerHTML = content;
@@ -663,13 +1109,13 @@
 
   function saveCurrentScore() {
     if (state.scoreSubmitted) {
-      dom.scoreSaveFeedback.textContent = "Score déjà enregistré.";
+      dom.scoreSaveFeedback.textContent = l("Score déjà enregistré.", "Score already saved.");
       return;
     }
 
     const name = sanitizePlayerName(dom.playerNameInput.value);
     if (!name) {
-      dom.scoreSaveFeedback.textContent = "Entre un nom valide.";
+      dom.scoreSaveFeedback.textContent = l("Entre un nom valide.", "Enter a valid name.");
       return;
     }
 
@@ -689,7 +1135,7 @@
 
     state.scoreSubmitted = true;
     state.pendingChampion = false;
-    dom.scoreSaveFeedback.textContent = "Score enregistré.";
+    dom.scoreSaveFeedback.textContent = l("Score enregistré.", "Score saved.");
     dom.playerNameInput.disabled = true;
     dom.playerNameInput.blur();
     dom.saveScoreBtn.disabled = true;
@@ -709,16 +1155,19 @@
     dom.waveValue.textContent = String(state.wave);
     dom.scoreValue.textContent = String(state.score);
     dom.comboValue.textContent = `x${state.combo}`;
+    if (dom.coinsValue) {
+      dom.coinsValue.textContent = String(state.coins);
+    }
     dom.answerInput.value = state.inputBuffer;
     if (dom.pauseBtn) {
       dom.pauseBtn.disabled = !state.started || state.gameOver;
     }
 
     if (isSimpleMode()) {
-      dom.livesLabel.textContent = "Erreurs";
+      dom.livesLabel.textContent = l("Erreurs", "Errors");
       dom.livesValue.textContent = String(getSimpleErrorsRemaining());
     } else {
-      dom.livesLabel.textContent = "Vies";
+      dom.livesLabel.textContent = l("Vies", "Lives");
       dom.livesValue.textContent = String(state.lives);
     }
   }
@@ -819,7 +1268,10 @@
   function getWaveLabel(wave) {
     const world = WORLD_THEMES[getWorldIndexForWave(wave)] || WORLD_THEMES[0];
     const localLevel = ((wave - 1) % WAVES_PER_WORLD) + 1;
-    return `${world.label} niveau ${localLevel}`;
+    const worldLabel = state.locale === LOCALES.FR ? world.labelFr : world.labelEn;
+    return state.locale === LOCALES.FR
+      ? `${worldLabel} niveau ${localLevel}`
+      : `${worldLabel} level ${localLevel}`;
   }
 
   function getCurrentWorldTheme() {
@@ -831,6 +1283,13 @@
 
     const worldIndex = getWorldIndexForWave(state.wave);
     return WORLD_THEMES[worldIndex];
+  }
+
+  function refreshBestWaveReached() {
+    if (state.wave > state.bestWaveReached) {
+      state.bestWaveReached = state.wave;
+      saveProfile();
+    }
   }
 
   function applyWorldTheme() {
@@ -1023,8 +1482,10 @@
   }
 
   function openDebugModal() {
+    closeModeConfirmModal();
     dom.pauseModal.classList.add("hidden");
     dom.tablesModal.classList.add("hidden");
+    dom.shopModal.classList.add("hidden");
     dom.statsModal.classList.add("hidden");
     dom.debugModal.classList.remove("hidden");
     dom.gameShell?.classList.add("debug-open");
@@ -1220,7 +1681,7 @@
     const attempts = stats.correct + stats.wrong;
 
     if (attempts === 0) {
-      return { label: "Nouveau", className: "weak", summary: "Aucune réponse" };
+      return { label: l("Nouveau", "New"), className: "weak", summary: l("Aucune réponse", "No answers yet") };
     }
 
     const accuracy = tableAccuracy(table);
@@ -1228,14 +1689,14 @@
     const summary = `${percent}% (${stats.correct}/${attempts})`;
 
     if (attempts >= 10 && accuracy >= 0.85) {
-      return { label: "Maîtrisée", className: "strong", summary };
+      return { label: l("Maîtrisée", "Mastered"), className: "strong", summary };
     }
 
     if (accuracy >= 0.6) {
-      return { label: "En progression", className: "medium", summary };
+      return { label: l("En progression", "Improving"), className: "medium", summary };
     }
 
-    return { label: "Prioritaire", className: "weak", summary };
+    return { label: l("Prioritaire", "Priority"), className: "weak", summary };
   }
 
   function renderTablesGrid() {
@@ -1248,7 +1709,7 @@
       return `
         <label class="table-option ${selectedClass}">
           <div class="table-main">
-            <span>Table de ${table}</span>
+            <span>${l("Table de", "Table")} ${table}</span>
             <input type="checkbox" data-table-checkbox="${table}" ${checked} />
           </div>
           <div class="table-meta ${status.className}">${status.label} - ${status.summary}</div>
@@ -1259,15 +1720,137 @@
     dom.tablesGrid.innerHTML = html;
   }
 
+  function getShopActiveStyle() {
+    return styleSupportsShop(state.visualStyle) ? state.visualStyle : VISUAL_STYLES.CASTLE;
+  }
+
+  function updateShopCategoryButtons() {
+    const buttons = dom.shopCategorySelect?.querySelectorAll("button[data-shop-category]") || [];
+    for (const button of buttons) {
+      button.classList.toggle("active", button.dataset.shopCategory === state.shopCategory);
+    }
+  }
+
+  function renderShop() {
+    if (!dom.shopGrid || !dom.shopCoinsValue) {
+      return;
+    }
+
+    const style = getShopActiveStyle();
+    const category = state.shopCategory;
+    const items = getCatalogFor(style, category);
+    const unlocked = getUnlockedSet(style, category);
+    const equipped = getEquippedSkinKey(style, category);
+
+    dom.shopCoinsValue.textContent = String(state.coins);
+    if (dom.shopStyleNote) {
+      dom.shopStyleNote.textContent =
+        state.visualStyle === VISUAL_STYLES.BASIC
+          ? l("Le mode Basic n'a pas de boutique. Prévisualisation des éléments Castle.", "Basic mode has no shop. Previewing Castle items.")
+          : `${l("Style actif", "Active style")}: ${style === VISUAL_STYLES.CASTLE ? "Castle" : "Fairy"}`;
+    }
+    updateShopCategoryButtons();
+
+    const cards = items
+      .map((item) => {
+        const isUnlocked = unlocked.has(item.key);
+        const progressionLocked = state.bestWaveReached < item.unlockWave;
+        const canBuy = !isUnlocked && state.coins >= item.cost;
+        const isSelected = isUnlocked && equipped === item.key;
+        const statusLabel = isSelected
+          ? l("Équipé", "Equipped")
+          : isUnlocked
+            ? l("Débloqué", "Unlocked")
+            : progressionLocked
+              ? `🔒 ${l("Vague", "Wave")} ${item.unlockWave} ${l("requise", "required")}`
+              : `🔒 ${item.cost} ${l("or", "gold")}`;
+        const buttonLabel = isSelected
+          ? l("Équipé", "Equipped")
+          : isUnlocked
+            ? l("Équiper", "Equip")
+            : progressionLocked
+              ? l("Progression requise", "Progress required")
+            : canBuy
+              ? l("Acheter", "Buy")
+              : l("Verrouillé", "Locked");
+        const buttonDisabled = isSelected || (!isUnlocked && (progressionLocked || !canBuy));
+        const lockMarkup = isUnlocked ? "" : '<span class="shop-lock" aria-hidden="true">🔒</span>';
+        const buttonAttrs = buttonDisabled ? 'disabled aria-disabled="true"' : "";
+
+        return `
+          <article class="shop-item shop-cat-${category} ${isUnlocked ? "unlocked" : "locked"} ${isSelected ? "selected" : ""}">
+            ${lockMarkup}
+            <div class="shop-preview-wrap">
+              <img class="shop-preview" src="${getSkinAssetMap(style, category)[item.key] || ""}" alt="${localizeCatalogName(item)}" />
+            </div>
+            <div class="shop-item-body">
+              <p class="shop-item-name">${localizeCatalogName(item)}</p>
+              <p class="shop-item-meta">${statusLabel}</p>
+              <p class="shop-item-requirement">${l("Vague conseillée", "Suggested wave")}: ${item.unlockWave}+</p>
+              <button type="button" data-shop-item-key="${item.key}" ${buttonAttrs}>${buttonLabel}</button>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+
+    dom.shopGrid.innerHTML = cards;
+  }
+
+  function unlockAndEquipItem(style, category, itemKey) {
+    const unlocked = getUnlockedSet(style, category);
+    if (!unlocked.has(itemKey)) {
+      unlocked.add(itemKey);
+      state.shopUnlocks[style][category] = Array.from(unlocked);
+    }
+    state.equippedSkins[style][category] = itemKey;
+    saveProfile();
+  }
+
+  function buyOrEquipShopItem(itemKey) {
+    const style = getShopActiveStyle();
+    const category = state.shopCategory;
+    const item = getCatalogFor(style, category).find((entry) => entry.key === itemKey);
+    if (!item) {
+      return;
+    }
+
+    const unlocked = getUnlockedSet(style, category);
+    if (unlocked.has(item.key)) {
+      unlockAndEquipItem(style, category, item.key);
+      applyVisualStyle();
+      renderShop();
+      showFeedback(`${localizeCatalogName(item)} ${l("équipé.", "equipped.")}`, "good");
+      return;
+    }
+
+    if (state.bestWaveReached < item.unlockWave) {
+      showFeedback(
+        `${localizeCatalogName(item)} ${l("sera disponible après avoir atteint la vague", "will unlock after reaching wave")} ${item.unlockWave}.`,
+        "bad"
+      );
+      return;
+    }
+
+    if (state.coins < item.cost) {
+      showFeedback(`${l("Pas assez d'or pour", "Not enough gold for")} ${localizeCatalogName(item)}.`, "bad");
+      return;
+    }
+
+    state.coins -= item.cost;
+    unlockAndEquipItem(style, category, item.key);
+    applyVisualStyle();
+    updateHud();
+    renderShop();
+    showFeedback(`${localizeCatalogName(item)} ${l("débloqué pour", "unlocked for")} ${item.cost} ${l("or", "gold")}.`, "good");
+  }
+
   function updateTowerSkin() {
     if (!dom.tower) {
       return;
     }
 
-    const styleAssets = getActiveStyleAssets();
-    const towerSrc =
-      state.wave >= 6 ? styleAssets.towerSkins.solar : styleAssets.towerSkins.arcane;
-    dom.tower.src = towerSrc;
+    dom.tower.src = getSelectedSkinSrc(state.visualStyle, SHOP_CATEGORIES.TOWER);
   }
 
   function updateModeButtons() {
@@ -1290,7 +1873,13 @@
     dom.frame?.classList.toggle("visual-style-fairy", state.visualStyle === VISUAL_STYLES.FAIRY);
 
     if (dom.castleDoor) {
-      dom.castleDoor.src = styleAssets.castleDoor;
+      const selectedCastleSkinKey = getEquippedSkinKey(state.visualStyle, SHOP_CATEGORIES.CASTLE);
+      dom.castleDoor.src = getSelectedSkinSrc(state.visualStyle, SHOP_CATEGORIES.CASTLE);
+      dom.castleDoor.dataset.skinKey = selectedCastleSkinKey;
+      dom.castleDoor.style.setProperty(
+        "--castle-skin-scale",
+        getCastleSkinVisualScale(state.visualStyle, selectedCastleSkinKey).toFixed(3)
+      );
     }
     if (dom.castleFire) {
       dom.castleFire.src = styleAssets.castleFire;
@@ -1299,7 +1888,10 @@
       dom.bossDragonImg.src = styleAssets.bossDragon;
     }
     if (dom.frame) {
-      dom.frame.style.setProperty("--projectile-image", `url("${styleAssets.projectile}")`);
+      dom.frame.style.setProperty(
+        "--projectile-image",
+        `url("${getSelectedSkinSrc(state.visualStyle, SHOP_CATEGORIES.PROJECTILE)}")`
+      );
     }
 
     updateTowerSkin();
@@ -1330,6 +1922,9 @@
     updateVisualStyleButtons();
     applyVisualStyle();
     renderDebugControls();
+    if (!dom.shopModal.classList.contains("hidden")) {
+      renderShop();
+    }
     saveProfile();
   }
 
@@ -1614,14 +2209,14 @@
   function launchProjectile(target) {
     const track = getTrackGeometry();
     let originX = track.width * 0.16;
-    let originY = track.height * 0.56;
+    let originY = track.height * 0.50;
     const worldMetrics = getWorldSpaceMetrics();
     if (worldMetrics) {
       originX = sourceXToBattlefieldX(WORLD_SPACE_ANCHORS.projectileOriginX, worldMetrics);
       originY = sourceYToBattlefieldY(WORLD_SPACE_ANCHORS.projectileOriginY, worldMetrics);
     }
     originX = clamp(originX, 0, track.width);
-    originY = clamp(originY, 0, track.height);
+    originY = clamp(originY - 50, 0, track.height);
     dom.tower?.classList.add("cast");
 
     const p = document.createElement("div");
@@ -1650,6 +2245,8 @@
 
       if (target.hp <= 0) {
         state.score += 30 + state.wave * 7;
+        state.coins += 1;
+        saveProfile();
         removeEnemy(target);
       }
 
@@ -1662,8 +2259,9 @@
       return;
     }
 
-    const title = options.title || "Défaite";
-    const feedbackText = options.feedbackText || "Partie terminée. Clique sur Rejouer.";
+    const title = options.title || l("Défaite", "Defeat");
+    const feedbackText =
+      options.feedbackText || l("Partie terminée. Clique sur Rejouer.", "Game over. Tap Play Again.");
     const feedbackKind = options.feedbackKind || "bad";
 
     state.gameOver = true;
@@ -1676,7 +2274,7 @@
       dom.gameOverTitle.textContent = title;
     }
     dom.gameOverText.textContent = message;
-    dom.finalScoreText.textContent = `Score final: ${state.score}`;
+    dom.finalScoreText.textContent = `${l("Score final", "Final score")}: ${state.score}`;
     dom.scoreSaveFeedback.textContent = "";
     dom.playerNameInput.value = state.lastPlayerName || "";
     dom.playerNameInput.disabled = false;
@@ -1731,7 +2329,10 @@
     setBossVisibility(true);
     const currentStep = Math.min(state.bossBattle.requiredStreak, state.bossBattle.streak + 1);
     if (dom.bossProgressText) {
-      dom.bossProgressText.textContent = `Dragon: ${state.bossBattle.streak}/${state.bossBattle.requiredStreak} | Épreuve ${currentStep}/${state.bossBattle.requiredStreak}`;
+      dom.bossProgressText.textContent =
+        state.locale === LOCALES.FR
+          ? `Dragon : ${state.bossBattle.streak}/${state.bossBattle.requiredStreak} | Épreuve ${currentStep}/${state.bossBattle.requiredStreak}`
+          : `Dragon: ${state.bossBattle.streak}/${state.bossBattle.requiredStreak} | Trial ${currentStep}/${state.bossBattle.requiredStreak}`;
     }
     const ratio = Math.max(
       0,
@@ -1855,7 +2456,10 @@
     state.lastQuestionKey = "";
 
     updateHud();
-    showFeedback(`Cheat activé: accès direct à ${getWaveLabel(BOSS_RETURN_WAVE)}.`, "good");
+    showFeedback(
+      `${l("Cheat activé : accès direct à", "Cheat enabled: direct access to")} ${getWaveLabel(BOSS_RETURN_WAVE)}.`,
+      "good"
+    );
     nextQuestion();
     setupWave();
   }
@@ -1912,7 +2516,7 @@
     state.pendingChampion = true;
     setBossDefeatOverlayVisible(false);
     setBossVisibility(false);
-    showFeedback("Dragon vaincu. Célébration en cours.", "good");
+    showFeedback(l("Dragon vaincu. Célébration en cours.", "Dragon defeated. Celebration in progress."), "good");
     updateHud();
     startBossVictoryCelebration();
   }
@@ -1929,8 +2533,8 @@
     state.bossBattle.timeRemaining = BOSS_TIME_LIMIT_SECONDS;
     state.bossBattle.usedKeys = new Set();
     state.betweenWaves = true;
-    banner("Boss final : Dragon");
-    showFeedback("5 multiplications parfaites, 5 secondes chacune.", "bad");
+    banner(l("Boss final : Dragon", "Final Boss: Dragon"));
+    showFeedback(l("5 multiplications parfaites, 5 secondes chacune.", "5 perfect multiplications, 5 seconds each."), "bad");
     setBossQuestion();
   }
 
@@ -1945,15 +2549,19 @@
     ).filter((value) => ![1, 2, 10].includes(value));
     const b = multiplierCandidates[randomInt(0, multiplierCandidates.length - 1)];
     const expected = 12 * b;
-    const answer = window.prompt(`Sécurité Réglages: 12 x ${b} = ?`);
+    const answer = window.prompt(
+      state.locale === LOCALES.FR
+        ? `Sécurité réglages : 12 x ${b} = ?`
+        : `Settings safety check: 12 x ${b} = ?`
+    );
     if (answer === null) {
-      showFeedback("Accès aux réglages annulé.", "bad");
+      showFeedback(l("Accès aux réglages annulé.", "Settings access cancelled."), "bad");
       return false;
     }
 
     const guess = Number.parseInt(String(answer).trim(), 10);
     if (guess !== expected) {
-      showFeedback("Réponse incorrecte. Accès refusé.", "bad");
+      showFeedback(l("Réponse incorrecte. Accès refusé.", "Incorrect answer. Access denied."), "bad");
       return false;
     }
 
@@ -1965,9 +2573,9 @@
     state.pendingChampion = championAwarded;
     setBossVisibility(false);
     stopVictoryCelebration();
-    triggerGameOver("Tu as traversé tous les mondes. Le château est sauvé.", {
-      title: "Victoire",
-      feedbackText: "Bravo, tu as terminé la campagne.",
+    triggerGameOver(l("Tu as traversé tous les mondes. Le château est sauvé.", "You crossed all worlds. The castle is safe."), {
+      title: l("Victoire", "Victory"),
+      feedbackText: l("Bravo, tu as terminé la campagne.", "Well done, you completed the campaign."),
       feedbackKind: "good"
     });
   }
@@ -2120,7 +2728,11 @@
       const currentQuestion = state.question;
       if (guess !== currentQuestion.answer) {
         recordAnswer(currentQuestion.a, currentQuestion.b, false);
-        failBossBattle(`Le dragon t'a battu. Retour en ${getWaveLabel(BOSS_RETURN_WAVE)}.`);
+        failBossBattle(
+          state.locale === LOCALES.FR
+            ? `Le dragon t'a battu. Retour en ${getWaveLabel(BOSS_RETURN_WAVE)}.`
+            : `The dragon beat you. Returning to ${getWaveLabel(BOSS_RETURN_WAVE)}.`
+        );
         return;
       }
 
@@ -2133,7 +2745,9 @@
       const gained = BOSS_SUCCESS_SCORE_BASE + timeBonus + tableBonus + streakBonus;
       state.score += gained;
       showFeedback(
-        `Épreuve réussie +${gained} pts (${state.bossBattle.streak}/${state.bossBattle.requiredStreak}).`,
+        state.locale === LOCALES.FR
+          ? `Épreuve réussie +${gained} pts (${state.bossBattle.streak}/${state.bossBattle.requiredStreak}).`
+          : `Trial cleared +${gained} pts (${state.bossBattle.streak}/${state.bossBattle.requiredStreak}).`,
         "good"
       );
 
@@ -2149,7 +2763,7 @@
     const target = getFrontEnemy();
 
     if (isSimpleMode() && !target) {
-      showFeedback("Aucun ennemi à viser pour le moment.", "");
+      showFeedback(l("Aucun ennemi à viser pour le moment.", "No enemy to target right now."), "");
       nextQuestion();
       return;
     }
@@ -2161,8 +2775,10 @@
       state.score += 10 + state.wave * 4 + state.combo * 2 + tableBonus;
       showFeedback(
         tableBonus > 0
-          ? `Parfait. Tir magique lancé. Bonus table ${state.question.a}: +${tableBonus}`
-          : "Parfait. Tir magique lancé.",
+          ? state.locale === LOCALES.FR
+            ? `Parfait. Tir magique lancé. Bonus table ${state.question.a} : +${tableBonus}`
+            : `Perfect. Magic shot fired. Table ${state.question.a} bonus: +${tableBonus}`
+          : l("Parfait. Tir magique lancé.", "Perfect. Magic shot fired."),
         "good"
       );
 
@@ -2184,7 +2800,9 @@
         state.simpleMistakes += 1;
         const remaining = getSimpleErrorsRemaining();
         showFeedback(
-          `Oups. ${state.question.a} x ${state.question.b} = ${state.question.answer}. ${remaining} erreurs restantes.`,
+          state.locale === LOCALES.FR
+            ? `Oups. ${state.question.a} x ${state.question.b} = ${state.question.answer}. ${remaining} erreurs restantes.`
+            : `Oops. ${state.question.a} x ${state.question.b} = ${state.question.answer}. ${remaining} errors left.`,
           "bad"
         );
 
@@ -2193,7 +2811,9 @@
             moveToEnd: true,
             onComplete: () => {
               triggerScreenShake("heavy");
-              triggerGameOver("4 erreurs : les ennemis entrent dans le château.");
+              triggerGameOver(
+                l("4 erreurs : les ennemis entrent dans le château.", "4 errors: enemies break into the castle.")
+              );
             }
           });
         } else {
@@ -2201,7 +2821,9 @@
         }
       } else {
         showFeedback(
-          `Oups. ${state.question.a} x ${state.question.b} = ${state.question.answer}`,
+          state.locale === LOCALES.FR
+            ? `Oups. ${state.question.a} x ${state.question.b} = ${state.question.answer}`
+            : `Oops. ${state.question.a} x ${state.question.b} = ${state.question.answer}`,
           "bad"
         );
 
@@ -2238,10 +2860,29 @@
       openDebugModal();
     }
 
+    if (state.inputBuffer === "777") {
+      state.inputBuffer = "";
+      state.coins += 999;
+      state.bestWaveReached = Math.max(state.bestWaveReached, SHOP_MAX_UNLOCK_WAVE);
+      saveProfile();
+      updateHud();
+      if (!dom.shopModal.classList.contains("hidden")) {
+        renderShop();
+      }
+      showFeedback(
+        l(
+          "Cheat activé : +999 pièces d'or et prérequis boutique débloqués.",
+          "Cheat enabled: +999 gold and shop progression requirements unlocked."
+        ),
+        "good"
+      );
+    }
+
     updateHud();
   }
 
   function setupWave() {
+    refreshBestWaveReached();
     const enemyCount = getEnemyCountForWave();
     state.queuedSpawns = enemyCount;
     state.spawnCooldown = getSpawnIntervalForWave();
@@ -2251,7 +2892,7 @@
     }
     applyWorldTheme();
     updateTowerSkin();
-    banner(`Niveau ${state.wave}`);
+    banner(state.locale === LOCALES.FR ? `Niveau ${state.wave}` : `Level ${state.wave}`);
 
     if (isSimpleMode()) {
       const targets = generateSimpleEntryTargets(enemyCount);
@@ -2281,7 +2922,7 @@
 
     state.betweenWaves = true;
     state.score += 40 + state.wave * 12;
-    showFeedback("Vague nettoyée. Prépare-toi.", "good");
+    showFeedback(l("Vague nettoyée. Prépare-toi.", "Wave cleared. Get ready."), "good");
     updateHud();
 
     if (state.wave >= MAX_WAVES) {
@@ -2323,7 +2964,7 @@
     if (state.lives <= 0) {
       triggerScreenShake("heavy");
       setCastleFire(true);
-      triggerGameOver("Les ennemis ont brisé la porte du château.");
+      triggerGameOver(l("Les ennemis ont brisé la porte du château.", "Enemies broke the castle gate."));
     } else {
       triggerScreenShake("small");
     }
@@ -2363,20 +3004,23 @@
 
     dom.gameOver.classList.add("hidden");
     if (dom.gameOverTitle) {
-      dom.gameOverTitle.textContent = "Défaite";
+      dom.gameOverTitle.textContent = l("Défaite", "Defeat");
     }
-    dom.finalScoreText.textContent = "Score final: 0";
+    dom.finalScoreText.textContent = `${l("Score final", "Final score")}: 0`;
     dom.scoreSaveFeedback.textContent = "";
     dom.playerNameInput.disabled = false;
     dom.saveScoreBtn.disabled = false;
     dom.gameOverText.textContent = isSimpleMode()
-      ? "4 erreurs et les ennemis rentrent dans le château."
-      : "Les gobelins ont passé ta défense.";
+      ? l("4 erreurs et les ennemis rentrent dans le château.", "4 errors and enemies storm the castle.")
+      : l("Les gobelins ont passé ta défense.", "Goblins broke through your defense.");
 
     showFeedback(
       isSimpleMode()
-        ? "Mode Simple: pas de timer, les ennemis avancent sur chaque erreur."
-        : "Mode normal : réponse correcte = tir magique.",
+        ? l(
+          "Mode simple : pas de timer, les ennemis avancent à chaque erreur.",
+          "Simple mode: no timer, enemies advance on each mistake."
+        )
+        : l("Mode normal : réponse correcte = tir magique.", "Normal mode: correct answer = magic shot."),
       ""
     );
 
@@ -2395,9 +3039,53 @@
 
     const tablesOpen = !dom.tablesModal.classList.contains("hidden");
     const statsOpen = !dom.statsModal.classList.contains("hidden");
+    const shopOpen = !dom.shopModal.classList.contains("hidden");
     const pauseOpen = !dom.pauseModal.classList.contains("hidden");
+    const modeConfirmOpen = !dom.modeConfirmModal.classList.contains("hidden");
     const debugOpen = !dom.debugModal.classList.contains("hidden");
-    state.paused = tablesOpen || statsOpen || pauseOpen || debugOpen;
+    state.paused = tablesOpen || statsOpen || shopOpen || pauseOpen || modeConfirmOpen || debugOpen;
+  }
+
+  function closeModeConfirmModal() {
+    dom.modeConfirmModal.classList.add("hidden");
+    state.pendingModeChange = null;
+    refreshPauseState();
+  }
+
+  function openModeConfirmModal(mode) {
+    const modeLabel = mode === MODES.SIMPLE ? "Mode simple" : "Mode normal";
+    const localizedModeLabel =
+      mode === MODES.SIMPLE ? l("Mode simple", "Simple Mode") : l("Mode normal", "Normal Mode");
+    state.pendingModeChange = mode;
+    if (dom.modeConfirmText) {
+      dom.modeConfirmText.textContent = state.locale === LOCALES.FR
+        ? `${modeLabel} va démarrer une nouvelle partie. Continuer ?`
+        : `${localizedModeLabel} will start a new game. Continue?`;
+    }
+    dom.pauseModal.classList.add("hidden");
+    dom.tablesModal.classList.add("hidden");
+    dom.shopModal.classList.add("hidden");
+    dom.statsModal.classList.add("hidden");
+    closeDebugModal();
+    dom.modeConfirmModal.classList.remove("hidden");
+    refreshPauseState();
+  }
+
+  function openShopModal() {
+    closeModeConfirmModal();
+    renderShop();
+    dom.pauseModal.classList.add("hidden");
+    dom.tablesModal.classList.add("hidden");
+    dom.shopModal.classList.add("hidden");
+    dom.statsModal.classList.add("hidden");
+    closeDebugModal();
+    dom.shopModal.classList.remove("hidden");
+    refreshPauseState();
+  }
+
+  function closeShopModal() {
+    dom.shopModal.classList.add("hidden");
+    refreshPauseState();
   }
 
   function openTablesModal() {
@@ -2405,9 +3093,11 @@
       return;
     }
 
+    closeModeConfirmModal();
     renderTablesGrid();
     updateVisualStyleButtons();
     dom.pauseModal.classList.add("hidden");
+    dom.shopModal.classList.add("hidden");
     dom.statsModal.classList.add("hidden");
     closeDebugModal();
     dom.tablesModal.classList.remove("hidden");
@@ -2424,9 +3114,11 @@
   }
 
   function openStatsModal() {
+    closeModeConfirmModal();
     renderLeaderboard();
     renderMasteryMatrix();
     dom.pauseModal.classList.add("hidden");
+    dom.shopModal.classList.add("hidden");
     dom.tablesModal.classList.add("hidden");
     closeDebugModal();
     dom.statsModal.classList.remove("hidden");
@@ -2443,7 +3135,9 @@
       return;
     }
 
+    closeModeConfirmModal();
     dom.tablesModal.classList.add("hidden");
+    dom.shopModal.classList.add("hidden");
     dom.statsModal.classList.add("hidden");
     closeDebugModal();
     dom.pauseModal.classList.remove("hidden");
@@ -2489,13 +3183,15 @@
 
     dom.pauseModal.classList.add("hidden");
     dom.tablesModal.classList.add("hidden");
+    dom.shopModal.classList.add("hidden");
     dom.statsModal.classList.add("hidden");
+    closeModeConfirmModal();
     closeDebugModal();
     dom.gameOver.classList.add("hidden");
     if (dom.gameOverTitle) {
-      dom.gameOverTitle.textContent = "Défaite";
+      dom.gameOverTitle.textContent = l("Défaite", "Defeat");
     }
-    dom.finalScoreText.textContent = "Score final: 0";
+    dom.finalScoreText.textContent = `${l("Score final", "Final score")}: 0`;
     dom.scoreSaveFeedback.textContent = "";
     dom.playerNameInput.disabled = false;
     dom.saveScoreBtn.disabled = false;
@@ -2505,7 +3201,7 @@
     updateHud();
     updateBossPanel();
     applyWorldTheme();
-    showFeedback("Choisis un mode puis lance la partie.", "");
+    showFeedback(l("Choisis un mode puis lance la partie.", "Choose a mode then start the game."), "");
   }
 
   function startGame() {
@@ -2517,7 +3213,9 @@
     state.paused = false;
     dom.pauseModal.classList.add("hidden");
     dom.tablesModal.classList.add("hidden");
+    dom.shopModal.classList.add("hidden");
     dom.statsModal.classList.add("hidden");
+    closeModeConfirmModal();
     closeDebugModal();
     dom.titleScreen.classList.add("hidden");
     resetGame();
@@ -2543,7 +3241,9 @@
         updateBossPanel();
         if (state.bossBattle.timeRemaining <= 0) {
           failBossBattle(
-            `Le feu du dragon a explosé. Retour en ${getWaveLabel(BOSS_RETURN_WAVE)}.`
+            state.locale === LOCALES.FR
+              ? `Le feu du dragon a explosé. Retour en ${getWaveLabel(BOSS_RETURN_WAVE)}.`
+              : `Dragon fire exploded. Returning to ${getWaveLabel(BOSS_RETURN_WAVE)}.`
           );
         }
         renderEnemies();
@@ -2671,6 +3371,10 @@
 
     const mode = button.dataset.mode;
     if (mode && mode !== state.mode) {
+      if (state.started && !state.gameOver) {
+        openModeConfirmModal(mode);
+        return;
+      }
       setMode(mode);
     }
   });
@@ -2685,8 +3389,10 @@
 
   dom.startBtn.addEventListener("click", startGame);
   dom.pauseBtn.addEventListener("click", openPauseModal);
+  dom.openShopBtn?.addEventListener("click", openShopModal);
   dom.openTablesBtn.addEventListener("click", openTablesModal);
   dom.openStatsBtn.addEventListener("click", openStatsModal);
+  dom.openShopInlineBtn.addEventListener("click", openShopModal);
   dom.openTablesInlineBtn.addEventListener("click", openTablesModal);
   dom.openStatsInlineBtn.addEventListener("click", openStatsModal);
   dom.openDebugInlineBtn?.addEventListener("click", openDebugModal);
@@ -2697,8 +3403,17 @@
   }
   dom.closeTablesBtn.addEventListener("click", closeTablesModal);
   dom.closeStatsBtn.addEventListener("click", closeStatsModal);
+  dom.closeShopBtn.addEventListener("click", closeShopModal);
   dom.resumeBtn.addEventListener("click", closePauseModal);
   dom.backTitleBtn.addEventListener("click", returnToTitleScreen);
+  dom.modeConfirmCancelBtn?.addEventListener("click", closeModeConfirmModal);
+  dom.modeConfirmAcceptBtn?.addEventListener("click", () => {
+    const mode = state.pendingModeChange;
+    closeModeConfirmModal();
+    if (mode && mode !== state.mode) {
+      setMode(mode);
+    }
+  });
   dom.closeDebugBtn?.addEventListener("click", closeDebugModal);
   dom.debugResetBtn?.addEventListener("click", resetDebugStyleTuning);
 
@@ -2731,6 +3446,35 @@
     updateDebugControl("castleOffsetY", event.target.value)
   );
 
+  dom.shopCategorySelect?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-shop-category]");
+    if (!button) {
+      return;
+    }
+
+    const category = button.dataset.shopCategory;
+    if (!Object.values(SHOP_CATEGORIES).includes(category)) {
+      return;
+    }
+
+    state.shopCategory = category;
+    saveProfile();
+    renderShop();
+  });
+
+  dom.shopGrid?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-shop-item-key]");
+    if (!button || button.disabled) {
+      return;
+    }
+
+    const itemKey = button.dataset.shopItemKey;
+    if (!itemKey) {
+      return;
+    }
+    buyOrEquipShopItem(itemKey);
+  });
+
   dom.tablesGrid.addEventListener("change", (event) => {
     const input = event.target.closest("input[data-table-checkbox]");
     if (!input) {
@@ -2749,7 +3493,7 @@
     } else {
       if (state.selectedTables.length <= 1) {
         input.checked = true;
-        showFeedback("Garde au moins une table active.", "bad");
+        showFeedback(l("Garde au moins une table active.", "Keep at least one table active."), "bad");
         return;
       }
 
@@ -2771,7 +3515,7 @@
     saveProfile();
     renderTablesGrid();
     renderMasteryMatrix();
-    showFeedback("Progression des tables réinitialisée.", "");
+    showFeedback(l("Progression des tables réinitialisée.", "Table progress reset."), "");
   });
 
   window.addEventListener("keydown", (event) => {
@@ -2786,6 +3530,16 @@
 
     if (event.key === "Escape" && !dom.pauseModal.classList.contains("hidden")) {
       closePauseModal();
+      return;
+    }
+
+    if (event.key === "Escape" && !dom.modeConfirmModal.classList.contains("hidden")) {
+      closeModeConfirmModal();
+      return;
+    }
+
+    if (event.key === "Escape" && !dom.shopModal.classList.contains("hidden")) {
+      closeShopModal();
       return;
     }
 
@@ -2832,6 +3586,7 @@
   loadProfile();
   loadDebugTuning();
   loadLeaderboard();
+  applyLocalizedStaticTexts();
   applyVisualStyle();
   renderDebugControls();
   applyDebugTuningToView();
@@ -2839,10 +3594,11 @@
   updateVisualStyleButtons();
   updateHud();
   renderTablesGrid();
+  renderShop();
   renderLeaderboard();
   renderMasteryMatrix();
   applyWorldTheme();
   updateBossPanel();
-  showFeedback("Choisis un mode puis lance la partie.", "");
+  showFeedback(l("Choisis un mode puis lance la partie.", "Choose a mode then start the game."), "");
   requestAnimationFrame(gameLoop);
 })();
