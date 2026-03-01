@@ -1,6 +1,6 @@
 # Pixel Art File List (Drop-in)
 
-The game currently references these files. Generate these PNG files first in `assets/pixel/`.
+The game currently references these files. Generate these PNG files first in `assets/themes/castle/`.
 
 ## Backgrounds
 - `bg-sky-epic.png`

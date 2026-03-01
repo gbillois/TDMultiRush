@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "assets/pixel/Gemini_Generated_Image_bbutvhbbutvhbbut.png"
+SOURCE = ROOT / "assets/themes/castle/Gemini_Generated_Image_bbutvhbbutvhbbut.png"
 OUT_DIR = ROOT / "assets/pixel"
 
 # Coordinates are inclusive (x1, y1, x2, y2) on the master sheet.

@@ -16,3 +16,8 @@ yarn-error.log*
 # Optional local env files
 .env
 .env.local
+
+# Node / test artifacts
+node_modules/
+playwright-report/
+test-results/
