@@ -156,13 +156,20 @@
   const DIFFICULTY_SAFETY_MARGIN_SECONDS = 1.2;
   const BONUS_CHEST_SRC = "assets/coffre-sprite.png";
   const BONUS_CHEST_SPAWN_CHANCE = 1 / 6;
+  const BONUS_HERO_SPAWN_CHANCE = 1 / 6;
   const BONUS_CHEST_MIN_SHOTS = 3;
   const BONUS_CHEST_CLICK_WINDOW_MS = 5000;
   const BONUS_CHEST_REWARD_MIN = 5;
   const BONUS_CHEST_REWARD_MAX = 30;
+  const BONUS_HERO_REWARD_COINS = 10;
+  const BONUS_HERO_NORMAL_LIFE_GAIN = 10;
+  const BONUS_HERO_CASTLE_SRC = "assets/pixel/perso-chevalier-rouge.png";
+  const BONUS_HERO_FAIRY_SRC = "assets/pixel/perso-princesse-verte.png";
   const BONUS_CHEST_SIZE_SCALE = 0.4;
+  const BONUS_HERO_SIZE_MULTIPLIER = 2;
   const BONUS_CHEST_FADE_MS = 260;
   const BONUS_CHEST_Y_OFFSET_PX = 30;
+  const BONUS_HERO_Y_ADJUST_PX = -50;
   const ENABLE_COMBO_DEBUG_GESTURE = false;
   const PLATFORM_UPSHIFT_NARROW_MAX_WIDTH = 430;
   const PLATFORM_UPSHIFT_Y_PX = 50;
@@ -512,11 +519,14 @@
     bonusChest: {
       active: false,
       el: null,
+      type: null,
       timeoutId: null,
       spawnPlanned: false,
+      plannedType: null,
       spawnedThisWave: false,
       shotsThisWave: 0,
-      forceEveryWave: false
+      forceEveryWave: false,
+      forceHeroEveryWave: false
     },
     pendingModeChange: null
   };
@@ -2204,7 +2214,7 @@
     return clamp(size * BONUS_CHEST_SIZE_SCALE, 28, 72);
   }
 
-  function getBonusChestSpawnPosition(chestSize) {
+  function getBonusChestSpawnPosition(chestSize, type = "chest") {
     const rect = dom.battlefield.getBoundingClientRect();
     const towerRect = dom.tower?.getBoundingClientRect();
     const castleRect = dom.castleDoor?.getBoundingClientRect();
@@ -2232,8 +2242,9 @@
     const enemyLevelY = pathRect
       ? pathRect.top - rect.top + pathRect.height * 0.78
       : track.baseY;
+    const heroAdjust = type === "hero" ? BONUS_HERO_Y_ADJUST_PX : 0;
     const y = clamp(
-      enemyLevelY + chestSize * 0.46 + BONUS_CHEST_Y_OFFSET_PX,
+      enemyLevelY + chestSize * 0.46 + BONUS_CHEST_Y_OFFSET_PX + heroAdjust,
       chestSize * 0.68,
       rect.height - chestSize * 0.55
     );
@@ -2250,6 +2261,7 @@
     const chestEl = state.bonusChest.el;
     state.bonusChest.el = null;
     state.bonusChest.active = false;
+    state.bonusChest.type = null;
     if (!chestEl) {
       return;
     }
@@ -2262,10 +2274,45 @@
     setTimeout(() => chestEl.remove(), BONUS_CHEST_FADE_MS);
   }
 
+  function getBonusHeroSrc() {
+    if (state.visualStyle === VISUAL_STYLES.FAIRY) {
+      return BONUS_HERO_FAIRY_SRC;
+    }
+    return BONUS_HERO_CASTLE_SRC;
+  }
+
   function collectBonusChest() {
     if (!state.bonusChest.active) {
       return;
     }
+    if (state.bonusChest.type === "hero") {
+      state.coins += BONUS_HERO_REWARD_COINS;
+      if (isSimpleMode()) {
+        state.simpleMistakes = 0;
+      } else {
+        state.lives = Math.min(20, state.lives + BONUS_HERO_NORMAL_LIFE_GAIN);
+      }
+      saveProfile();
+      updateHud();
+      if (!dom.shopModal.classList.contains("hidden")) {
+        renderShop();
+      }
+      showFeedback(
+        isSimpleMode()
+          ? l(
+            `Allié secouru : +${BONUS_HERO_REWARD_COINS} pièces d'or et essais réinitialisés.`,
+            `Ally rescued: +${BONUS_HERO_REWARD_COINS} gold and attempts reset.`
+          )
+          : l(
+            `Allié secouru : +${BONUS_HERO_REWARD_COINS} pièces d'or et +${BONUS_HERO_NORMAL_LIFE_GAIN} vies.`,
+            `Ally rescued: +${BONUS_HERO_REWARD_COINS} gold and +${BONUS_HERO_NORMAL_LIFE_GAIN} lives.`
+          ),
+        "good"
+      );
+      clearBonusChest({ immediate: false });
+      return;
+    }
+
     const reward = randomInt(BONUS_CHEST_REWARD_MIN, BONUS_CHEST_REWARD_MAX);
     state.coins += reward;
     saveProfile();
@@ -2274,16 +2321,13 @@
       renderShop();
     }
     showFeedback(
-      l(
-        `Coffre ouvert : +${reward} pièces d'or.`,
-        `Chest opened: +${reward} gold.`
-      ),
+      l(`Coffre ouvert : +${reward} pièces d'or.`, `Chest opened: +${reward} gold.`),
       "good"
     );
     clearBonusChest({ immediate: false });
   }
 
-  function spawnBonusChest(source = "wave") {
+  function spawnBonusChest(source = "wave", forcedType = null) {
     if (
       !state.started ||
       state.gameOver ||
@@ -2296,22 +2340,34 @@
     }
 
     clearBonusChest();
+    const spawnType = forcedType === "hero" || forcedType === "chest"
+      ? forcedType
+      : state.bonusChest.plannedType || "chest";
+    const isHero = spawnType === "hero";
 
     const button = document.createElement("button");
     button.type = "button";
     button.className = "bonus-chest";
-    button.setAttribute("aria-label", l("Coffre bonus", "Bonus chest"));
-    button.title = l("Clique pour récupérer de l'or", "Tap to claim gold");
+    button.setAttribute(
+      "aria-label",
+      isHero ? l("Allié bonus", "Bonus ally") : l("Coffre bonus", "Bonus chest")
+    );
+    button.title = isHero
+      ? l("Clique pour recruter l'allié", "Tap to recruit the ally")
+      : l("Clique pour récupérer de l'or", "Tap to claim gold");
 
     const img = document.createElement("img");
-    img.src = BONUS_CHEST_SRC;
-    img.alt = l("Coffre bonus", "Bonus chest");
+    img.src = isHero ? getBonusHeroSrc() : BONUS_CHEST_SRC;
+    img.alt = isHero ? l("Allié bonus", "Bonus ally") : l("Coffre bonus", "Bonus chest");
     button.appendChild(img);
 
     dom.battlefield.appendChild(button);
-    const chestSize = getEnemyDisplaySizePx();
+    const baseBonusSize = getEnemyDisplaySizePx();
+    const chestSize = isHero
+      ? clamp(baseBonusSize * BONUS_HERO_SIZE_MULTIPLIER, 36, 144)
+      : baseBonusSize;
     button.style.width = `${chestSize.toFixed(2)}px`;
-    const position = getBonusChestSpawnPosition(chestSize);
+    const position = getBonusChestSpawnPosition(chestSize, spawnType);
     button.style.left = `${position.x.toFixed(2)}px`;
     button.style.top = `${position.y.toFixed(2)}px`;
     bindFastPress(button, () => collectBonusChest());
@@ -2321,16 +2377,27 @@
 
     state.bonusChest.el = button;
     state.bonusChest.active = true;
+    state.bonusChest.type = spawnType;
     state.bonusChest.spawnedThisWave = true;
     if (source === "cheat") {
-      showFeedback(l("Coffre de test apparu.", "Test chest appeared."), "good");
+      showFeedback(
+        isHero
+          ? l("Allié de test apparu.", "Test ally appeared.")
+          : l("Coffre de test apparu.", "Test chest appeared."),
+        "good"
+      );
     }
     state.bonusChest.timeoutId = setTimeout(() => {
       if (!state.bonusChest.active) {
         return;
       }
       clearBonusChest({ immediate: false });
-      showFeedback(l("Le coffre a disparu.", "The chest disappeared."), "");
+      showFeedback(
+        isHero
+          ? l("L'allié a disparu.", "The ally disappeared.")
+          : l("Le coffre a disparu.", "The chest disappeared."),
+        ""
+      );
     }, BONUS_CHEST_CLICK_WINDOW_MS);
     return true;
   }
@@ -2339,12 +2406,34 @@
     clearBonusChest();
     state.bonusChest.spawnedThisWave = false;
     state.bonusChest.shotsThisWave = 0;
-    state.bonusChest.spawnPlanned =
-      !state.bonusChest.forceEveryWave && Math.random() < BONUS_CHEST_SPAWN_CHANCE;
+    state.bonusChest.spawnPlanned = false;
+    state.bonusChest.plannedType = null;
 
     if (state.bonusChest.forceEveryWave) {
-      spawnBonusChest("cheat");
+      state.bonusChest.spawnPlanned = true;
+      state.bonusChest.plannedType = "chest";
+      spawnBonusChest("cheat", "chest");
+      return;
     }
+    if (state.bonusChest.forceHeroEveryWave) {
+      state.bonusChest.spawnPlanned = true;
+      state.bonusChest.plannedType = "hero";
+      spawnBonusChest("cheat", "hero");
+      return;
+    }
+
+    const chestCandidate = Math.random() < BONUS_CHEST_SPAWN_CHANCE;
+    const heroCandidate = Math.random() < BONUS_HERO_SPAWN_CHANCE;
+    if (!chestCandidate && !heroCandidate) {
+      return;
+    }
+
+    state.bonusChest.spawnPlanned = true;
+    if (chestCandidate && heroCandidate) {
+      state.bonusChest.plannedType = Math.random() < 0.5 ? "chest" : "hero";
+      return;
+    }
+    state.bonusChest.plannedType = chestCandidate ? "chest" : "hero";
   }
 
   function recordWaveShotForBonusChest() {
@@ -3087,6 +3176,9 @@
     if (state.inputBuffer === "555") {
       state.inputBuffer = "";
       state.bonusChest.forceEveryWave = !state.bonusChest.forceEveryWave;
+      if (state.bonusChest.forceEveryWave) {
+        state.bonusChest.forceHeroEveryWave = false;
+      }
       if (
         state.bonusChest.forceEveryWave &&
         state.started &&
@@ -3094,7 +3186,7 @@
         !state.betweenWaves &&
         !state.bossBattle.active
       ) {
-        spawnBonusChest("cheat");
+        spawnBonusChest("cheat", "chest");
       }
       showFeedback(
         state.bonusChest.forceEveryWave
@@ -3107,6 +3199,32 @@
             "Chest cheat disabled."
           ),
         state.bonusChest.forceEveryWave ? "good" : ""
+      );
+    }
+
+    if (state.inputBuffer === "444") {
+      state.inputBuffer = "";
+      state.bonusChest.forceHeroEveryWave = !state.bonusChest.forceHeroEveryWave;
+      if (state.bonusChest.forceHeroEveryWave) {
+        state.bonusChest.forceEveryWave = false;
+      }
+      if (
+        state.bonusChest.forceHeroEveryWave &&
+        state.started &&
+        !state.gameOver &&
+        !state.betweenWaves &&
+        !state.bossBattle.active
+      ) {
+        spawnBonusChest("cheat", "hero");
+      }
+      showFeedback(
+        state.bonusChest.forceHeroEveryWave
+          ? l(
+            "Cheat allié activé : un allié apparaît au début de chaque niveau.",
+            "Ally cheat enabled: an ally appears at the start of every wave."
+          )
+          : l("Cheat allié désactivé.", "Ally cheat disabled."),
+        state.bonusChest.forceHeroEveryWave ? "good" : ""
       );
     }
 
@@ -3832,8 +3950,13 @@
     updateWorldSpaceAnchors();
     renderEnemies();
     if (state.bonusChest.active && state.bonusChest.el) {
-      const chestSize = state.bonusChest.el.getBoundingClientRect().width || getEnemyDisplaySizePx();
-      const position = getBonusChestSpawnPosition(chestSize);
+      const baseBonusSize = getEnemyDisplaySizePx();
+      const chestSize =
+        state.bonusChest.type === "hero"
+          ? clamp(baseBonusSize * BONUS_HERO_SIZE_MULTIPLIER, 36, 144)
+          : baseBonusSize;
+      const position = getBonusChestSpawnPosition(chestSize, state.bonusChest.type || "chest");
+      state.bonusChest.el.style.width = `${chestSize.toFixed(2)}px`;
       state.bonusChest.el.style.left = `${position.x.toFixed(2)}px`;
       state.bonusChest.el.style.top = `${position.y.toFixed(2)}px`;
     }
