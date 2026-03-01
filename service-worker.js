@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const STATIC_CACHE = `multipliRush-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `multipliRush-runtime-${CACHE_VERSION}`;
 
@@ -56,6 +56,18 @@ function isCacheableAsset(pathname) {
   );
 }
 
+function isAppShellRequest(pathname) {
+  const clean = pathname.startsWith("/") ? pathname.slice(1) : pathname;
+  return (
+    clean === "" ||
+    clean === "index.html" ||
+    clean === "game.js" ||
+    clean === "styles.css" ||
+    clean === "manifest.webmanifest" ||
+    clean === "service-worker.js"
+  );
+}
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") {
@@ -69,14 +81,34 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(
-        () => caches.match("index.html").then((resp) => resp || caches.match("./"))
-      )
+      fetch(request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => cache.put("index.html", clone));
+          return response;
+        })
+        .catch(() => caches.match("index.html").then((resp) => resp || caches.match("./")))
     );
     return;
   }
 
   if (!isCacheableAsset(url.pathname)) {
+    return;
+  }
+
+  // Keep app shell files fresh on iOS Home Screen mode.
+  if (isAppShellRequest(url.pathname)) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.ok) {
+            const clone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((resp) => resp || caches.match("index.html")))
+    );
     return;
   }
 

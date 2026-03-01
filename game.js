@@ -490,9 +490,26 @@
     return STYLE_ASSETS[state.visualStyle] || STYLE_ASSETS[VISUAL_STYLES.CASTLE];
   }
 
+  function safeStorageGet(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  function safeStorageSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   function loadProfile() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = safeStorageGet(STORAGE_KEY);
       if (!raw) {
         return;
       }
@@ -530,12 +547,12 @@
       multiplicationMastery: state.multiplicationMastery
     };
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    safeStorageSet(STORAGE_KEY, JSON.stringify(payload));
   }
 
   function loadDebugTuning() {
     try {
-      const raw = localStorage.getItem(DEBUG_TUNING_KEY);
+      const raw = safeStorageGet(DEBUG_TUNING_KEY);
       const parsed = raw ? JSON.parse(raw) : null;
       state.debugTuning = normalizeDebugTuning(parsed);
     } catch {
@@ -547,7 +564,7 @@
   }
 
   function saveDebugTuning() {
-    localStorage.setItem(DEBUG_TUNING_KEY, JSON.stringify(state.debugTuning));
+    safeStorageSet(DEBUG_TUNING_KEY, JSON.stringify(state.debugTuning));
   }
 
   function sanitizePlayerName(rawName) {
@@ -560,7 +577,7 @@
 
   function loadLeaderboard() {
     try {
-      const raw = localStorage.getItem(LEADERBOARD_KEY);
+      const raw = safeStorageGet(LEADERBOARD_KEY);
       const parsed = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(parsed)) {
         state.leaderboard = [];
@@ -583,13 +600,13 @@
       state.leaderboard = [];
     }
 
-    state.lastPlayerName = sanitizePlayerName(localStorage.getItem(LAST_PLAYER_KEY) || "");
+    state.lastPlayerName = sanitizePlayerName(safeStorageGet(LAST_PLAYER_KEY) || "");
   }
 
   function persistLeaderboard() {
-    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(state.leaderboard));
+    safeStorageSet(LEADERBOARD_KEY, JSON.stringify(state.leaderboard));
     if (state.lastPlayerName) {
-      localStorage.setItem(LAST_PLAYER_KEY, state.lastPlayerName);
+      safeStorageSet(LAST_PLAYER_KEY, state.lastPlayerName);
     }
   }
 
