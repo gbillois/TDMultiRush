@@ -540,7 +540,7 @@ body {
   filter: none;
   z-index: 6;
   transition: filter 220ms ease, transform 220ms ease;
-  transform: scale(var(--debug-tower-scale));
+  transform: scale(calc(var(--debug-tower-scale) * var(--tower-skin-scale, 1)));
   transform-origin: bottom left;
 }
 
@@ -578,7 +578,7 @@ body {
 }
 
 .tower.cast {
-  transform: scale(calc(var(--debug-tower-scale) * 1.04)) rotate(-2deg);
+  transform: scale(calc(var(--debug-tower-scale) * var(--tower-skin-scale, 1) * 1.04)) rotate(-2deg);
   filter: drop-shadow(0 0 14px rgba(132, 234, 255, 0.92));
 }
 
@@ -1911,12 +1911,17 @@ body {
 
   body {
     padding: 0;
+    display: block;
+    width: 100dvw;
+    min-height: 100svh;
+    overflow-x: hidden;
   }
 
   .game-shell,
   .game-shell.debug-open {
-    width: min(100vw, var(--app-max-width));
+    width: 100%;
     max-width: var(--app-max-width);
+    margin: 0 auto;
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
     box-sizing: border-box;
@@ -2026,12 +2031,12 @@ body {
 
 @media (hover: none) and (pointer: coarse) and (min-width: 768px) {
   body {
-    place-items: center;
+    display: block;
   }
 
   .game-shell,
   .game-shell.debug-open {
-    width: min(100vw, var(--app-max-width));
+    width: 100%;
     max-width: var(--app-max-width);
     margin: 0 auto;
   }

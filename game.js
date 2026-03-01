@@ -295,18 +295,17 @@
     [VISUAL_STYLES.CASTLE]: {
       [SHOP_CATEGORIES.TOWER]: [
         { key: "base", name: "Tour de base", nameEn: "Base Tower", cost: 0, unlockWave: 1 },
-        { key: "ember", name: "Tour de la jungle", nameEn: "Jungle Tower", cost: 160, unlockWave: 2 },
-        { key: "rune", name: "Tour glacée", nameEn: "Frozen Tower", cost: 420, unlockWave: 4 },
-        { key: "obsidian", name: "Lave noire", nameEn: "Black Lava", cost: 980, unlockWave: 7 },
-        { key: "royal", name: "Soleil radiant", nameEn: "Radiant Sun", cost: 2300, unlockWave: 10 },
-        { key: "mythic", name: "Émeraude noire", nameEn: "Black Emerald", cost: 4600, unlockWave: 10 }
+        { key: "ember", name: "Castelet", nameEn: "Small Keep", cost: 160, unlockWave: 2 },
+        { key: "rune", name: "Orbe destructrice", nameEn: "Destructive Orb", cost: 420, unlockWave: 4 },
+        { key: "obsidian", name: "Le nid", nameEn: "The Nest", cost: 980, unlockWave: 7 },
+        { key: "royal", name: "La forteresse", nameEn: "The Fortress", cost: 2300, unlockWave: 10 }
       ],
       [SHOP_CATEGORIES.CASTLE]: [
         { key: "base", name: "Château de base", nameEn: "Base Castle", cost: 0, unlockWave: 1 },
-        { key: "bastion", name: "Rubis sombre", nameEn: "Dark Ruby", cost: 210, unlockWave: 3 },
-        { key: "citadel", name: "Citadelle glacée", nameEn: "Frozen Citadel", cost: 520, unlockWave: 5 },
-        { key: "ironkeep", name: "Lave noire", nameEn: "Black Lava", cost: 1250, unlockWave: 8 },
-        { key: "dawnfort", name: "Bastion de la jungle", nameEn: "Jungle Bastion", cost: 2900, unlockWave: 10 }
+        { key: "bastion", name: "Le bastion", nameEn: "The Bastion", cost: 210, unlockWave: 3 },
+        { key: "citadel", name: "La citadelle", nameEn: "The Citadel", cost: 520, unlockWave: 5 },
+        { key: "ironkeep", name: "La tour de guet", nameEn: "The Watchtower", cost: 1250, unlockWave: 8 },
+        { key: "dawnfort", name: "La forteresse", nameEn: "The Fortress", cost: 2900, unlockWave: 10 }
       ],
       [SHOP_CATEGORIES.PROJECTILE]: [
         { key: "base", name: "Tir de base", nameEn: "Base Shot", cost: 0, unlockWave: 1 },
@@ -319,24 +318,24 @@
     [VISUAL_STYLES.FAIRY]: {
       [SHOP_CATEGORIES.TOWER]: [
         { key: "base", name: "Tour féerique de base", nameEn: "Base Fairy Tower", cost: 0, unlockWave: 1 },
-        { key: "blossom", name: "Tour florale", nameEn: "Floral Tower", cost: 170, unlockWave: 2 },
-        { key: "moon", name: "Tour lunaire", nameEn: "Moon Tower", cost: 430, unlockWave: 4 },
-        { key: "stardust", name: "Tour poussière d'étoile", nameEn: "Stardust Tower", cost: 1020, unlockWave: 7 },
-        { key: "eclipse", name: "Tour éclipse", nameEn: "Eclipse Tower", cost: 2400, unlockWave: 10 }
+        { key: "blossom", name: "Tour boréale", nameEn: "Boreal Tower", cost: 170, unlockWave: 2 },
+        { key: "moon", name: "Tour émeraude", nameEn: "Emerald Tower", cost: 430, unlockWave: 4 },
+        { key: "stardust", name: "Tour solaire", nameEn: "Solar Tower", cost: 1020, unlockWave: 7 },
+        { key: "eclipse", name: "Tour saphir", nameEn: "Sapphire Tower", cost: 2400, unlockWave: 10 }
       ],
       [SHOP_CATEGORIES.CASTLE]: [
         { key: "base", name: "Château féerique de base", nameEn: "Base Fairy Castle", cost: 0, unlockWave: 1 },
-        { key: "petalspire", name: "Tour des pétales", nameEn: "Petal Spire", cost: 220, unlockWave: 3 },
-        { key: "moonhall", name: "Palais de lune", nameEn: "Moon Palace", cost: 540, unlockWave: 5 },
-        { key: "wildroot", name: "Racine sauvage", nameEn: "Wild Root", cost: 1310, unlockWave: 8 },
-        { key: "starcourt", name: "Cour stellaire", nameEn: "Star Court", cost: 3000, unlockWave: 10 }
+        { key: "petalspire", name: "Sanctuaire émeraude", nameEn: "Emerald Sanctuary", cost: 220, unlockWave: 3 },
+        { key: "moonhall", name: "Citadelle azurée", nameEn: "Azure Citadel", cost: 540, unlockWave: 5 },
+        { key: "wildroot", name: "Palais améthyste", nameEn: "Amethyst Palace", cost: 1310, unlockWave: 8 },
+        { key: "starcourt", name: "Bastion lotus", nameEn: "Lotus Bastion", cost: 3000, unlockWave: 10 }
       ],
       [SHOP_CATEGORIES.PROJECTILE]: [
         { key: "base", name: "Tir féerique de base", nameEn: "Base Fairy Shot", cost: 0, unlockWave: 1 },
-        { key: "pollen", name: "Pollen", nameEn: "Pollen", cost: 130, unlockWave: 2 },
-        { key: "prism", name: "Prisme", nameEn: "Prism", cost: 390, unlockWave: 4 },
-        { key: "spiral", name: "Spirale", nameEn: "Spiral", cost: 890, unlockWave: 7 },
-        { key: "aurora", name: "Aurore", nameEn: "Aurora", cost: 2150, unlockWave: 10 }
+        { key: "pollen", name: "Éclair améthyste", nameEn: "Amethyst Bolt", cost: 130, unlockWave: 2 },
+        { key: "prism", name: "Éclair émeraude", nameEn: "Emerald Bolt", cost: 390, unlockWave: 4 },
+        { key: "spiral", name: "Flèche solaire", nameEn: "Solar Arrow", cost: 890, unlockWave: 7 },
+        { key: "aurora", name: "Lance saphir", nameEn: "Sapphire Lance", cost: 2150, unlockWave: 10 }
       ]
     }
   };
@@ -355,6 +354,23 @@
       moonhall: 1.27,
       wildroot: 1.29,
       starcourt: 1.33
+    }
+  };
+  const TOWER_SKIN_VISUAL_SCALE = {
+    [VISUAL_STYLES.CASTLE]: {
+      base: 1,
+      ember: 1.03,
+      rune: 1.12,
+      obsidian: 1.35,
+      royal: 1.39,
+      mythic: 1
+    },
+    [VISUAL_STYLES.FAIRY]: {
+      base: 1,
+      blossom: 1.78,
+      moon: 1.82,
+      stardust: 1.77,
+      eclipse: 1.74
     }
   };
 
@@ -395,7 +411,7 @@
     enemyPathOffsetY: -12,
     towerScale: 0.88,
     castleScale: 0.96,
-    towerOffsetY: 2,
+    towerOffsetY: -28,
     castleOffsetY: 52
   };
 
@@ -913,6 +929,11 @@
 
   function getCastleSkinVisualScale(style, skinKey) {
     const byStyle = CASTLE_SKIN_VISUAL_SCALE[style] || {};
+    return byStyle[skinKey] || 1;
+  }
+
+  function getTowerSkinVisualScale(style, skinKey) {
+    const byStyle = TOWER_SKIN_VISUAL_SCALE[style] || {};
     return byStyle[skinKey] || 1;
   }
 
@@ -1850,7 +1871,13 @@
       return;
     }
 
+    const selectedTowerSkinKey = getEquippedSkinKey(state.visualStyle, SHOP_CATEGORIES.TOWER);
     dom.tower.src = getSelectedSkinSrc(state.visualStyle, SHOP_CATEGORIES.TOWER);
+    dom.tower.dataset.skinKey = selectedTowerSkinKey;
+    dom.tower.style.setProperty(
+      "--tower-skin-scale",
+      getTowerSkinVisualScale(state.visualStyle, selectedTowerSkinKey).toFixed(3)
+    );
   }
 
   function updateModeButtons() {
