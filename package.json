@@ -2,7 +2,7 @@
   "name": "multiplirush-td",
   "version": "1.0.0",
   "private": true,
-  "description": "E2E test automation for MultipliRush TD",
+  "description": "E2E test automation for MultiplyRush TD",
   "scripts": {
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",

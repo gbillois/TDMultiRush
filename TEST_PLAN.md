@@ -1,4 +1,4 @@
-# Plan de test - MultipliRush TD
+# Plan de test - MultiplyRush TD
 
 ## 1) Objectif
 Valider que le jeu fonctionne correctement avant et apres nettoyage de code/ressources, sans regression fonctionnelle visible.

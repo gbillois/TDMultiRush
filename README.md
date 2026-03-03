@@ -1,6 +1,6 @@
-# MultipliRush TD
+# MultiplyRush TD
 
-MultipliRush TD est un jeu Tower Defense en HTML/CSS/JS pour apprendre les tables de multiplication.
+MultiplyRush TD est un jeu Tower Defense en HTML/CSS/JS pour apprendre les tables de multiplication.
 
 ## Concept
 

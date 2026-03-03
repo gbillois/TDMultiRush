@@ -624,13 +624,22 @@
         "Red = beginner, green = mastered (20 correct)"
       );
     }
-    const tablesH2 = document.querySelector("#tables-modal h2");
-    if (tablesH2) tablesH2.textContent = l("Configurer les tables", "Configure Tables");
-    const tablesSub = document.querySelector(".tables-subtitle");
-    if (tablesSub) {
-      tablesSub.textContent = l(
-        "Choisis les tables actives. Le moteur favorise ensuite celles que tu maîtrises moins.",
-        "Choose active tables. The engine then focuses on the ones you master less."
+    const settingsTitle = document.getElementById("settings-title");
+    if (settingsTitle) settingsTitle.textContent = l("Réglages", "Settings");
+    const settingsCredit = document.getElementById("settings-credit");
+    if (settingsCredit) {
+      settingsCredit.innerHTML = l(
+        'Un jeu réalisé par Gérôme Billois (<a href="https://www.linkedin.com/in/gbillois/" target="_blank" rel="noopener noreferrer">contact</a>).',
+        'A game by Gérôme Billois (<a href="https://www.linkedin.com/in/gbillois/" target="_blank" rel="noopener noreferrer">contact</a>).'
+      );
+    }
+    const tablesLabel = document.getElementById("tables-label");
+    if (tablesLabel) tablesLabel.textContent = l("Tables", "Tables");
+    const tablesDescription = document.getElementById("tables-description");
+    if (tablesDescription) {
+      tablesDescription.textContent = l(
+        "Choisis les tables actives. Le jeu favorise ensuite celles que tu maîtrises moins.",
+        "Choose active tables. The game then focuses on the ones you master less."
       );
     }
     const visualStyleLabel = document.querySelector(".visual-style-label");
