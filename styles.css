@@ -349,7 +349,7 @@ body {
 
 .visual-style-basic .path {
   bottom: calc(
-    20% + var(--battle-upshift-y) + var(--platform-upshift-y) - var(--debug-path-offset-y) - 100px
+    20% + var(--battle-upshift-y) + var(--platform-upshift-y) - var(--debug-path-offset-y) - 50px
   );
 }
 
@@ -557,7 +557,7 @@ body {
 
 .visual-style-basic .tower {
   bottom: calc(
-    13% + var(--battle-upshift-y) + var(--platform-upshift-y) + var(--debug-tower-offset-y) - 100px
+    13% + var(--battle-upshift-y) + var(--platform-upshift-y) + var(--debug-tower-offset-y) - 50px
   );
 }
 
