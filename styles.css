@@ -347,6 +347,12 @@ body {
   opacity: 0;
 }
 
+.visual-style-basic .path {
+  bottom: calc(
+    20% + var(--battle-upshift-y) + var(--platform-upshift-y) - var(--debug-path-offset-y) - 100px
+  );
+}
+
 .visual-style-castle .battlefield.world-forest .layer-sky,
 .visual-style-castle .battlefield.world-snow .layer-sky,
 .visual-style-castle .battlefield.world-mountains .layer-sky,
@@ -547,6 +553,12 @@ body {
   transition: filter 220ms ease, transform 220ms ease;
   transform: scale(calc(var(--debug-tower-scale) * var(--tower-skin-scale, 1)));
   transform-origin: bottom left;
+}
+
+.visual-style-basic .tower {
+  bottom: calc(
+    13% + var(--battle-upshift-y) + var(--platform-upshift-y) + var(--debug-tower-offset-y) - 100px
+  );
 }
 
 .visual-style-castle .castle-door,
