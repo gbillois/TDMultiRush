@@ -82,6 +82,8 @@
     debugResetBtn: document.getElementById("debug-reset-btn"),
     visualStyleSelect: document.getElementById("visual-style-select"),
     visualStyleButtons: Array.from(document.querySelectorAll("[data-visual-style]")),
+    operationSelect: document.getElementById("operation-select"),
+    operationButtons: Array.from(document.querySelectorAll("[data-operation]")),
     tablesGrid: document.getElementById("tables-grid"),
     masteryMatrix: document.getElementById("mastery-matrix"),
     closeTablesBtn: document.getElementById("close-tables-btn"),
@@ -110,6 +112,10 @@
   const LOCALES = {
     FR: "fr",
     EN: "en"
+  };
+  const OPERATIONS = {
+    MULTIPLICATION: "multiplication",
+    ADDITION: "addition"
   };
   const CASTLE_ASSET_DIR = "assets/themes/castle";
   const FAIRY_ASSET_DIR = "assets/themes/fairy";
@@ -474,15 +480,14 @@
     started: false,
     paused: false,
     mode: MODES.NORMAL,
+    operation: OPERATIONS.MULTIPLICATION,
+    progressByOperation: createDefaultProgressByOperation(),
     visualStyle: VISUAL_STYLES.CASTLE,
     shopCategory: SHOP_DEFAULT_CATEGORY,
     coins: 0,
     bestWaveReached: 1,
     shopUnlocks: createDefaultShopUnlocks(),
     equippedSkins: createDefaultEquippedSkins(),
-    selectedTables: [...DEFAULT_SELECTED_TABLES],
-    tableMastery: createEmptyMastery(),
-    multiplicationMastery: createEmptyMultiplicationMastery(),
     wave: 1,
     lives: 20,
     simpleMistakes: 0,
@@ -537,12 +542,82 @@
   };
   state.locale = detectLocale();
 
+  function ensureOperationProgress(operation) {
+    if (!state.progressByOperation[operation]) {
+      state.progressByOperation[operation] = createDefaultOperationProgress();
+    }
+    return state.progressByOperation[operation];
+  }
+
+  function getActiveOperationProgress() {
+    return ensureOperationProgress(state.operation);
+  }
+
+  Object.defineProperties(state, {
+    selectedTables: {
+      get() {
+        return getActiveOperationProgress().selectedTables;
+      },
+      set(value) {
+        getActiveOperationProgress().selectedTables = value;
+      }
+    },
+    tableMastery: {
+      get() {
+        return getActiveOperationProgress().tableMastery;
+      },
+      set(value) {
+        getActiveOperationProgress().tableMastery = value;
+      }
+    },
+    multiplicationMastery: {
+      get() {
+        return getActiveOperationProgress().multiplicationMastery;
+      },
+      set(value) {
+        getActiveOperationProgress().multiplicationMastery = value;
+      }
+    }
+  });
+
   function l(fr, en) {
     return state.locale === LOCALES.FR ? fr : en;
   }
 
   function localizeCatalogName(item) {
     return state.locale === LOCALES.FR ? item.name : item.nameEn || item.name;
+  }
+
+  function isAdditionMode() {
+    return state.operation === OPERATIONS.ADDITION;
+  }
+
+  function getOperationSymbol() {
+    return isAdditionMode() ? "+" : "x";
+  }
+
+  function formatOperationPrompt(a, b) {
+    return `${a} ${getOperationSymbol()} ${b} = ?`;
+  }
+
+  function formatOperationSolution(a, b, answer) {
+    return `${a} ${getOperationSymbol()} ${b} = ${answer}`;
+  }
+
+  function computeOperationAnswer(a, b) {
+    return isAdditionMode() ? a + b : a * b;
+  }
+
+  function getOperationNounPlural() {
+    return isAdditionMode()
+      ? l("additions", "additions")
+      : l("multiplications", "multiplications");
+  }
+
+  function getOperationTableLabel(table) {
+    return isAdditionMode()
+      ? `${l("Table d'addition", "Addition table")} ${table}`
+      : `${l("Table de", "Table")} ${table}`;
   }
 
   function applyLocalizedStaticTexts() {
@@ -578,16 +653,26 @@
     }
 
     const titleKicker = document.querySelector(".title-kicker");
-    if (titleKicker) titleKicker.textContent = l("Tower defense des multiplications", "Multiplication Tower Defense");
+    if (titleKicker) {
+      titleKicker.textContent = l(
+        `Tower defense des ${getOperationNounPlural()}`,
+        `${isAdditionMode() ? "Addition" : "Multiplication"} Tower Defense`
+      );
+    }
     const titleDesc = document.querySelector(".title-card p:not(.title-kicker)");
     if (titleDesc) {
       titleDesc.textContent = l(
-        "Défends ton château en répondant aux multiplications. Le jeu s'adapte à tes tables les moins maîtrisées.",
-        "Defend your castle by solving multiplications. The game adapts to your weakest tables."
+        `Défends ton château en répondant aux ${getOperationNounPlural()}. Le jeu s'adapte à tes tables les moins maîtrisées.`,
+        `Defend your castle by solving ${isAdditionMode() ? "additions" : "multiplications"}. The game adapts to your weakest tables.`
       );
     }
     const questionTitle = document.querySelector(".question-title");
-    if (questionTitle) questionTitle.textContent = l("Canon des multiplications", "Multiplication Cannon");
+    if (questionTitle) {
+      questionTitle.textContent = l(
+        isAdditionMode() ? "Canon des additions" : "Canon des multiplications",
+        isAdditionMode() ? "Addition Cannon" : "Multiplication Cannon"
+      );
+    }
     const shopTitle = document.querySelector("#shop-modal h2");
     if (shopTitle) shopTitle.textContent = l("Boutique", "Shop");
     const shopSubtitle = document.querySelector(".shop-subtitle");
@@ -615,10 +700,19 @@
     if (modeNormal) modeNormal.textContent = l("Mode normal", "Normal Mode");
     const statsH2 = document.querySelector("#stats-modal h2");
     if (statsH2) statsH2.textContent = l("Classement et maîtrise", "Leaderboard & Mastery");
+    const leaderboardTitle = l(
+      `Meilleurs scores - ${isAdditionMode() ? "Addition" : "Multiplication"}`,
+      `Top Scores - ${isAdditionMode() ? "Addition" : "Multiplication"}`
+    );
     const statsH3 = document.querySelector("#stats-modal .leaderboard h3");
-    if (statsH3) statsH3.textContent = l("Meilleurs scores", "Top Scores");
+    if (statsH3) statsH3.textContent = leaderboardTitle;
     const matrixTitle = document.querySelector(".matrix-title");
-    if (matrixTitle) matrixTitle.textContent = l("Matrice des multiplications", "Multiplication Matrix");
+    if (matrixTitle) {
+      matrixTitle.textContent = l(
+        isAdditionMode() ? "Matrice des additions" : "Matrice des multiplications",
+        isAdditionMode() ? "Addition Matrix" : "Multiplication Matrix"
+      );
+    }
     const matrixSubtitle = document.querySelector(".matrix-subtitle");
     if (matrixSubtitle) {
       matrixSubtitle.textContent = l(
@@ -644,8 +738,17 @@
         "Choose active tables. The game then focuses on the ones you master less."
       );
     }
-    const visualStyleLabel = document.querySelector(".visual-style-label");
+    const visualStyleLabel = dom.visualStyleSelect?.querySelector(".visual-style-label");
     if (visualStyleLabel) visualStyleLabel.textContent = l("Style visuel", "Visual Style");
+    const operationLabel = document.getElementById("operation-label");
+    if (operationLabel) operationLabel.textContent = l("Opération", "Operation");
+    for (const button of dom.operationButtons) {
+      if (button.dataset.operation === OPERATIONS.MULTIPLICATION) {
+        button.textContent = l("Multiplication", "Multiplication");
+      } else if (button.dataset.operation === OPERATIONS.ADDITION) {
+        button.textContent = l("Addition", "Addition");
+      }
+    }
     const pauseH2 = document.querySelector("#pause-modal h2");
     if (pauseH2) pauseH2.textContent = l("Pause", "Pause");
     const pauseP = document.querySelector("#pause-modal p");
@@ -670,8 +773,12 @@
     }
     if (dom.bossVictoryBanner) {
       dom.bossVictoryBanner.textContent = l(
-        "Victoire ! Tu es le champion des multiplications",
-        "Victory! You are the multiplication champion"
+        isAdditionMode()
+          ? "Victoire ! Tu es le champion des additions"
+          : "Victoire ! Tu es le champion des multiplications",
+        isAdditionMode()
+          ? "Victory! You are the addition champion"
+          : "Victory! You are the multiplication champion"
       );
     }
     const bossDefeatText = dom.bossDefeatOverlay?.querySelector("p");
@@ -689,14 +796,14 @@
       dom.finalScoreText.textContent = `${l("Score final", "Final score")}: 0`;
     }
     if (dom.questionText && !state.started) {
-      dom.questionText.textContent = "6 x 7 = ?";
+      dom.questionText.textContent = formatOperationPrompt(6, 7);
     }
     const scoreLabel = document.querySelector('label[for="player-name-input"]');
     if (scoreLabel) scoreLabel.textContent = l("Ton nom pour le classement", "Your name for the leaderboard");
     if (dom.playerNameInput) dom.playerNameInput.placeholder = l("Ex : Alex", "e.g. Alex");
     const leaderboardTitles = document.querySelectorAll(".leaderboard h3");
     for (const h3 of leaderboardTitles) {
-      if (h3.closest("#game-over")) h3.textContent = "Leaderboard";
+      if (h3.closest("#game-over")) h3.textContent = leaderboardTitle;
     }
     const debugTitle = document.querySelector("#debug-modal h2");
     if (debugTitle) debugTitle.textContent = l("Debug visuel", "Visual Debug");
@@ -774,6 +881,71 @@
         const correct = Math.max(0, Number.parseInt(entry.correct, 10) || 0);
         const wrong = Math.max(0, Number.parseInt(entry.wrong, 10) || 0);
         normalized[key] = { correct, wrong };
+      }
+    }
+
+    return normalized;
+  }
+
+  function createDefaultOperationProgress() {
+    return {
+      selectedTables: [...DEFAULT_SELECTED_TABLES],
+      tableMastery: createEmptyMastery(),
+      multiplicationMastery: createEmptyMultiplicationMastery()
+    };
+  }
+
+  function createDefaultProgressByOperation() {
+    return {
+      [OPERATIONS.MULTIPLICATION]: createDefaultOperationProgress(),
+      [OPERATIONS.ADDITION]: createDefaultOperationProgress()
+    };
+  }
+
+  function normalizeOperation(rawValue) {
+    return rawValue === OPERATIONS.ADDITION
+      ? OPERATIONS.ADDITION
+      : OPERATIONS.MULTIPLICATION;
+  }
+
+  function normalizeOperationProgress(rawValue) {
+    return {
+      selectedTables: sanitizeSelectedTables(rawValue?.selectedTables),
+      tableMastery: normalizeMastery(rawValue?.tableMastery),
+      multiplicationMastery: normalizeMultiplicationMastery(rawValue?.multiplicationMastery)
+    };
+  }
+
+  function normalizeProgressByOperation(rawValue, legacyProfile = null) {
+    const normalized = createDefaultProgressByOperation();
+    const hasStructuredProgress =
+      !!rawValue &&
+      typeof rawValue === "object" &&
+      (rawValue[OPERATIONS.MULTIPLICATION] || rawValue[OPERATIONS.ADDITION]);
+
+    if (rawValue && typeof rawValue === "object") {
+      normalized[OPERATIONS.MULTIPLICATION] = normalizeOperationProgress(
+        rawValue[OPERATIONS.MULTIPLICATION]
+      );
+      normalized[OPERATIONS.ADDITION] = normalizeOperationProgress(
+        rawValue[OPERATIONS.ADDITION]
+      );
+    }
+
+    if (!hasStructuredProgress && legacyProfile && typeof legacyProfile === "object") {
+      const hasLegacyProgress =
+        legacyProfile.selectedTables ||
+        legacyProfile.tableMastery ||
+        legacyProfile.multiplicationMastery;
+
+      if (hasLegacyProgress) {
+        normalized[OPERATIONS.MULTIPLICATION] = {
+          selectedTables: sanitizeSelectedTables(legacyProfile.selectedTables),
+          tableMastery: normalizeMastery(legacyProfile.tableMastery),
+          multiplicationMastery: normalizeMultiplicationMastery(
+            legacyProfile.multiplicationMastery
+          )
+        };
       }
     }
 
@@ -1011,11 +1183,11 @@
         return;
       }
 
-      state.selectedTables = sanitizeSelectedTables(parsed.selectedTables);
-      state.tableMastery = normalizeMastery(parsed.tableMastery);
-      state.multiplicationMastery = normalizeMultiplicationMastery(
-        parsed.multiplicationMastery
+      state.progressByOperation = normalizeProgressByOperation(
+        parsed.progressByOperation,
+        parsed
       );
+      state.operation = normalizeOperation(parsed.operation);
       state.visualStyle = normalizeVisualStyle(parsed.visualStyle);
       state.coins = Math.max(0, Number.parseInt(parsed.coins, 10) || 0);
       state.bestWaveReached = Math.max(1, Number.parseInt(parsed.bestWaveReached, 10) || 1);
@@ -1033,9 +1205,8 @@
         state.mode = parsed.mode;
       }
     } catch {
-      state.selectedTables = [...DEFAULT_SELECTED_TABLES];
-      state.tableMastery = createEmptyMastery();
-      state.multiplicationMastery = createEmptyMultiplicationMastery();
+      state.progressByOperation = createDefaultProgressByOperation();
+      state.operation = OPERATIONS.MULTIPLICATION;
       state.mode = MODES.NORMAL;
       state.visualStyle = VISUAL_STYLES.CASTLE;
       state.coins = 0;
@@ -1047,7 +1218,10 @@
   }
 
   function saveProfile() {
+    const activeProgress = getActiveOperationProgress();
     const payload = {
+      operation: state.operation,
+      progressByOperation: state.progressByOperation,
       mode: state.mode,
       visualStyle: state.visualStyle,
       shopCategory: state.shopCategory,
@@ -1055,9 +1229,10 @@
       bestWaveReached: state.bestWaveReached,
       shopUnlocks: state.shopUnlocks,
       equippedSkins: state.equippedSkins,
-      selectedTables: [...state.selectedTables],
-      tableMastery: state.tableMastery,
-      multiplicationMastery: state.multiplicationMastery
+      // Legacy fields kept for backward compatibility with old profile readers.
+      selectedTables: [...activeProgress.selectedTables],
+      tableMastery: activeProgress.tableMastery,
+      multiplicationMastery: activeProgress.multiplicationMastery
     };
 
     safeStorageSet(STORAGE_KEY, JSON.stringify(payload));
@@ -1095,19 +1270,19 @@
       if (!Array.isArray(parsed)) {
         state.leaderboard = [];
       } else {
-        state.leaderboard = parsed
+        const normalized = parsed
           .filter((entry) => entry && typeof entry === "object")
           .map((entry) => ({
             name: sanitizePlayerName(entry.name),
             score: Math.max(0, Number.parseInt(entry.score, 10) || 0),
             wave: Math.max(1, Number.parseInt(entry.wave, 10) || 1),
             mode: entry.mode === MODES.SIMPLE ? MODES.SIMPLE : MODES.NORMAL,
+            operation: normalizeOperation(entry.operation),
             champion: !!entry.champion,
             timestamp: Number.parseInt(entry.timestamp, 10) || Date.now()
           }))
-          .filter((entry) => entry.name.length > 0)
-          .sort((a, b) => b.score - a.score || b.wave - a.wave || a.timestamp - b.timestamp)
-          .slice(0, LEADERBOARD_MAX_ENTRIES);
+          .filter((entry) => entry.name.length > 0);
+        state.leaderboard = limitLeaderboardByOperation(normalized);
       }
     } catch {
       state.leaderboard = [];
@@ -1123,13 +1298,33 @@
     }
   }
 
+  function compareLeaderboardEntries(a, b) {
+    return b.score - a.score || b.wave - a.wave || a.timestamp - b.timestamp;
+  }
+
+  function limitLeaderboardByOperation(entries) {
+    const sorted = [...entries].sort(compareLeaderboardEntries);
+    const limited = [];
+    for (const operation of Object.values(OPERATIONS)) {
+      const bucket = sorted
+        .filter((entry) => normalizeOperation(entry.operation) === operation)
+        .slice(0, LEADERBOARD_MAX_ENTRIES);
+      limited.push(...bucket);
+    }
+    return limited.sort(compareLeaderboardEntries);
+  }
+
   function modeLabel(mode) {
     return mode === MODES.SIMPLE ? l("Simple", "Simple") : l("Normal", "Normal");
   }
 
   function renderLeaderboard() {
-    const content = state.leaderboard.length
-      ? state.leaderboard
+    const filtered = state.leaderboard
+      .filter((entry) => normalizeOperation(entry.operation) === state.operation)
+      .sort(compareLeaderboardEntries);
+
+    const content = filtered.length
+      ? filtered
       .map(
         (entry) =>
           `<li>${entry.champion ? "👑 " : ""}${entry.name} - ${entry.score} ${l("pts", "pts")} (${l("V", "W")}${entry.wave}, ${modeLabel(entry.mode)})</li>`
@@ -1161,14 +1356,16 @@
         const light = 30 + Math.round(ratio * 24);
         const textColor = light > 48 ? "#102015" : "#f9fbff";
         const background = `hsl(${hue} 74% ${light}%)`;
+        const answer = computeOperationAnswer(a, b);
+        const expression = `${a} ${getOperationSymbol()} ${b}`;
 
-        return `<td style="background:${background};color:${textColor}" title="${a} x ${b} = ${a * b} | ${stats.correct}/${MASTERY_TARGET}"><div class="matrix-main">${a * b}</div><div class="matrix-sub">${Math.min(stats.correct, MASTERY_TARGET)}/${MASTERY_TARGET}</div></td>`;
+        return `<td style="background:${background};color:${textColor}" title="${expression} = ${answer} | ${stats.correct}/${MASTERY_TARGET}"><div class="matrix-main">${answer}</div><div class="matrix-sub">${Math.min(stats.correct, MASTERY_TARGET)}/${MASTERY_TARGET}</div></td>`;
       }).join("");
 
       return `<tr><th>${a}</th>${cells}</tr>`;
     }).join("");
 
-    dom.masteryMatrix.innerHTML = `<thead><tr><th>x</th>${headCells}</tr></thead><tbody>${rows}</tbody>`;
+    dom.masteryMatrix.innerHTML = `<thead><tr><th>${getOperationSymbol()}</th>${headCells}</tr></thead><tbody>${rows}</tbody>`;
   }
 
   function saveCurrentScore() {
@@ -1189,13 +1386,12 @@
       score: state.score,
       wave: state.wave,
       mode: state.mode,
+      operation: state.operation,
       champion: state.pendingChampion,
       timestamp: Date.now()
     });
 
-    state.leaderboard = state.leaderboard
-      .sort((a, b) => b.score - a.score || b.wave - a.wave || a.timestamp - b.timestamp)
-      .slice(0, LEADERBOARD_MAX_ENTRIES);
+    state.leaderboard = limitLeaderboardByOperation(state.leaderboard);
 
     state.scoreSubmitted = true;
     state.pendingChampion = false;
@@ -1773,7 +1969,7 @@
       return `
         <label class="table-option ${selectedClass}">
           <div class="table-main">
-            <span>${l("Table de", "Table")} ${table}</span>
+            <span>${getOperationTableLabel(table)}</span>
             <input type="checkbox" data-table-checkbox="${table}" ${checked} />
           </div>
           <div class="table-meta ${status.className}">${status.label} - ${status.summary}</div>
@@ -1935,6 +2131,12 @@
     }
   }
 
+  function updateOperationButtons() {
+    for (const button of dom.operationButtons) {
+      button.classList.toggle("active", button.dataset.operation === state.operation);
+    }
+  }
+
   function applyVisualStyle() {
     const styleAssets = getActiveStyleAssets();
 
@@ -2014,6 +2216,33 @@
     }
   }
 
+  function setOperation(operation) {
+    const nextOperation = normalizeOperation(operation);
+    if (nextOperation === state.operation) {
+      updateOperationButtons();
+      return;
+    }
+
+    state.operation = nextOperation;
+    state.lastQuestionKey = "";
+    updateOperationButtons();
+    applyLocalizedStaticTexts();
+    renderTablesGrid();
+    renderMasteryMatrix();
+    renderLeaderboard();
+    saveProfile();
+
+    if (state.started && !state.gameOver) {
+      if (state.bossBattle.active) {
+        setBossQuestion();
+      } else {
+        nextQuestion();
+      }
+    } else if (dom.questionText) {
+      dom.questionText.textContent = formatOperationPrompt(6, 7);
+    }
+  }
+
   function nextQuestion() {
     const maxB = Math.min(MAX_MULTIPLIER_VALUE, 4 + Math.floor(state.wave * 1.2));
     const possibleOperations = state.selectedTables.length * maxB;
@@ -2031,10 +2260,10 @@
       guard += 1;
     }
 
-    state.question = { a: table, b, answer: table * b };
+    state.question = { a: table, b, answer: computeOperationAnswer(table, b) };
     state.lastQuestionKey = key;
     state.inputBuffer = "";
-    dom.questionText.textContent = `${table} x ${b} = ?`;
+    dom.questionText.textContent = formatOperationPrompt(table, b);
     updateHud();
   }
 
@@ -2702,7 +2931,12 @@
   function pickBossQuestion() {
     const sorted = getBossCandidateOperations();
     if (!sorted.length) {
-      return { a: 12, b: 9, answer: 108, key: multiplicationKey(12, 9) };
+      return {
+        a: 12,
+        b: 9,
+        answer: computeOperationAnswer(12, 9),
+        key: multiplicationKey(12, 9)
+      };
     }
 
     const notUsed = sorted.filter((item) => !state.bossBattle.usedKeys.has(item.key));
@@ -2712,7 +2946,7 @@
     return {
       a: selected.a,
       b: selected.b,
-      answer: selected.a * selected.b,
+      answer: computeOperationAnswer(selected.a, selected.b),
       key: selected.key
     };
   }
@@ -2724,7 +2958,7 @@
     state.lastQuestionKey = question.key;
     state.inputBuffer = "";
     state.bossBattle.timeRemaining = state.bossBattle.timeLimit;
-    dom.questionText.textContent = `${question.a} x ${question.b} = ?`;
+    dom.questionText.textContent = formatOperationPrompt(question.a, question.b);
     updateHud();
     updateBossPanel();
   }
@@ -2862,7 +3096,15 @@
     state.bossBattle.usedKeys = new Set();
     state.betweenWaves = true;
     banner(l("Boss final : Dragon", "Final Boss: Dragon"));
-    showFeedback(l("5 multiplications parfaites, 5 secondes chacune.", "5 perfect multiplications, 5 seconds each."), "bad");
+    showFeedback(
+      isAdditionMode()
+        ? l("5 additions parfaites, 5 secondes chacune.", "5 perfect additions, 5 seconds each.")
+        : l(
+            "5 multiplications parfaites, 5 secondes chacune.",
+            "5 perfect multiplications, 5 seconds each."
+          ),
+      "bad"
+    );
     setBossQuestion();
   }
 
@@ -2876,11 +3118,11 @@
       (_, idx) => idx + 1
     ).filter((value) => ![1, 2, 10].includes(value));
     const b = multiplierCandidates[randomInt(0, multiplierCandidates.length - 1)];
-    const expected = 12 * b;
+    const expected = computeOperationAnswer(12, b);
     const answer = window.prompt(
       state.locale === LOCALES.FR
-        ? `Sécurité réglages : 12 x ${b} = ?`
-        : `Settings safety check: 12 x ${b} = ?`
+        ? `Sécurité réglages : 12 ${getOperationSymbol()} ${b} = ?`
+        : `Settings safety check: 12 ${getOperationSymbol()} ${b} = ?`
     );
     if (answer === null) {
       showFeedback(l("Accès aux réglages annulé.", "Settings access cancelled."), "bad");
@@ -3129,8 +3371,8 @@
         const remaining = getSimpleErrorsRemaining();
         showFeedback(
           state.locale === LOCALES.FR
-            ? `Oups. ${state.question.a} x ${state.question.b} = ${state.question.answer}. ${remaining} erreurs restantes.`
-            : `Oops. ${state.question.a} x ${state.question.b} = ${state.question.answer}. ${remaining} errors left.`,
+            ? `Oups. ${formatOperationSolution(state.question.a, state.question.b, state.question.answer)}. ${remaining} erreurs restantes.`
+            : `Oops. ${formatOperationSolution(state.question.a, state.question.b, state.question.answer)}. ${remaining} errors left.`,
           "bad"
         );
 
@@ -3150,8 +3392,8 @@
       } else {
         showFeedback(
           state.locale === LOCALES.FR
-            ? `Oups. ${state.question.a} x ${state.question.b} = ${state.question.answer}`
-            : `Oops. ${state.question.a} x ${state.question.b} = ${state.question.answer}`,
+            ? `Oups. ${formatOperationSolution(state.question.a, state.question.b, state.question.answer)}`
+            : `Oops. ${formatOperationSolution(state.question.a, state.question.b, state.question.answer)}`,
           "bad"
         );
 
@@ -3625,7 +3867,7 @@
     dom.scoreSaveFeedback.textContent = "";
     dom.playerNameInput.disabled = false;
     dom.saveScoreBtn.disabled = false;
-    dom.questionText.textContent = "6 x 7 = ?";
+    dom.questionText.textContent = formatOperationPrompt(6, 7);
     dom.titleScreen.classList.remove("hidden");
 
     updateHud();
@@ -3815,6 +4057,14 @@
       return;
     }
     setVisualStyle(button.dataset.visualStyle || VISUAL_STYLES.CASTLE);
+  });
+
+  dom.operationSelect?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-operation]");
+    if (!button) {
+      return;
+    }
+    setOperation(button.dataset.operation || OPERATIONS.MULTIPLICATION);
   });
 
   dom.startBtn.addEventListener("click", startGame);
@@ -4034,6 +4284,7 @@
   applyDebugTuningToView();
   updateModeButtons();
   updateVisualStyleButtons();
+  updateOperationButtons();
   updateHud();
   renderTablesGrid();
   renderShop();
