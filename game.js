@@ -3113,16 +3113,15 @@
   }
 
   function requestSettingsUnlock() {
-    const multiplierCandidates = Array.from(
-      { length: MAX_MULTIPLIER_VALUE },
-      (_, idx) => idx + 1
-    ).filter((value) => ![1, 2, 10].includes(value));
+    // Keep settings unlock intentionally challenging regardless of current operation mode.
+    const a = 12;
+    const multiplierCandidates = [6, 7, 8, 9];
     const b = multiplierCandidates[randomInt(0, multiplierCandidates.length - 1)];
-    const expected = computeOperationAnswer(12, b);
+    const expected = a * b;
     const answer = window.prompt(
       state.locale === LOCALES.FR
-        ? `Sécurité réglages : 12 ${getOperationSymbol()} ${b} = ?`
-        : `Settings safety check: 12 ${getOperationSymbol()} ${b} = ?`
+        ? `Sécurité réglages : ${a} x ${b} = ?`
+        : `Settings safety check: ${a} x ${b} = ?`
     );
     if (answer === null) {
       showFeedback(l("Accès aux réglages annulé.", "Settings access cancelled."), "bad");
