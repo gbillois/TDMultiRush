@@ -1,24 +1,32 @@
 @font-face {
-  font-family: "MR UI";
-  src: url("assets/fonts/trebuchet-ms.ttf") format("truetype");
+  font-family: "Bangers";
+  src: url("assets/fonts/bangers-400.ttf") format("truetype");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "MR UI";
-  src: url("assets/fonts/trebuchet-ms-bold.ttf") format("truetype");
+  font-family: "Nunito";
+  src: url("assets/fonts/nunito-600.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("assets/fonts/nunito-700.ttf") format("truetype");
   font-style: normal;
   font-weight: 700;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "MR Heading";
-  src: url("assets/fonts/impact.ttf") format("truetype");
+  font-family: "Nunito";
+  src: url("assets/fonts/nunito-800.ttf") format("truetype");
   font-style: normal;
-  font-weight: 400;
+  font-weight: 800;
   font-display: swap;
 }
 
@@ -62,7 +70,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
-  font-family: "MR UI", "Trebuchet MS", sans-serif;
+  font-family: "Nunito", "Trebuchet MS", sans-serif;
   color: var(--text);
   background:
     radial-gradient(circle at 20% 20%, #4e7bff 0%, rgba(78, 123, 255, 0) 35%),
@@ -187,7 +195,7 @@ body {
 
 .title-card h1 {
   margin: 4px 0 10px;
-  font-family: "MR Heading", "Impact", sans-serif;
+  font-family: "Bangers", cursive;
   font-size: 2.4rem;
   letter-spacing: 0.07em;
   color: #ffe17e;
@@ -373,7 +381,7 @@ body {
 
 .visual-style-basic .path {
   bottom: calc(
-    20% + var(--battle-upshift-y) + var(--platform-upshift-y) - var(--debug-path-offset-y) - 25px
+    20% + var(--battle-upshift-y) + var(--platform-upshift-y) - var(--debug-path-offset-y) - 40px
   );
 }
 
@@ -581,7 +589,7 @@ body {
 
 .visual-style-basic .tower {
   bottom: calc(
-    13% + var(--battle-upshift-y) + var(--platform-upshift-y) + var(--debug-tower-offset-y) - 25px
+    13% + var(--battle-upshift-y) + var(--platform-upshift-y) + var(--debug-tower-offset-y) - 40px
   );
 }
 
@@ -701,7 +709,7 @@ body {
   padding: 20px;
   z-index: 15;
   pointer-events: none;
-  font-family: "MR Heading", "Impact", sans-serif;
+  font-family: "Bangers", cursive;
   letter-spacing: 0.04em;
   line-height: 1.15;
   font-size: clamp(1.6rem, 5.2vw, 2.6rem);
@@ -726,7 +734,7 @@ body {
 
 .boss-defeat-overlay p {
   margin: 0;
-  font-family: "MR Heading", "Impact", sans-serif;
+  font-family: "Bangers", cursive;
   letter-spacing: 0.04em;
   font-size: clamp(1rem, 3.2vw, 1.2rem);
   font-weight: 400;
@@ -896,7 +904,7 @@ body {
   border-radius: 12px;
   background: rgba(8, 15, 36, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.28);
-  font-family: "MR Heading", "Impact", sans-serif;
+  font-family: "Bangers", cursive;
   letter-spacing: 0.08em;
   font-size: 1.3rem;
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
@@ -930,7 +938,7 @@ body {
 
 .game-over h2 {
   margin: 0;
-  font-family: "MR Heading", "Impact", sans-serif;
+  font-family: "Bangers", cursive;
   font-size: 2rem;
   letter-spacing: 0.08em;
 }
@@ -1160,7 +1168,7 @@ body {
 
 .shop-card h2 {
   margin: 0;
-  font-family: "MR Heading", "Impact", sans-serif;
+  font-family: "Bangers", cursive;
   letter-spacing: 0.05em;
   font-size: 1.7rem;
 }
@@ -1342,7 +1350,7 @@ body {
 
 .stats-card h2 {
   margin: 0;
-  font-family: "MR Heading", "Impact", sans-serif;
+  font-family: "Bangers", cursive;
   letter-spacing: 0.05em;
   font-size: 1.7rem;
 }
@@ -1486,7 +1494,7 @@ body {
 
 .debug-card h2 {
   margin: 0;
-  font-family: "MR Heading", "Impact", sans-serif;
+  font-family: "Bangers", cursive;
   letter-spacing: 0.05em;
   font-size: 1.7rem;
 }
@@ -1578,7 +1586,7 @@ body {
 
 .pause-card h2 {
   margin: 0;
-  font-family: "MR Heading", "Impact", sans-serif;
+  font-family: "Bangers", cursive;
   letter-spacing: 0.05em;
   font-size: 1.8rem;
 }
@@ -1632,7 +1640,7 @@ body {
 
 .tables-card h2 {
   margin: 0;
-  font-family: "MR Heading", "Impact", sans-serif;
+  font-family: "Bangers", cursive;
   letter-spacing: 0.05em;
   font-size: 1.7rem;
 }
@@ -1749,6 +1757,12 @@ body {
   font-weight: 800;
 }
 
+#pwa-update-btn {
+  grid-column: 1 / -1;
+  order: 3;
+  background: linear-gradient(180deg, #3d5dae, #2a4083);
+}
+
 #reset-mastery-btn {
   background: linear-gradient(180deg, #61728f, #445169);
 }
@@ -1765,7 +1779,7 @@ body {
 
 .question-text {
   margin: 4px 0 10px;
-  font-family: "MR UI", "Trebuchet MS", sans-serif;
+  font-family: "Nunito", "Trebuchet MS", sans-serif;
   font-weight: 900;
   font-size: 1.94rem;
   letter-spacing: 0.02em;
@@ -1786,7 +1800,7 @@ body {
   background: rgba(13, 19, 44, 0.76);
   color: #fff;
   font-weight: 800;
-  font-family: "MR UI", "Trebuchet MS", sans-serif;
+  font-family: "Nunito", "Trebuchet MS", sans-serif;
   font-size: 1.4rem;
   padding: 10px 12px;
   text-align: center;

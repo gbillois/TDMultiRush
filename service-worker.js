@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v6";
+const CACHE_VERSION = "v7";
 const STATIC_CACHE = `multipliRush-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `multipliRush-runtime-${CACHE_VERSION}`;
 
@@ -8,6 +8,10 @@ const PRECACHE_URLS = [
   "styles.css",
   "game.js",
   "manifest.webmanifest",
+  "assets/fonts/bangers-400.ttf",
+  "assets/fonts/nunito-600.ttf",
+  "assets/fonts/nunito-700.ttf",
+  "assets/fonts/nunito-800.ttf",
   "assets/icons/favicon-16x16.png",
   "assets/icons/favicon-32x32.png",
   "assets/icons/favicon-48x48.png",
@@ -51,10 +55,19 @@ function isCacheableAsset(pathname) {
     lowerPath.endsWith(".jpeg") ||
     lowerPath.endsWith(".svg") ||
     lowerPath.endsWith(".webp") ||
+    lowerPath.endsWith(".ttf") ||
+    lowerPath.endsWith(".woff") ||
+    lowerPath.endsWith(".woff2") ||
     lowerPath.endsWith(".json") ||
     lowerPath.endsWith(".webmanifest")
   );
 }
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
 
 function isAppShellRequest(pathname) {
   const clean = pathname

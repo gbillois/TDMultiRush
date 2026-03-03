@@ -93,6 +93,7 @@
     shopGrid: document.getElementById("shop-grid"),
     resumeBtn: document.getElementById("resume-btn"),
     backTitleBtn: document.getElementById("back-title-btn"),
+    pwaUpdateBtn: document.getElementById("pwa-update-btn"),
     resetMasteryBtn: document.getElementById("reset-mastery-btn")
   };
 
@@ -557,6 +558,7 @@
       "open-debug-inline-btn": "Debug",
       "pause-btn": l("Pause", "Pause"),
       "fire-btn": l("Tirer", "Fire"),
+      "pwa-update-btn": l("Mise à jour", "Update"),
       "close-tables-btn": l("Fermer", "Close"),
       "reset-mastery-btn": l("Réinitialiser la progression", "Reset Progress"),
       "close-stats-btn": l("Fermer", "Close"),
@@ -3532,6 +3534,51 @@
     refreshPauseState();
   }
 
+  async function forcePwaUpdate() {
+    if (!("serviceWorker" in navigator)) {
+      window.location.reload();
+      return;
+    }
+
+    try {
+      const registration = await navigator.serviceWorker.getRegistration();
+      if (!registration) {
+        window.location.reload();
+        return;
+      }
+
+      let didReload = false;
+      const reloadOnce = () => {
+        if (didReload) return;
+        didReload = true;
+        window.location.reload();
+      };
+
+      navigator.serviceWorker.addEventListener("controllerchange", reloadOnce, { once: true });
+      await registration.update();
+
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: "SKIP_WAITING" });
+        setTimeout(reloadOnce, 1800);
+        return;
+      }
+
+      if (registration.installing) {
+        registration.installing.addEventListener("statechange", () => {
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          }
+        });
+        setTimeout(reloadOnce, 2200);
+        return;
+      }
+    } catch (_) {
+      // Fallback: if update fails, at least refresh the app.
+    }
+
+    window.location.reload();
+  }
+
   function returnToTitleScreen() {
     clearAllEnemies();
     setCastleFire(false);
@@ -3789,6 +3836,7 @@
   dom.closeShopBtn.addEventListener("click", closeShopModal);
   dom.resumeBtn.addEventListener("click", closePauseModal);
   dom.backTitleBtn.addEventListener("click", returnToTitleScreen);
+  dom.pwaUpdateBtn?.addEventListener("click", forcePwaUpdate);
   dom.modeConfirmCancelBtn?.addEventListener("click", closeModeConfirmModal);
   dom.modeConfirmAcceptBtn?.addEventListener("click", () => {
     const mode = state.pendingModeChange;
