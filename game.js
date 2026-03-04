@@ -121,6 +121,7 @@
   const FAIRY_ASSET_DIR = "assets/themes/fairy";
   const BASIC_ASSET_DIR = "assets/themes/basic";
   const UI_BONUSES_DIR = "assets/ui/bonuses";
+  const AUDIO_SFX_DIR = "assets/audio/sfx";
 
   const STORAGE_KEY = "multipliRush.profile.v1";
   const LEADERBOARD_KEY = "multipliRush.leaderboard.v1";
@@ -182,6 +183,15 @@
   const BONUS_CHEST_Y_OFFSET_PX = 30;
   const BONUS_HERO_Y_ADJUST_PX = -50;
   const ENABLE_COMBO_DEBUG_GESTURE = false;
+  const SFX_ASSETS = {
+    shot: `${AUDIO_SFX_DIR}/shot.mp3`,
+    impact: `${AUDIO_SFX_DIR}/impact.mp3`
+  };
+  const SFX_PLAYBACK = {
+    // Measured from files (2ms RMS windows): audible transient starts around 160ms.
+    shot: { startAtSec: 0.16, stopAtSec: 1.02, volume: 0.66 },
+    impact: { startAtSec: 0, stopAtSec: 0.74, volume: 0.72 }
+  };
   const PLATFORM_UPSHIFT_NARROW_MAX_WIDTH = 430;
   const PLATFORM_UPSHIFT_Y_PX = 50;
   const ENEMY_EXTRA_SHIFT_Y = 20;
@@ -541,6 +551,7 @@
     pendingModeChange: null
   };
   state.locale = detectLocale();
+  const sfxLibrary = {};
 
   function ensureOperationProgress(operation) {
     if (!state.progressByOperation[operation]) {
@@ -582,6 +593,71 @@
 
   function l(fr, en) {
     return state.locale === LOCALES.FR ? fr : en;
+  }
+
+  function preloadSfx() {
+    for (const [key, src] of Object.entries(SFX_ASSETS)) {
+      if (sfxLibrary[key]) {
+        continue;
+      }
+      const audio = new Audio(src);
+      audio.preload = "auto";
+      audio.load();
+      sfxLibrary[key] = audio;
+    }
+  }
+
+  function playSfx(key) {
+    const src = SFX_ASSETS[key];
+    if (!src) {
+      return;
+    }
+
+    const config = SFX_PLAYBACK[key] || {};
+    const baseAudio = sfxLibrary[key] || new Audio(src);
+    sfxLibrary[key] = baseAudio;
+
+    const instance = baseAudio.cloneNode(true);
+    instance.volume = Number.isFinite(config.volume) ? config.volume : 1;
+    instance.preload = "auto";
+
+    const requestedStart = Math.max(0, Number(config.startAtSec) || 0);
+    const requestedStop = Number.isFinite(config.stopAtSec)
+      ? Math.max(requestedStart, config.stopAtSec)
+      : null;
+
+    const seekToStart = () => {
+      if (requestedStart <= 0) {
+        return;
+      }
+      try {
+        const hasDuration = Number.isFinite(instance.duration) && instance.duration > 0;
+        const safeStart = hasDuration
+          ? Math.min(requestedStart, Math.max(0, instance.duration - 0.02))
+          : requestedStart;
+        instance.currentTime = safeStart;
+      } catch (_) {
+        // Ignore seek errors and keep default start.
+      }
+    };
+
+    if (instance.readyState >= HTMLMediaElement.HAVE_METADATA) {
+      seekToStart();
+    } else {
+      instance.addEventListener("loadedmetadata", seekToStart, { once: true });
+    }
+
+    const playPromise = instance.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {});
+    }
+
+    if (requestedStop !== null) {
+      const maxPlayMs = Math.max(16, Math.round((requestedStop - requestedStart) * 1000));
+      setTimeout(() => {
+        instance.pause();
+      }, maxPlayMs);
+    }
   }
 
   function localizeCatalogName(item) {
@@ -2774,6 +2850,7 @@
     originX = clamp(originX, 0, track.width);
     originY = clamp(originY - 50, 0, track.height);
     dom.tower?.classList.add("cast");
+    playSfx("shot");
 
     const p = document.createElement("div");
     p.className = "projectile";
@@ -2797,6 +2874,7 @@
 
       target.hp -= 1;
       updateEnemyHp(target);
+      playSfx("impact");
       enemyHitFx(target.screenX, target.screenY);
 
       if (target.hp <= 0) {
@@ -4277,6 +4355,7 @@
   loadProfile();
   loadDebugTuning();
   loadLeaderboard();
+  preloadSfx();
   applyLocalizedStaticTexts();
   applyVisualStyle();
   renderDebugControls();

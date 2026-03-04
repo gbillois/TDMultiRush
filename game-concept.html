@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MultiplyRush TD - Game Concept</title>
+    <style>
+      @font-face {
+        font-family: "Bangers";
+        src: url("assets/fonts/bangers-400.ttf") format("truetype");
+        font-weight: 400;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: "Nunito";
+        src: url("assets/fonts/nunito-600.ttf") format("truetype");
+        font-weight: 600;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: "Nunito";
+        src: url("assets/fonts/nunito-800.ttf") format("truetype");
+        font-weight: 800;
+        font-style: normal;
+      }
+
+      :root {
+        --bg-top: #0e1a35;
+        --bg-mid: #182b56;
+        --bg-bottom: #29578f;
+        --card: #f7f9ff;
+        --ink: #172036;
+        --ink-soft: #3f4f72;
+        --line: #d7e0f4;
+        --accent: #f7b733;
+        --accent-2: #ff7b54;
+        --good: #2a9d8f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Nunito", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.15), transparent 34%),
+          radial-gradient(circle at 82% 82%, rgba(255, 190, 100, 0.2), transparent 42%),
+          linear-gradient(160deg, var(--bg-top), var(--bg-mid) 50%, var(--bg-bottom));
+      }
+
+      .wrap {
+        width: min(980px, 92vw);
+        margin: 36px auto 50px;
+      }
+
+      .hero {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 22px;
+        padding: 26px 24px;
+        color: #f9fbff;
+        box-shadow: 0 16px 36px rgba(5, 12, 30, 0.25);
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-family: "Bangers", cursive;
+        letter-spacing: 1px;
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        line-height: 1;
+      }
+
+      .hero p {
+        margin: 10px 0 0;
+        color: #dce8ff;
+        max-width: 70ch;
+      }
+
+      .lang-section {
+        margin-top: 20px;
+        background: var(--card);
+        border-radius: 22px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        box-shadow: 0 12px 26px rgba(8, 16, 36, 0.15);
+      }
+
+      .lang-title {
+        margin: 0 0 12px;
+        display: inline-block;
+        font-size: 0.9rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #ffffff;
+        background: linear-gradient(120deg, var(--accent), var(--accent-2));
+        border-radius: 999px;
+        padding: 6px 10px;
+      }
+
+      h2 {
+        margin: 8px 0 8px;
+        font-size: clamp(1.3rem, 3vw, 1.8rem);
+      }
+
+      p {
+        margin: 0 0 14px;
+        color: var(--ink-soft);
+      }
+
+      .grid {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+      }
+
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 1.04rem;
+      }
+
+      .card ul {
+        margin: 0;
+        padding-left: 18px;
+        color: #2e3b5d;
+      }
+
+      .learn {
+        margin-top: 14px;
+        border-left: 5px solid var(--good);
+        background: #ecfbf8;
+        border-radius: 10px;
+        padding: 12px 12px 12px 14px;
+      }
+
+      .learn strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .learn ul {
+        margin: 0;
+        padding-left: 18px;
+        color: #1f3644;
+      }
+
+      footer {
+        margin-top: 16px;
+        color: #cfdbf7;
+        font-size: 0.92rem;
+        text-align: center;
+      }
+
+      @media (max-width: 640px) {
+        .wrap {
+          width: min(980px, 94vw);
+          margin-top: 20px;
+        }
+
+        .hero,
+        .lang-section {
+          border-radius: 18px;
+          padding: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <header class="hero">
+        <h1>MultiplyRush TD</h1>
+        <p>
+          A tower-defense game where each correct math answer becomes a magical shot. The goal is simple:
+          protect the castle while building fast and durable arithmetic reflexes.
+        </p>
+      </header>
+
+      <section class="lang-section" aria-labelledby="en-title">
+        <span class="lang-title">English</span>
+        <h2 id="en-title">Game Concept</h2>
+        <p>
+          MultiplyRush TD turns mental arithmetic into action. Enemies advance on your castle, and your answers
+          control the defense: solve quickly and accurately to fire projectiles, clear waves, and survive through
+          increasingly demanding levels.
+        </p>
+
+        <div class="grid" aria-label="Game modes in English">
+          <article class="card">
+            <h3>Normal Mode</h3>
+            <ul>
+              <li>Correct answer: automatic magic shot.</li>
+              <li>Wrong answer: no shot, enemies keep advancing.</li>
+              <li>Best for reaction speed under pressure.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Simple Mode</h3>
+            <ul>
+              <li>Enemies move mainly when mistakes happen.</li>
+              <li>4 mistakes trigger defeat.</li>
+              <li>Best for beginners and confidence building.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Operation & Style Variants</h3>
+            <ul>
+              <li>Multiplication and addition practice.</li>
+              <li>Different visual worlds (Castle, Fairy, Basic).</li>
+              <li>Progression through waves, boss challenge, and upgrades.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="learn" aria-label="Learning outcomes in English">
+          <strong>What players learn</strong>
+          <ul>
+            <li>Core multiplication/addition fluency and recall.</li>
+            <li>Accuracy under time pressure.</li>
+            <li>Error recovery and sustained concentration.</li>
+            <li>Mental rhythm: think, answer, verify, adapt.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="lang-section" aria-labelledby="fr-title">
+        <span class="lang-title">Français</span>
+        <h2 id="fr-title">Concept du jeu</h2>
+        <p>
+          MultiplyRush TD transforme le calcul mental en action. Les ennemis avancent vers le château, et tes
+          réponses pilotent la défense: répondre vite et juste déclenche les tirs, nettoie les vagues et permet
+          de tenir face à une difficulté croissante.
+        </p>
+
+        <div class="grid" aria-label="Modes de jeu en français">
+          <article class="card">
+            <h3>Mode Normal</h3>
+            <ul>
+              <li>Bonne réponse: tir magique automatique.</li>
+              <li>Mauvaise réponse: pas de tir, les ennemis progressent.</li>
+              <li>Idéal pour travailler la vitesse sous pression.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Mode Simple</h3>
+            <ul>
+              <li>Les ennemis avancent surtout en cas d'erreur.</li>
+              <li>4 erreurs provoquent la défaite.</li>
+              <li>Idéal pour débuter et renforcer la confiance.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Variantes Opérations & Univers</h3>
+            <ul>
+              <li>Entraînement en multiplication et en addition.</li>
+              <li>Plusieurs styles visuels (Castle, Fairy, Basic).</li>
+              <li>Progression par vagues, boss final et améliorations.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="learn" aria-label="Apprentissages en français">
+          <strong>Ce que le jeu permet d'apprendre</strong>
+          <ul>
+            <li>Automatisation des tables et du calcul mental de base.</li>
+            <li>Précision malgré la pression temporelle.</li>
+            <li>Gestion de l'erreur et maintien de l'attention.</li>
+            <li>Rythme mental: réfléchir, répondre, vérifier, s'adapter.</li>
+          </ul>
+        </div>
+      </section>
+
+      <footer>MultiplyRush TD - pedagogical overview page</footer>
+    </main>
+  </body>
+</html>

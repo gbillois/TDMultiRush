@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v7";
+const CACHE_VERSION = "v8";
 const STATIC_CACHE = `multipliRush-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `multipliRush-runtime-${CACHE_VERSION}`;
 
@@ -18,7 +18,9 @@ const PRECACHE_URLS = [
   "assets/icons/apple-touch-icon.png",
   "assets/icons/icon-192.png",
   "assets/icons/icon-512.png",
-  "assets/icons/icon-512-maskable.png"
+  "assets/icons/icon-512-maskable.png",
+  "assets/audio/sfx/shot.mp3",
+  "assets/audio/sfx/impact.mp3"
 ];
 
 self.addEventListener("install", (event) => {
@@ -58,6 +60,9 @@ function isCacheableAsset(pathname) {
     lowerPath.endsWith(".ttf") ||
     lowerPath.endsWith(".woff") ||
     lowerPath.endsWith(".woff2") ||
+    lowerPath.endsWith(".mp3") ||
+    lowerPath.endsWith(".wav") ||
+    lowerPath.endsWith(".ogg") ||
     lowerPath.endsWith(".json") ||
     lowerPath.endsWith(".webmanifest")
   );
