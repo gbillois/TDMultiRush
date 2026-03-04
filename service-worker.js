@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v9";
+const CACHE_VERSION = "v10";
 const STATIC_CACHE = `multipliRush-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `multipliRush-runtime-${CACHE_VERSION}`;
 
@@ -22,6 +22,10 @@ const PRECACHE_URLS = [
   "assets/audio/sfx/shot.mp3",
   "assets/audio/sfx/impact.mp3",
   "assets/audio/sfx/enterdoor.mp3",
+  "assets/audio/sfx/ennemi1.mp3",
+  "assets/audio/sfx/ennemi2.mp3",
+  "assets/audio/sfx/ennemi3.mp3",
+  "assets/audio/sfx/ennemi4.mp3",
   "assets/audio/music/castle-01.ogg"
 ];
 

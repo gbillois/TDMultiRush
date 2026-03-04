@@ -98,9 +98,14 @@
     pwaUpdateBtn: document.getElementById("pwa-update-btn"),
     resetMasteryBtn: document.getElementById("reset-mastery-btn"),
     audioSfxLabel: document.getElementById("audio-sfx-label"),
-    audioMusicLabel: document.getElementById("audio-music-label"),
     audioSfxToggleBtn: document.getElementById("audio-sfx-toggle-btn"),
-    audioMusicToggleBtn: document.getElementById("audio-music-toggle-btn")
+    audioVolumeTitle: document.getElementById("audio-volume-title"),
+    audioSfxVolumeLabel: document.getElementById("audio-sfx-volume-label"),
+    audioMusicVolumeLabel: document.getElementById("audio-music-volume-label"),
+    audioSfxVolumeSlider: document.getElementById("audio-sfx-volume"),
+    audioMusicVolumeSlider: document.getElementById("audio-music-volume"),
+    audioSfxVolumeValue: document.getElementById("audio-sfx-volume-value"),
+    audioMusicVolumeValue: document.getElementById("audio-music-volume-value")
   };
 
   const MODES = {
@@ -191,13 +196,21 @@
   const SFX_ASSETS = {
     shot: `${AUDIO_SFX_DIR}/shot.mp3`,
     impact: `${AUDIO_SFX_DIR}/impact.mp3`,
-    enterDoor: `${AUDIO_SFX_DIR}/enterdoor.mp3`
+    enterDoor: `${AUDIO_SFX_DIR}/enterdoor.mp3`,
+    enemyForest1: `${AUDIO_SFX_DIR}/ennemi1.mp3`,
+    enemyForest2: `${AUDIO_SFX_DIR}/ennemi2.mp3`,
+    enemyForest3: `${AUDIO_SFX_DIR}/ennemi3.mp3`,
+    enemyForest4: `${AUDIO_SFX_DIR}/ennemi4.mp3`
   };
   const SFX_PLAYBACK = {
     // Measured from files (2ms RMS windows): audible transient starts around 160ms.
     shot: { startAtSec: 0.16, stopAtSec: 1.02, volume: 0.66 },
     impact: { startAtSec: 0, stopAtSec: 0.74, volume: 0.72 },
-    enterDoor: { startAtSec: 0, stopAtSec: 0.92, volume: 0.7 }
+    enterDoor: { startAtSec: 0, stopAtSec: 0.92, volume: 0.7 },
+    enemyForest1: { volume: 0.78 },
+    enemyForest2: { volume: 0.78 },
+    enemyForest3: { volume: 0.78 },
+    enemyForest4: { volume: 0.78 }
   };
   const MUSIC_ASSETS = {
     castleLevelOne: `${AUDIO_MUSIC_DIR}/castle-01.ogg`
@@ -205,6 +218,16 @@
   const MUSIC_PLAYBACK = {
     castleLevelOne: { volume: 0.44, loop: true }
   };
+  const AUDIO_SFX_VOLUME_DEFAULT = 0.6;
+  const AUDIO_MUSIC_VOLUME_DEFAULT = 0.3;
+  const ENEMY_AMBIENT_INTERVAL_MIN_MS = 1000;
+  const ENEMY_AMBIENT_INTERVAL_MAX_MS = 3000;
+  const FOREST_ENEMY_AMBIENT_SFX_KEYS = [
+    "enemyForest1",
+    "enemyForest2",
+    "enemyForest3",
+    "enemyForest4"
+  ];
   const PLATFORM_UPSHIFT_NARROW_MAX_WIDTH = 430;
   const PLATFORM_UPSHIFT_Y_PX = 50;
   const ENEMY_EXTRA_SHIFT_Y = 20;
@@ -563,8 +586,12 @@
     },
     pendingModeChange: null,
     audio: {
-      sfxEnabled: false,
-      musicEnabled: false
+      sfxEnabled: true,
+      sfxVolume: AUDIO_SFX_VOLUME_DEFAULT,
+      musicVolume: AUDIO_MUSIC_VOLUME_DEFAULT
+    },
+    enemyAmbient: {
+      timeoutId: null
     }
   };
   state.locale = detectLocale();
@@ -638,9 +665,45 @@
       audio.preload = "auto";
       const config = MUSIC_PLAYBACK[key] || {};
       audio.loop = !!config.loop;
-      audio.volume = Number.isFinite(config.volume) ? config.volume : 0.5;
+      audio.volume = getMusicVolume() * (Number.isFinite(config.volume) ? config.volume : 0.5);
       audio.load();
       musicLibrary[key] = audio;
+    }
+  }
+
+  function getSfxVolume() {
+    const configured = Number(state.audio?.sfxVolume);
+    if (!Number.isFinite(configured)) {
+      return AUDIO_SFX_VOLUME_DEFAULT;
+    }
+    return clamp(configured, 0, 1);
+  }
+
+  function getMusicVolume() {
+    const configured = Number(state.audio?.musicVolume);
+    if (!Number.isFinite(configured)) {
+      return AUDIO_MUSIC_VOLUME_DEFAULT;
+    }
+    return clamp(configured, 0, 1);
+  }
+
+  function formatVolumePercent(value) {
+    return `${Math.round(clamp(value, 0, 1) * 100)}%`;
+  }
+
+  function updateAudioVolumeControls() {
+    const channels = [
+      { value: getSfxVolume(), slider: dom.audioSfxVolumeSlider, label: dom.audioSfxVolumeValue },
+      { value: getMusicVolume(), slider: dom.audioMusicVolumeSlider, label: dom.audioMusicVolumeValue }
+    ];
+    for (const channel of channels) {
+      const percent = Math.round(channel.value * 100);
+      if (channel.slider) {
+        channel.slider.value = String(percent);
+      }
+      if (channel.label) {
+        channel.label.textContent = formatVolumePercent(channel.value);
+      }
     }
   }
 
@@ -651,12 +714,7 @@
         ? l("Activés", "On")
         : l("Coupés", "Off");
     }
-    if (dom.audioMusicToggleBtn) {
-      dom.audioMusicToggleBtn.classList.toggle("active", !!state.audio.musicEnabled);
-      dom.audioMusicToggleBtn.textContent = state.audio.musicEnabled
-        ? l("Activée", "On")
-        : l("Coupée", "Off");
-    }
+    updateAudioVolumeControls();
   }
 
   function playSfx(key) {
@@ -674,7 +732,8 @@
     sfxLibrary[key] = baseAudio;
 
     const instance = baseAudio.cloneNode(true);
-    instance.volume = Number.isFinite(config.volume) ? config.volume : 1;
+    const sfxGain = Number.isFinite(config.volume) ? config.volume : 1;
+    instance.volume = clamp(getSfxVolume() * sfxGain, 0, 1);
     instance.preload = "auto";
 
     const requestedStart = Math.max(0, Number(config.startAtSec) || 0);
@@ -720,10 +779,8 @@
     if (!state.started || state.gameOver) {
       return null;
     }
-    if (state.visualStyle !== VISUAL_STYLES.CASTLE) {
-      return null;
-    }
-    if (state.wave !== 1) {
+    const world = getCurrentWorldTheme();
+    if (!world || world.id !== "forest") {
       return null;
     }
     return "castleLevelOne";
@@ -750,9 +807,10 @@
 
     const config = MUSIC_PLAYBACK[musicSession.activeKey] || {};
     musicSession.element.loop = !!config.loop;
-    musicSession.element.volume = Number.isFinite(config.volume) ? config.volume : 0.5;
+    const musicGain = Number.isFinite(config.volume) ? config.volume : 0.5;
+    musicSession.element.volume = clamp(getMusicVolume() * musicGain, 0, 1);
 
-    if (state.audio.musicEnabled && !state.paused) {
+    if (getMusicVolume() > 0.001 && !state.paused) {
       const playPromise = musicSession.element.play();
       if (playPromise && typeof playPromise.catch === "function") {
         playPromise.catch(() => {});
@@ -763,18 +821,77 @@
     musicSession.element.pause();
   }
 
-  function setAudioChannelEnabled(channel, enabled) {
-    if (channel === "sfx") {
-      state.audio.sfxEnabled = !!enabled;
-    } else if (channel === "music") {
-      state.audio.musicEnabled = !!enabled;
-    } else {
+  function clearEnemyAmbientLoop() {
+    if (state.enemyAmbient.timeoutId) {
+      clearTimeout(state.enemyAmbient.timeoutId);
+      state.enemyAmbient.timeoutId = null;
+    }
+  }
+
+  function canPlayForestEnemyAmbient() {
+    if (!state.started || state.paused || state.gameOver) {
+      return false;
+    }
+    if (!state.audio.sfxEnabled || getSfxVolume() <= 0.001) {
+      return false;
+    }
+    if (!state.enemies.length) {
+      return false;
+    }
+    const world = getCurrentWorldTheme();
+    return !!world && world.id === "forest";
+  }
+
+  function scheduleForestEnemyAmbient() {
+    if (!canPlayForestEnemyAmbient() || state.enemyAmbient.timeoutId) {
       return;
     }
+    const delay = randomInt(ENEMY_AMBIENT_INTERVAL_MIN_MS, ENEMY_AMBIENT_INTERVAL_MAX_MS);
+    state.enemyAmbient.timeoutId = setTimeout(() => {
+      state.enemyAmbient.timeoutId = null;
+      if (!canPlayForestEnemyAmbient()) {
+        return;
+      }
+      const index = randomInt(0, FOREST_ENEMY_AMBIENT_SFX_KEYS.length - 1);
+      playSfx(FOREST_ENEMY_AMBIENT_SFX_KEYS[index]);
+      scheduleForestEnemyAmbient();
+    }, delay);
+  }
+
+  function syncEnemyAmbientSfx() {
+    if (!canPlayForestEnemyAmbient()) {
+      clearEnemyAmbientLoop();
+      return;
+    }
+    scheduleForestEnemyAmbient();
+  }
+
+  function setAudioChannelEnabled(channel, enabled) {
+    if (channel !== "sfx") {
+      return;
+    }
+    state.audio.sfxEnabled = !!enabled;
 
     updateAudioSettingsButtons();
     saveProfile();
     syncBackgroundMusic();
+    syncEnemyAmbientSfx();
+  }
+
+  function setAudioChannelVolume(channel, value) {
+    const normalizedValue = clamp(Number(value) || 0, 0, 1);
+    if (channel === "sfx") {
+      state.audio.sfxVolume = normalizedValue;
+    } else if (channel === "music") {
+      state.audio.musicVolume = normalizedValue;
+    } else {
+      return;
+    }
+
+    updateAudioVolumeControls();
+    saveProfile();
+    syncBackgroundMusic();
+    syncEnemyAmbientSfx();
   }
 
   function localizeCatalogName(item) {
@@ -936,7 +1053,9 @@
     const operationLabel = document.getElementById("operation-label");
     if (operationLabel) operationLabel.textContent = l("Opération", "Operation");
     if (dom.audioSfxLabel) dom.audioSfxLabel.textContent = l("Effets sonores", "Sound effects");
-    if (dom.audioMusicLabel) dom.audioMusicLabel.textContent = l("Musique", "Music");
+    if (dom.audioVolumeTitle) dom.audioVolumeTitle.textContent = l("Volumes", "Volumes");
+    if (dom.audioSfxVolumeLabel) dom.audioSfxVolumeLabel.textContent = l("Volume effets sonores", "SFX volume");
+    if (dom.audioMusicVolumeLabel) dom.audioMusicVolumeLabel.textContent = l("Volume musique", "Music volume");
     updateAudioSettingsButtons();
     for (const button of dom.operationButtons) {
       if (button.dataset.operation === OPERATIONS.MULTIPLICATION) {
@@ -1164,14 +1283,43 @@
   function normalizeAudioSettings(rawValue) {
     if (!rawValue || typeof rawValue !== "object") {
       return {
-        sfxEnabled: false,
-        musicEnabled: false
+        sfxEnabled: true,
+        sfxVolume: AUDIO_SFX_VOLUME_DEFAULT,
+        musicVolume: AUDIO_MUSIC_VOLUME_DEFAULT
       };
     }
 
+    const legacyVolumes =
+      rawValue.volumeByTrack && typeof rawValue.volumeByTrack === "object"
+        ? rawValue.volumeByTrack
+        : rawValue.volumes && typeof rawValue.volumes === "object"
+          ? rawValue.volumes
+          : {};
+    const legacySfxCandidates = [legacyVolumes.shot, legacyVolumes.impact, legacyVolumes.enterDoor]
+      .map((value) => Number(value))
+      .filter((value) => Number.isFinite(value));
+    const legacySfxAverage = legacySfxCandidates.length
+      ? legacySfxCandidates.reduce((sum, value) => sum + value, 0) / legacySfxCandidates.length
+      : AUDIO_SFX_VOLUME_DEFAULT;
+    const legacyMusic = Number(legacyVolumes.castleLevelOne);
+    const rawSfxVolume = Number(rawValue.sfxVolume);
+    const rawMusicVolume = Number(rawValue.musicVolume);
+    const migratedMusicFallback = rawValue.musicEnabled === false
+      ? 0
+      : (Number.isFinite(legacyMusic) ? legacyMusic : AUDIO_MUSIC_VOLUME_DEFAULT);
+
     return {
-      sfxEnabled: rawValue.sfxEnabled === true,
-      musicEnabled: rawValue.musicEnabled === true
+      sfxEnabled: rawValue.sfxEnabled !== false,
+      sfxVolume: clamp(
+        Number.isFinite(rawSfxVolume) ? rawSfxVolume : legacySfxAverage,
+        0,
+        1
+      ),
+      musicVolume: clamp(
+        Number.isFinite(rawMusicVolume) ? rawMusicVolume : migratedMusicFallback,
+        0,
+        1
+      )
     };
   }
 
@@ -1425,7 +1573,11 @@
       state.shopUnlocks = createDefaultShopUnlocks();
       state.equippedSkins = createDefaultEquippedSkins();
       state.shopCategory = SHOP_DEFAULT_CATEGORY;
-      state.audio = { sfxEnabled: false, musicEnabled: false };
+      state.audio = {
+        sfxEnabled: true,
+        sfxVolume: AUDIO_SFX_VOLUME_DEFAULT,
+        musicVolume: AUDIO_MUSIC_VOLUME_DEFAULT
+      };
     }
   }
 
@@ -2945,6 +3097,7 @@
     for (const enemy of state.enemies) {
       enemy.el.remove();
     }
+    clearEnemyAmbientLoop();
     state.enemies = [];
     state.queuedSpawns = 0;
     clearBonusChest();
@@ -3037,6 +3190,7 @@
     const feedbackKind = options.feedbackKind || "bad";
 
     state.gameOver = true;
+    clearEnemyAmbientLoop();
     clearBonusChest();
     state.bossBattle.active = false;
     setBossVisibility(false);
@@ -3735,6 +3889,7 @@
     updateTowerSkin();
     banner(state.locale === LOCALES.FR ? `Niveau ${state.wave}` : `Level ${state.wave}`);
     syncBackgroundMusic();
+    syncEnemyAmbientSfx();
     prepareBonusChestForWave();
 
     if (isSimpleMode()) {
@@ -3892,6 +4047,7 @@
     const debugOpen = !dom.debugModal.classList.contains("hidden");
     state.paused = tablesOpen || statsOpen || shopOpen || pauseOpen || modeConfirmOpen || debugOpen;
     syncBackgroundMusic();
+    syncEnemyAmbientSfx();
   }
 
   function closeModeConfirmModal() {
@@ -4044,6 +4200,7 @@
 
   function returnToTitleScreen() {
     clearAllEnemies();
+    clearEnemyAmbientLoop();
     setCastleFire(false);
     stopVictoryCelebration();
     setBossVisibility(false);
@@ -4190,6 +4347,7 @@
       checkWaveEnd();
     }
 
+    syncEnemyAmbientSfx();
     requestAnimationFrame(gameLoop);
   }
 
@@ -4293,8 +4451,11 @@
   dom.audioSfxToggleBtn?.addEventListener("click", () => {
     setAudioChannelEnabled("sfx", !state.audio.sfxEnabled);
   });
-  dom.audioMusicToggleBtn?.addEventListener("click", () => {
-    setAudioChannelEnabled("music", !state.audio.musicEnabled);
+  dom.audioSfxVolumeSlider?.addEventListener("input", (event) => {
+    setAudioChannelVolume("sfx", Number(event.target.value) / 100);
+  });
+  dom.audioMusicVolumeSlider?.addEventListener("input", (event) => {
+    setAudioChannelVolume("music", Number(event.target.value) / 100);
   });
 
   dom.startBtn.addEventListener("click", startGame);

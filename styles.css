@@ -1692,6 +1692,38 @@ body {
   grid-template-columns: 1fr;
 }
 
+.audio-volume-controls {
+  margin-top: 8px;
+}
+
+.audio-volume-label {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.audio-volume-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.audio-volume-slider {
+  width: 100%;
+  accent-color: #ffb15c;
+}
+
+.audio-volume-value {
+  min-width: 46px;
+  text-align: right;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #ffe6b7;
+}
+
 .visual-style-buttons button {
   border: 1px solid rgba(255, 255, 255, 0.26);
   border-radius: 10px;
