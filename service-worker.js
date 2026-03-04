@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v8";
+const CACHE_VERSION = "v9";
 const STATIC_CACHE = `multipliRush-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `multipliRush-runtime-${CACHE_VERSION}`;
 
@@ -20,7 +20,9 @@ const PRECACHE_URLS = [
   "assets/icons/icon-512.png",
   "assets/icons/icon-512-maskable.png",
   "assets/audio/sfx/shot.mp3",
-  "assets/audio/sfx/impact.mp3"
+  "assets/audio/sfx/impact.mp3",
+  "assets/audio/sfx/enterdoor.mp3",
+  "assets/audio/music/castle-01.ogg"
 ];
 
 self.addEventListener("install", (event) => {

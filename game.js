@@ -96,7 +96,11 @@
     resumeBtn: document.getElementById("resume-btn"),
     backTitleBtn: document.getElementById("back-title-btn"),
     pwaUpdateBtn: document.getElementById("pwa-update-btn"),
-    resetMasteryBtn: document.getElementById("reset-mastery-btn")
+    resetMasteryBtn: document.getElementById("reset-mastery-btn"),
+    audioSfxLabel: document.getElementById("audio-sfx-label"),
+    audioMusicLabel: document.getElementById("audio-music-label"),
+    audioSfxToggleBtn: document.getElementById("audio-sfx-toggle-btn"),
+    audioMusicToggleBtn: document.getElementById("audio-music-toggle-btn")
   };
 
   const MODES = {
@@ -122,6 +126,7 @@
   const BASIC_ASSET_DIR = "assets/themes/basic";
   const UI_BONUSES_DIR = "assets/ui/bonuses";
   const AUDIO_SFX_DIR = "assets/audio/sfx";
+  const AUDIO_MUSIC_DIR = "assets/audio/music";
 
   const STORAGE_KEY = "multipliRush.profile.v1";
   const LEADERBOARD_KEY = "multipliRush.leaderboard.v1";
@@ -185,12 +190,20 @@
   const ENABLE_COMBO_DEBUG_GESTURE = false;
   const SFX_ASSETS = {
     shot: `${AUDIO_SFX_DIR}/shot.mp3`,
-    impact: `${AUDIO_SFX_DIR}/impact.mp3`
+    impact: `${AUDIO_SFX_DIR}/impact.mp3`,
+    enterDoor: `${AUDIO_SFX_DIR}/enterdoor.mp3`
   };
   const SFX_PLAYBACK = {
     // Measured from files (2ms RMS windows): audible transient starts around 160ms.
     shot: { startAtSec: 0.16, stopAtSec: 1.02, volume: 0.66 },
-    impact: { startAtSec: 0, stopAtSec: 0.74, volume: 0.72 }
+    impact: { startAtSec: 0, stopAtSec: 0.74, volume: 0.72 },
+    enterDoor: { startAtSec: 0, stopAtSec: 0.92, volume: 0.7 }
+  };
+  const MUSIC_ASSETS = {
+    castleLevelOne: `${AUDIO_MUSIC_DIR}/castle-01.ogg`
+  };
+  const MUSIC_PLAYBACK = {
+    castleLevelOne: { volume: 0.44, loop: true }
   };
   const PLATFORM_UPSHIFT_NARROW_MAX_WIDTH = 430;
   const PLATFORM_UPSHIFT_Y_PX = 50;
@@ -548,10 +561,19 @@
       forceEveryWave: false,
       forceHeroEveryWave: false
     },
-    pendingModeChange: null
+    pendingModeChange: null,
+    audio: {
+      sfxEnabled: false,
+      musicEnabled: false
+    }
   };
   state.locale = detectLocale();
   const sfxLibrary = {};
+  const musicLibrary = {};
+  const musicSession = {
+    activeKey: null,
+    element: null
+  };
 
   function ensureOperationProgress(operation) {
     if (!state.progressByOperation[operation]) {
@@ -607,7 +629,41 @@
     }
   }
 
+  function preloadMusic() {
+    for (const [key, src] of Object.entries(MUSIC_ASSETS)) {
+      if (musicLibrary[key]) {
+        continue;
+      }
+      const audio = new Audio(src);
+      audio.preload = "auto";
+      const config = MUSIC_PLAYBACK[key] || {};
+      audio.loop = !!config.loop;
+      audio.volume = Number.isFinite(config.volume) ? config.volume : 0.5;
+      audio.load();
+      musicLibrary[key] = audio;
+    }
+  }
+
+  function updateAudioSettingsButtons() {
+    if (dom.audioSfxToggleBtn) {
+      dom.audioSfxToggleBtn.classList.toggle("active", !!state.audio.sfxEnabled);
+      dom.audioSfxToggleBtn.textContent = state.audio.sfxEnabled
+        ? l("Activés", "On")
+        : l("Coupés", "Off");
+    }
+    if (dom.audioMusicToggleBtn) {
+      dom.audioMusicToggleBtn.classList.toggle("active", !!state.audio.musicEnabled);
+      dom.audioMusicToggleBtn.textContent = state.audio.musicEnabled
+        ? l("Activée", "On")
+        : l("Coupée", "Off");
+    }
+  }
+
   function playSfx(key) {
+    if (!state.audio.sfxEnabled) {
+      return;
+    }
+
     const src = SFX_ASSETS[key];
     if (!src) {
       return;
@@ -658,6 +714,67 @@
         instance.pause();
       }, maxPlayMs);
     }
+  }
+
+  function getDesiredMusicTrackKey() {
+    if (!state.started || state.gameOver) {
+      return null;
+    }
+    if (state.visualStyle !== VISUAL_STYLES.CASTLE) {
+      return null;
+    }
+    if (state.wave !== 1) {
+      return null;
+    }
+    return "castleLevelOne";
+  }
+
+  function syncBackgroundMusic() {
+    const desiredKey = getDesiredMusicTrackKey();
+    if (desiredKey !== musicSession.activeKey) {
+      if (musicSession.element) {
+        musicSession.element.pause();
+        try {
+          musicSession.element.currentTime = 0;
+        } catch (_) {
+          // Ignore rewind failures.
+        }
+      }
+      musicSession.activeKey = desiredKey;
+      musicSession.element = desiredKey ? musicLibrary[desiredKey] || null : null;
+    }
+
+    if (!musicSession.element) {
+      return;
+    }
+
+    const config = MUSIC_PLAYBACK[musicSession.activeKey] || {};
+    musicSession.element.loop = !!config.loop;
+    musicSession.element.volume = Number.isFinite(config.volume) ? config.volume : 0.5;
+
+    if (state.audio.musicEnabled && !state.paused) {
+      const playPromise = musicSession.element.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+      return;
+    }
+
+    musicSession.element.pause();
+  }
+
+  function setAudioChannelEnabled(channel, enabled) {
+    if (channel === "sfx") {
+      state.audio.sfxEnabled = !!enabled;
+    } else if (channel === "music") {
+      state.audio.musicEnabled = !!enabled;
+    } else {
+      return;
+    }
+
+    updateAudioSettingsButtons();
+    saveProfile();
+    syncBackgroundMusic();
   }
 
   function localizeCatalogName(item) {
@@ -818,6 +935,9 @@
     if (visualStyleLabel) visualStyleLabel.textContent = l("Style visuel", "Visual Style");
     const operationLabel = document.getElementById("operation-label");
     if (operationLabel) operationLabel.textContent = l("Opération", "Operation");
+    if (dom.audioSfxLabel) dom.audioSfxLabel.textContent = l("Effets sonores", "Sound effects");
+    if (dom.audioMusicLabel) dom.audioMusicLabel.textContent = l("Musique", "Music");
+    updateAudioSettingsButtons();
     for (const button of dom.operationButtons) {
       if (button.dataset.operation === OPERATIONS.MULTIPLICATION) {
         button.textContent = l("Multiplication", "Multiplication");
@@ -1039,6 +1159,20 @@
       return VISUAL_STYLES.CASTLE;
     }
     return VISUAL_STYLES.CASTLE;
+  }
+
+  function normalizeAudioSettings(rawValue) {
+    if (!rawValue || typeof rawValue !== "object") {
+      return {
+        sfxEnabled: false,
+        musicEnabled: false
+      };
+    }
+
+    return {
+      sfxEnabled: rawValue.sfxEnabled === true,
+      musicEnabled: rawValue.musicEnabled === true
+    };
   }
 
   function styleSupportsShop(style) {
@@ -1269,6 +1403,7 @@
       state.bestWaveReached = Math.max(1, Number.parseInt(parsed.bestWaveReached, 10) || 1);
       state.shopUnlocks = normalizeShopUnlocks(parsed.shopUnlocks);
       state.equippedSkins = normalizeEquippedSkins(parsed.equippedSkins, state.shopUnlocks);
+      state.audio = normalizeAudioSettings(parsed.audio);
       if (
         parsed.shopCategory === SHOP_CATEGORIES.TOWER ||
         parsed.shopCategory === SHOP_CATEGORIES.CASTLE ||
@@ -1290,6 +1425,7 @@
       state.shopUnlocks = createDefaultShopUnlocks();
       state.equippedSkins = createDefaultEquippedSkins();
       state.shopCategory = SHOP_DEFAULT_CATEGORY;
+      state.audio = { sfxEnabled: false, musicEnabled: false };
     }
   }
 
@@ -1305,6 +1441,7 @@
       bestWaveReached: state.bestWaveReached,
       shopUnlocks: state.shopUnlocks,
       equippedSkins: state.equippedSkins,
+      audio: state.audio,
       // Legacy fields kept for backward compatibility with old profile readers.
       selectedTables: [...activeProgress.selectedTables],
       tableMastery: activeProgress.tableMastery,
@@ -2257,6 +2394,7 @@
 
     renderDebugControls();
     applyDebugTuningToView();
+    syncBackgroundMusic();
   }
 
   function setVisualStyle(style) {
@@ -2903,6 +3041,7 @@
     state.bossBattle.active = false;
     setBossVisibility(false);
     stopVictoryCelebration();
+    syncBackgroundMusic();
     updateHud();
     state.scoreSubmitted = false;
     if (dom.gameOverTitle) {
@@ -3595,6 +3734,7 @@
     applyWorldTheme();
     updateTowerSkin();
     banner(state.locale === LOCALES.FR ? `Niveau ${state.wave}` : `Level ${state.wave}`);
+    syncBackgroundMusic();
     prepareBonusChestForWave();
 
     if (isSimpleMode()) {
@@ -3661,6 +3801,7 @@
       return;
     }
 
+    playSfx("enterDoor");
     state.lives -= 1;
     state.combo = 0;
     updateHud();
@@ -3731,6 +3872,7 @@
     updateHud();
     updateBossPanel();
     applyWorldTheme();
+    syncBackgroundMusic();
     nextQuestion();
     setupWave();
   }
@@ -3738,6 +3880,7 @@
   function refreshPauseState() {
     if (!state.started) {
       state.paused = false;
+      syncBackgroundMusic();
       return;
     }
 
@@ -3748,6 +3891,7 @@
     const modeConfirmOpen = !dom.modeConfirmModal.classList.contains("hidden");
     const debugOpen = !dom.debugModal.classList.contains("hidden");
     state.paused = tablesOpen || statsOpen || shopOpen || pauseOpen || modeConfirmOpen || debugOpen;
+    syncBackgroundMusic();
   }
 
   function closeModeConfirmModal() {
@@ -3950,6 +4094,7 @@
     updateHud();
     updateBossPanel();
     applyWorldTheme();
+    syncBackgroundMusic();
     showFeedback(l("Choisis un mode puis lance la partie.", "Choose a mode then start the game."), "");
   }
 
@@ -3967,6 +4112,7 @@
     closeModeConfirmModal();
     closeDebugModal();
     dom.titleScreen.classList.add("hidden");
+    syncBackgroundMusic();
     resetGame();
   }
 
@@ -4142,6 +4288,13 @@
       return;
     }
     setOperation(button.dataset.operation || OPERATIONS.MULTIPLICATION);
+  });
+
+  dom.audioSfxToggleBtn?.addEventListener("click", () => {
+    setAudioChannelEnabled("sfx", !state.audio.sfxEnabled);
+  });
+  dom.audioMusicToggleBtn?.addEventListener("click", () => {
+    setAudioChannelEnabled("music", !state.audio.musicEnabled);
   });
 
   dom.startBtn.addEventListener("click", startGame);
@@ -4356,6 +4509,8 @@
   loadDebugTuning();
   loadLeaderboard();
   preloadSfx();
+  preloadMusic();
+  syncBackgroundMusic();
   applyLocalizedStaticTexts();
   applyVisualStyle();
   renderDebugControls();
