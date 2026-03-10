@@ -219,7 +219,7 @@
     castleLevelOne: { volume: 0.44, loop: true }
   };
   const AUDIO_SFX_VOLUME_DEFAULT = 0.6;
-  const AUDIO_MUSIC_VOLUME_DEFAULT = 0.3;
+  const AUDIO_MUSIC_VOLUME_DEFAULT = 0;
   const ENEMY_AMBIENT_INTERVAL_MIN_MS = 1000;
   const ENEMY_AMBIENT_INTERVAL_MAX_MS = 3000;
   const FOREST_ENEMY_AMBIENT_SFX_KEYS = [
@@ -586,7 +586,7 @@
     },
     pendingModeChange: null,
     audio: {
-      sfxEnabled: true,
+      sfxEnabled: false,
       sfxVolume: AUDIO_SFX_VOLUME_DEFAULT,
       musicVolume: AUDIO_MUSIC_VOLUME_DEFAULT
     },
@@ -1283,7 +1283,7 @@
   function normalizeAudioSettings(rawValue) {
     if (!rawValue || typeof rawValue !== "object") {
       return {
-        sfxEnabled: true,
+        sfxEnabled: false,
         sfxVolume: AUDIO_SFX_VOLUME_DEFAULT,
         musicVolume: AUDIO_MUSIC_VOLUME_DEFAULT
       };
@@ -1574,7 +1574,7 @@
       state.equippedSkins = createDefaultEquippedSkins();
       state.shopCategory = SHOP_DEFAULT_CATEGORY;
       state.audio = {
-        sfxEnabled: true,
+        sfxEnabled: false,
         sfxVolume: AUDIO_SFX_VOLUME_DEFAULT,
         musicVolume: AUDIO_MUSIC_VOLUME_DEFAULT
       };
