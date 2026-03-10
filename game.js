@@ -220,6 +220,7 @@
   };
   const AUDIO_SFX_VOLUME_DEFAULT = 0.6;
   const AUDIO_MUSIC_VOLUME_DEFAULT = 0;
+  const AUDIO_MUSIC_VOLUME_LEGACY_DEFAULT = 0.3;
   const ENEMY_AMBIENT_INTERVAL_MIN_MS = 1000;
   const ENEMY_AMBIENT_INTERVAL_MAX_MS = 3000;
   const FOREST_ENEMY_AMBIENT_SFX_KEYS = [
@@ -1304,22 +1305,40 @@
     const legacyMusic = Number(legacyVolumes.castleLevelOne);
     const rawSfxVolume = Number(rawValue.sfxVolume);
     const rawMusicVolume = Number(rawValue.musicVolume);
-    const migratedMusicFallback = rawValue.musicEnabled === false
-      ? 0
-      : (Number.isFinite(legacyMusic) ? legacyMusic : AUDIO_MUSIC_VOLUME_DEFAULT);
+    const migratedMusicFallback = rawValue.musicEnabled === true && Number.isFinite(legacyMusic)
+      ? legacyMusic
+      : AUDIO_MUSIC_VOLUME_DEFAULT;
+    const normalizedSfxVolume = clamp(
+      Number.isFinite(rawSfxVolume) ? rawSfxVolume : legacySfxAverage,
+      0,
+      1
+    );
+    const normalizedMusicVolume = clamp(
+      Number.isFinite(rawMusicVolume) ? rawMusicVolume : migratedMusicFallback,
+      0,
+      1
+    );
+    const hasExplicitSfxEnabled = typeof rawValue.sfxEnabled === "boolean";
+    const normalizedSfxEnabled = hasExplicitSfxEnabled
+      ? rawValue.sfxEnabled
+      : false;
+    const isLegacyDefaultAudioSnapshot =
+      normalizedSfxEnabled === true &&
+      Math.abs(normalizedSfxVolume - AUDIO_SFX_VOLUME_DEFAULT) < 0.0001 &&
+      Math.abs(normalizedMusicVolume - AUDIO_MUSIC_VOLUME_LEGACY_DEFAULT) < 0.0001;
+
+    if (isLegacyDefaultAudioSnapshot) {
+      return {
+        sfxEnabled: false,
+        sfxVolume: AUDIO_SFX_VOLUME_DEFAULT,
+        musicVolume: AUDIO_MUSIC_VOLUME_DEFAULT
+      };
+    }
 
     return {
-      sfxEnabled: rawValue.sfxEnabled !== false,
-      sfxVolume: clamp(
-        Number.isFinite(rawSfxVolume) ? rawSfxVolume : legacySfxAverage,
-        0,
-        1
-      ),
-      musicVolume: clamp(
-        Number.isFinite(rawMusicVolume) ? rawMusicVolume : migratedMusicFallback,
-        0,
-        1
-      )
+      sfxEnabled: normalizedSfxEnabled,
+      sfxVolume: normalizedSfxVolume,
+      musicVolume: normalizedMusicVolume
     };
   }
 
