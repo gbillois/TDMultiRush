@@ -16,7 +16,7 @@ MultiplyRush TD has a **low overall risk profile** due to being a fully client-s
 | Critical | 0 |
 | High | 1 |
 | Medium | 6 |
-| Low | 8 |
+| Low | 11 |
 | Info | 6 |
 
 ---
@@ -138,11 +138,29 @@ While current matrix values are safe, this pattern is fragile. If a value contai
 
 **Recommendation:** Add basename validation to output paths.
 
-### L8 — Debug Panel Accessible in Production (game.js)
+### L8 — Debug Panel Accessible in Production (game.js:3817-3820)
 
-**Issue:** Debug tuning controls (world override, visual offsets) are always rendered and accessible. While they don't expose sensitive data, they could confuse users or be used to manipulate game state.
+**Issue:** Typing `888` on the in-game keypad opens the debug modal, exposing visual tuning controls, world override, and a JSON export of internal state. Any player can discover this.
 
-**Recommendation:** Consider hiding debug controls behind a secret gesture or environment flag.
+**Recommendation:** Gate behind a build flag or remove for production.
+
+### L9 — Cheat Codes Accessible in Production (game.js)
+
+**Issue:** Several keypad cheat codes are active in production:
+- `999` (line 3681) — Skips directly to the boss level
+- `777` (line 3877) — Grants 999 gold coins and unlocks shop progression
+- `555` (line 3822) — Forces bonus chest spawns every wave
+- `444` (line 3851) — Forces hero bonus spawns every wave
+
+These bypass the educational progression system, which undermines the app's purpose of teaching multiplication through gameplay.
+
+**Recommendation:** Remove or gate these behind a build/debug flag for production builds.
+
+### L10 — innerHTML Patterns with Internal Data (game.js:998, 1733-1752, 2346-2364, 2424-2441)
+
+**Issue:** Several `innerHTML` assignments use template literals with internally-derived values (numbers, hardcoded catalog names, localization strings). While not currently exploitable since all interpolated values come from constants, these patterns are fragile — any future change introducing external string data would create XSS vectors.
+
+**Recommendation:** Consider using DOM construction APIs (createElement/textContent) for defense-in-depth, especially in the shop grid where attribute values are interpolated.
 
 ---
 
