@@ -1639,6 +1639,15 @@
     safeStorageSet(DEBUG_TUNING_KEY, JSON.stringify(state.debugTuning));
   }
 
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   function sanitizePlayerName(rawName) {
     const normalized = String(rawName || "")
       .replace(/\s+/g, " ")
@@ -1711,7 +1720,7 @@
       ? filtered
       .map(
         (entry) =>
-          `<li>${entry.champion ? "👑 " : ""}${entry.name} - ${entry.score} ${l("pts", "pts")} (${l("V", "W")}${entry.wave}, ${modeLabel(entry.mode)})</li>`
+          `<li>${entry.champion ? "👑 " : ""}${escapeHtml(entry.name)} - ${entry.score} ${l("pts", "pts")} (${l("V", "W")}${entry.wave}, ${modeLabel(entry.mode)})</li>`
       )
       .join("")
       : `<li>${l("Aucun score enregistré.", "No score saved yet.")}</li>`;
